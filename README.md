@@ -72,7 +72,6 @@ crossplane-docs composition composition.yaml --show-patches=false
 - Field mapping tables showing XRD field → managed resource field
 - Transformation details (direct copy, string formatting, etc.)
 - Resource inventory (what gets provisioned)
-```
 
 ### Generate documentation to a file
 
