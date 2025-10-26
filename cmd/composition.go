@@ -62,7 +62,7 @@ func runComposition(cmd *cobra.Command, args []string) error {
 	if compOutputFile == "" {
 		fmt.Println(markdown)
 	} else {
-		if err := os.WriteFile(compOutputFile, []byte(markdown), 0644); err != nil {
+		if err := os.WriteFile(compOutputFile, []byte(markdown), 0o644); err != nil {
 			return fmt.Errorf("failed to write output file: %w", err)
 		}
 		fmt.Printf("Documentation generated successfully: %s\n", compOutputFile)

@@ -27,10 +27,10 @@ func New() *Generator {
 
 // XRD represents a simplified Crossplane CompositeResourceDefinition
 type XRD struct {
-	APIVersion string        `yaml:"apiVersion"`
-	Kind       string        `yaml:"kind"`
+	APIVersion string            `yaml:"apiVersion"`
+	Kind       string            `yaml:"kind"`
 	Metadata   metav1.ObjectMeta `yaml:"metadata"`
-	Spec       XRDSpec       `yaml:"spec"`
+	Spec       XRDSpec           `yaml:"spec"`
 }
 
 // XRDSpec contains the XRD specification
@@ -50,10 +50,10 @@ type XRDNames struct {
 
 // XRDVersion represents a version in the XRD
 type XRDVersion struct {
-	Name              string                 `yaml:"name"`
-	Served            bool                   `yaml:"served"`
-	Referenceable     bool                   `yaml:"referenceable"`
-	Schema            XRDVersionSchema       `yaml:"schema"`
+	Name                     string                   `yaml:"name"`
+	Served                   bool                     `yaml:"served"`
+	Referenceable            bool                     `yaml:"referenceable"`
+	Schema                   XRDVersionSchema         `yaml:"schema"`
 	AdditionalPrinterColumns []map[string]interface{} `yaml:"additionalPrinterColumns,omitempty"`
 }
 
@@ -64,17 +64,17 @@ type XRDVersionSchema struct {
 
 // OpenAPISchema represents the OpenAPI v3 schema
 type OpenAPISchema struct {
-	Type        string                   `yaml:"type"`
-	Description string                   `yaml:"description,omitempty"`
-	Properties  map[string]OpenAPISchema `yaml:"properties,omitempty"`
-	Items       *OpenAPISchema           `yaml:"items,omitempty"`
-	Required    []string                 `yaml:"required,omitempty"`
-	Default     interface{}              `yaml:"default,omitempty"`
-	Enum        []interface{}            `yaml:"enum,omitempty"`
-	Minimum     *float64                 `yaml:"minimum,omitempty"`
-	Maximum     *float64                 `yaml:"maximum,omitempty"`
-	MinItems    *int                     `yaml:"minItems,omitempty"`
-	MaxItems    *int                     `yaml:"maxItems,omitempty"`
+	Type                   string                   `yaml:"type"`
+	Description            string                   `yaml:"description,omitempty"`
+	Properties             map[string]OpenAPISchema `yaml:"properties,omitempty"`
+	Items                  *OpenAPISchema           `yaml:"items,omitempty"`
+	Required               []string                 `yaml:"required,omitempty"`
+	Default                interface{}              `yaml:"default,omitempty"`
+	Enum                   []interface{}            `yaml:"enum,omitempty"`
+	Minimum                *float64                 `yaml:"minimum,omitempty"`
+	Maximum                *float64                 `yaml:"maximum,omitempty"`
+	MinItems               *int                     `yaml:"minItems,omitempty"`
+	MaxItems               *int                     `yaml:"maxItems,omitempty"`
 	XKubernetesValidations []map[string]interface{} `yaml:"x-kubernetes-validations,omitempty"`
 }
 
@@ -125,7 +125,7 @@ func (g *Generator) Generate(xrd *XRD, opts Options) (string, error) {
 
 	// Extract spec fields
 	specFields := g.extractFields(version.Schema.OpenAPIV3Schema, "spec", []string{}, 0, opts.ShowNested)
-	
+
 	// Always include status fields (they're part of the API!)
 	statusFields := g.extractFields(version.Schema.OpenAPIV3Schema, "status", []string{}, 0, opts.ShowNested)
 

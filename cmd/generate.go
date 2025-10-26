@@ -60,7 +60,7 @@ func runXRD(cmd *cobra.Command, args []string) error {
 	if outputFile == "" {
 		fmt.Println(markdown)
 	} else {
-		if err := os.WriteFile(outputFile, []byte(markdown), 0644); err != nil {
+		if err := os.WriteFile(outputFile, []byte(markdown), 0o644); err != nil {
 			return fmt.Errorf("failed to write output file: %w", err)
 		}
 		fmt.Printf("Documentation generated successfully: %s\n", outputFile)

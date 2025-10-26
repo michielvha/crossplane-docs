@@ -94,10 +94,10 @@ type StringFmt struct {
 
 // ConnectionDetail represents a connection secret detail
 type ConnectionDetail struct {
-	Name                      string `yaml:"name"`
-	Type                      string `yaml:"type,omitempty"`
-	FromConnectionSecretKey   string `yaml:"fromConnectionSecretKey,omitempty"`
-	FromFieldPath             string `yaml:"fromFieldPath,omitempty"`
+	Name                    string `yaml:"name"`
+	Type                    string `yaml:"type,omitempty"`
+	FromConnectionSecretKey string `yaml:"fromConnectionSecretKey,omitempty"`
+	FromFieldPath           string `yaml:"fromFieldPath,omitempty"`
 }
 
 // ManagedResource represents a documented managed resource
@@ -344,7 +344,7 @@ func getString(m map[string]interface{}, key string) string {
 func getStringFromMap(m map[string]interface{}, key string) string {
 	keys := strings.Split(key, ".")
 	current := m
-	
+
 	for i, k := range keys {
 		if i == len(keys)-1 {
 			if v, ok := current[k].(string); ok {
