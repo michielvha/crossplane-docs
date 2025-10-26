@@ -12,7 +12,6 @@ A terraform-docs style documentation generator for Crossplane resources.
 - Always documents both spec and status fields
 - Show required/optional fields with visual indicators
 - Display defaults, constraints, and validations
-- Standalone CLI tool - no Crossplane cluster required
 
 ## Installation
 
@@ -102,15 +101,6 @@ The tool generates markdown tables with:
 - **CLI Framework:** [Cobra](https://github.com/spf13/cobra)
 - **YAML Parsing:** gopkg.in/yaml.v3
 - **Kubernetes Types:** k8s.io/apimachinery
-
-## Roadmap
-
-- [x] Basic XRD parsing
-- [x] Markdown table generation
-- [x] CLI with Cobra
-- [ ] Support for nested objects
-- [ ] Status field documentation
-- [ ] Multiple output formats (JSON, YAML)
 
 ## Acknowledgments
 
