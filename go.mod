@@ -1,4 +1,4 @@
-module github.com/michielvha/crossplane-xrd-docs
+module github.com/michielvha/crossplane-docs
 
 go 1.24.3
 

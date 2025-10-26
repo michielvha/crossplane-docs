@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/michielvha/crossplane-xrd-docs/cmd"
+	"github.com/michielvha/crossplane-docs/cmd"
 )
 
 func main() {

@@ -16,13 +16,13 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "crossplane-xrd-docs",
-	Short: "Generate documentation for Crossplane XRDs",
-	Long: `crossplane-xrd-docs is a CLI tool that generates terraform-docs style 
-markdown documentation from Crossplane XRD (CompositeResourceDefinition) files.
+	Use:   "crossplane-docs",
+	Short: "Generate documentation for Crossplane resources",
+	Long: `crossplane-docs generates terraform-docs style markdown documentation 
+for Crossplane resources including XRDs, Compositions, and more.
 
-It parses the OpenAPI v3 schema from XRD YAML files and outputs formatted
-markdown tables with field names, types, descriptions, defaults, and validation rules.`,
+Parse OpenAPI schemas and resource definitions to create clean, readable
+documentation tables with field names, types, descriptions, defaults, and validations.`,
 	Version: fmt.Sprintf("%s (commit: %s, built: %s)", version, commit, date),
 }
 

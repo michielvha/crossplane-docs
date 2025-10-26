@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/michielvha/crossplane-xrd-docs/pkg/generator"
+	"github.com/michielvha/crossplane-docs/pkg/generator"
 	"github.com/spf13/cobra"
 )
 
@@ -13,33 +13,33 @@ var (
 	showNested bool
 )
 
-// generateCmd represents the generate command
-var generateCmd = &cobra.Command{
-	Use:   "generate [xrd-file]",
+// xrdCmd represents the xrd command
+var xrdCmd = &cobra.Command{
+	Use:   "xrd [xrd-file]",
 	Short: "Generate documentation from an XRD file",
-	Long: `Generate markdown documentation from a Crossplane XRD YAML file.
+	Long: `Generate markdown documentation from a Crossplane XRD (CompositeResourceDefinition) YAML file.
 
 Examples:
   # Generate docs and print to stdout
-  crossplane-xrd-docs generate xrd.yaml
+  crossplane-docs xrd xrd.yaml
 
   # Generate docs and save to file
-  crossplane-xrd-docs generate xrd.yaml -o README.md
+  crossplane-docs xrd xrd.yaml -o README.md
   
   # Hide nested object structures (if you want a flatter view)
-  crossplane-xrd-docs generate xrd.yaml --show-nested=false`,
+  crossplane-docs xrd xrd.yaml --show-nested=false`,
 	Args: cobra.ExactArgs(1),
-	RunE: runGenerate,
+	RunE: runXRD,
 }
 
 func init() {
-	rootCmd.AddCommand(generateCmd)
+	rootCmd.AddCommand(xrdCmd)
 
-	generateCmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file (default: stdout)")
-	generateCmd.Flags().BoolVar(&showNested, "show-nested", true, "Show nested object structures")
+	xrdCmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output file (default: stdout)")
+	xrdCmd.Flags().BoolVar(&showNested, "show-nested", true, "Show nested object structures")
 }
 
-func runGenerate(cmd *cobra.Command, args []string) error {
+func runXRD(cmd *cobra.Command, args []string) error {
 	xrdFile := args[0]
 
 	// Check if file exists
