@@ -3,7 +3,7 @@ module github.com/michielvha/crossplane-docs
 go 1.24.3
 
 require (
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/cobra v1.10.2
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.34.2
 )
