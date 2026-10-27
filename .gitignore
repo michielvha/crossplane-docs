@@ -34,3 +34,6 @@ Thumbs.db
 
 # Example outputs
 EXAMPLE_OUTPUT.md
+
+# Formatter test dependencies
+node_modules/

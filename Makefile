@@ -1,4 +1,4 @@
-.PHONY: build test clean install lint help check examples run-example
+.PHONY: build test clean install lint help check examples run-example integration formats
 
 # Build variables
 BINARY_NAME=crossplane-docs
@@ -18,6 +18,12 @@ install: ## Install the binary
 
 test: ## Run tests
 	go test -race -cover ./...
+
+integration: ## Run the pinned real-render and schema validation matrix (Docker required)
+	go run ./scripts/verify-render
+
+formats: ## Check HTML in Chromium and convert AsciiDoc
+	bun test --cwd tests/format
 
 lint: ## Run linters
 	golangci-lint config verify

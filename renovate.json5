@@ -1,6 +1,25 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: ['config:recommended', 'helpers:pinGitHubActionDigests'],
+  customManagers: [
+    {
+      customType: 'regex',
+      managerFilePatterns: ['/(^|/)examples/platform/functions\.yaml$/'],
+      matchStrings: ['package: (?<depName>[^\\s]+?):(?<currentValue>[^\\s@]+)@(?<currentDigest>sha256:[a-f0-9]+)'],
+      datasourceTemplate: 'docker',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: ['/\.go$/', '/tests/render/cases\.yaml$/'],
+      matchStrings: ['(?:DefaultCrossplaneImage|fixtureRegistryImage)\\s*=\\s*"(?<depName>[^\\s"]+?):(?<currentValue>[^\\s"@]+)@(?<currentDigest>sha256:[a-f0-9]+)"', 'image: (?<depName>[^\\s]+?):(?<currentValue>[^\\s@]+)@(?<currentDigest>sha256:[a-f0-9]+)'],
+      datasourceTemplate: 'docker',
+    },
+    {
+      customType: 'regex',
+      managerFilePatterns: ['/tests/render/cases\.yaml$/'],
+      matchStrings: ['# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)\\s+version: (?<currentValue>[^\\s]+)'],
+    },
+  ],
   packageRules: [
     {
       matchManagers: ['github-actions'],
