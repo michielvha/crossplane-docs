@@ -235,23 +235,40 @@ remote tag changes require explicit shipping authorization.
 
 ## Acceptance Criteria
 
-- [ ] AC-01: Users can document v1/v2 XRD metadata and select a named version or all versions; an unknown version fails explicitly.
-- [ ] AC-02: Nested objects, array items, maps and referenced schemas produce deterministic paths, correct parent-relative required markers and lossless defaults; missing references fail and recursive schemas terminate with an explicit reference marker.
-- [ ] AC-03: Documentation includes numeric/string/list constraints, enums, formats, Kubernetes list/map metadata, CEL rules/messages and schema alternatives without claiming unexecuted validation.
-- [ ] AC-04: Composition references expand patch sets and document direction, combine inputs, readable transform chains, policies, readiness, connection details and environment inputs; invalid patch-set references fail.
-- [ ] AC-05: Every pipeline step and source is documented, including unknown function inputs, without presenting an incomplete declared inventory as complete runtime output.
-- [ ] AC-06: Explicit rendering and saved rendered YAML produce scenario-labelled resource/status documentation; observed/required resources, schemas and context reach the real renderer, while failures/timeouts preserve existing output.
-- [ ] AC-07: Every advertised Go-templating source and behavior in the scenario matrix has a runnable example and passing real-render-to-documentation test, including failure cases.
-- [ ] AC-08: Every advertised KCL source and target has a runnable example and passing real-render-to-documentation test, including failure cases.
-- [ ] AC-09: CUE, Python and a custom function unknown to source adapters have passing real-render-to-documentation tests with successful and failing scenarios.
-- [ ] AC-10: Mixed-pipeline create/update examples prove shared context, conditional/repeated resources, mocked observed state and readiness/status behavior through real rendering and resulting documentation.
-- [ ] AC-11: Markdown, offline HTML, AsciiDoc, JSON, YAML and custom templates render the same shared model correctly, with format-appropriate escaping and a tested structured-data contract.
-- [ ] AC-12: Configuration controls sections, columns, layout, sorting, nesting, descriptions, anchors, styling, headers/footers and output; explicit flags win and invalid configuration fails.
-- [ ] AC-13: File/directory/bundle generation supports deterministic discovery and resource matching, catches collisions and malformed supported inputs, and retains existing single-resource commands.
-- [ ] AC-14: Replace and marker-injection output preserve unrelated content and resist partial writes; repeated injection is identical and check mode distinguishes current, drift and failure without writing.
-- [ ] AC-15: Every advertised capability maps to a tested runnable example, and mandatory CI executes the full renderer matrix and formatter checks before any release tag can be created.
-- [ ] AC-16: A local six-target release snapshot has verified archive contents, checksums and version metadata; local checksum signing verifies successfully, and release workflow contract checks require the exact checked tag and protect existing assets.
-- [ ] AC-17: Optional upstream schema/CEL validation accepts valid supplied/rendered examples, rejects invalid fields, constraints and CEL rules, fails for missing required schemas, and includes real validator tests in mandatory CI.
+- [x] AC-01: Users can document v1/v2 XRD metadata and select a named version or all versions; an unknown version fails explicitly.
+      Evidence: At `7749946`, `make check` passed version-selection and v1/v2 schema regression tests, including unknown-version failures. Independently confirmed by R-4.
+- [x] AC-02: Nested objects, array items, maps and referenced schemas produce deterministic paths, correct parent-relative required markers and lossless defaults; missing references fail and recursive schemas terminate with an explicit reference marker.
+      Evidence: At `7749946`, `make check` passed nested path, parent-relative required, default, local/file-reference and cycle regression tests. Independently confirmed by R-4.
+- [x] AC-03: Documentation includes numeric/string/list constraints, enums, formats, Kubernetes list/map metadata, CEL rules/messages and schema alternatives without claiming unexecuted validation.
+      Evidence: At `7749946`, `make check` passed schema metadata and formatter tests for constraints, CEL and schema alternatives. Independently confirmed by R-4.
+- [x] AC-04: Composition references expand patch sets and document direction, combine inputs, readable transform chains, policies, readiness, connection details and environment inputs; invalid patch-set references fail.
+      Evidence: At `7749946`, `make check` and the real patch-and-transform case passed patch-set, mapping, transform, policy and connection assertions. Independently confirmed by R-4.
+- [x] AC-05: Every pipeline step and source is documented, including unknown function inputs, without presenting an incomplete declared inventory as complete runtime output.
+      Evidence: At `7749946`, `make check` and the real unknown-adapter case passed; custom resources stay opaque and pipeline order/provenance are preserved. Independently confirmed by R-4.
+- [x] AC-06: Explicit rendering and saved rendered YAML produce scenario-labelled resource/status documentation; observed/required resources, schemas and context reach the real renderer, while failures/timeouts preserve existing output.
+      Evidence: At `7749946`, `make check` and `go run ./scripts/verify-render` passed saved-output, renderer failure/timeout, consumed mock resource/schema and context checks. Independently confirmed by R-4.
+- [x] AC-07: Every advertised Go-templating source and behavior in the scenario matrix has a runnable example and passing real-render-to-documentation test, including failure cases.
+      Evidence: At `7749946`, `go run ./scripts/verify-render` passed all Go-template sources and behavior variants, all five documentation formats and invalid-program checks. Independently confirmed by R-4.
+- [x] AC-08: Every advertised KCL source and target has a runnable example and passing real-render-to-documentation test, including failure cases.
+      Evidence: At `7749946`, `go run ./scripts/verify-render` passed inline, filesystem, OCI, all five KCL targets, parameter/mock inputs and invalid programs through documentation generation. Independently confirmed by R-4.
+- [x] AC-09: CUE, Python and a custom function unknown to source adapters have passing real-render-to-documentation tests with successful and failing scenarios.
+      Evidence: At `7749946`, `go run ./scripts/verify-render` passed CUE, Python and custom-adapter success/failure scenarios and output-preservation assertions. Independently confirmed by R-4.
+- [x] AC-10: Mixed-pipeline create/update examples prove shared context, conditional/repeated resources, mocked observed state and readiness/status behavior through real rendering and resulting documentation.
+      Evidence: At `7749946`, `go run ./scripts/verify-render` passed mixed create/update resource, context, observed-patch, Pending/Ready and readiness-condition assertions in rendered documentation. Independently confirmed by R-4.
+- [x] AC-11: Markdown, offline HTML, AsciiDoc, JSON, YAML and custom templates render the same shared model correctly, with format-appropriate escaping and a tested structured-data contract.
+      Evidence: At `7749946`, `make check` passed shared-model and template regressions; `bun test --cwd tests/format` passed offline desktop/mobile HTML, Asciidoctor and HTML-escaping checks. Independently confirmed by R-4.
+- [x] AC-12: Configuration controls sections, columns, layout, sorting, nesting, descriptions, anchors, styling, headers/footers and output; explicit flags win and invalid configuration fails.
+      Evidence: At `7749946`, `make check` passed configuration, discovery, relative-path, presentation and explicit-flag override tests, including malformed configuration rejection. Independently confirmed by R-4.
+- [x] AC-13: File/directory/bundle generation supports deterministic discovery and resource matching, catches collisions and malformed supported inputs, and retains existing single-resource commands.
+      Evidence: At `7749946`, `make check` passed deterministic discovery, bundles, collisions, identity matching, malformed supported inputs and command compatibility checks. Independently confirmed by R-4.
+- [x] AC-14: Replace and marker-injection output preserve unrelated content and resist partial writes; repeated injection is identical and check mode distinguishes current, drift and failure without writing.
+      Evidence: At `7749946`, `make check` and the actual CLI integration tests passed injection, atomic output, idempotence and all accepted boolean check forms with failure exit 2. Independently confirmed by R-4.
+- [x] AC-15: Every advertised capability maps to a tested runnable example, and mandatory CI executes the full renderer matrix and formatter checks before any release tag can be created.
+      Evidence: At `7749946`, The full mandatory renderer matrix passed in 362.400s without skips. R-4 verified formatter/render prerequisites and the pinned exact-commit version workflow. Independently confirmed by R-4.
+- [x] AC-16: A local six-target release snapshot has verified archive contents, checksums and version metadata; local checksum signing verifies successfully, and release workflow contract checks require the exact checked tag and protect existing assets.
+      Evidence: At `7749946`, `goreleaser check` and a signed local six-target snapshot passed. R-4 verified SHA-256, archive contents, version 7749946, checksum signature and pinned release contracts; no publication ran. Independently confirmed by R-4.
+- [x] AC-17: Optional upstream schema/CEL validation accepts valid supplied/rendered examples, rejects invalid fields, constraints and CEL rules, fails for missing required schemas, and includes real validator tests in mandatory CI.
+      Evidence: At `7749946`, `go run ./scripts/verify-render` passed real supplied/rendered validation plus invalid field type, CEL, pattern, unknown-field and missing-schema rejection. Independently confirmed by R-4.
 
 ## Test Plan
 
@@ -274,20 +291,20 @@ remote tag changes require explicit shipping authorization.
 
 ## Tasks
 
-- [ ] T1 `tests/render/cases.yaml`, `examples/` - resolve and pin actual runtime versions/variants and add complete shared scenarios; fixture validation succeeds (AC-07, AC-08, AC-09, AC-10, AC-15).
-- [ ] T2 `pkg/generator/generator_test.go`, `cmd/root_test.go` - add failing version/schema/default/reference scenarios; failures identify the missing behavior (AC-01, AC-02, AC-03).
-- [ ] T3 `pkg/generator/generator.go`, `internal/model/`, `cmd/generate.go` - implement shared schema extraction and version selection; T2 passes (AC-01, AC-02, AC-03).
-- [ ] T4 `pkg/composition/composition_test.go`, `tests/render/render_test.go` - add failing patch/reference and pipeline scenario assertions (AC-04, AC-05, AC-06).
-- [ ] T5 `pkg/composition/composition.go`, `internal/model/`, `internal/render/` - implement source references, patch expansion and the generic renderer; T4 passes (AC-04, AC-05, AC-06).
-- [ ] T6 `tests/render/render_test.go`, `examples/` - execute the complete matrix with real runtimes and assert generated documentation; every required scenario passes without skips (AC-07, AC-08, AC-09, AC-10).
-- [ ] T7 `internal/format/`, `internal/config/`, `cmd/root_test.go` - add failing tests for every formatter, customization and configuration rule (AC-11, AC-12).
-- [ ] T8 `internal/format/`, `internal/config/`, `cmd/` - implement the formatters, configuration and template contracts; T7 passes (AC-11, AC-12).
-- [ ] T9 `cmd/root_test.go`, `internal/document/` - add failing discovery, bundle, injection, output-preservation and drift tests (AC-13, AC-14).
-- [ ] T10 `cmd/`, `internal/document/` - implement batch generation and output modes; T9 passes (AC-13, AC-14).
-- [ ] T13 `tests/render/render_test.go`, `internal/render/` - add failing validator/CLI scenarios for valid, invalid and missing-schema inputs (AC-17).
-- [ ] T14 `internal/render/`, `cmd/` - implement the explicit upstream validation mode; T13 passes against the real validator (AC-17).
-- [ ] T11 `.github/workflows/ci.yml`, `scripts/`, `Makefile`, `renovate.json5` - require the real-render, validator and formatter suites before versioning; the intentional-failure CI check blocks tagging (AC-15, AC-17).
-- [ ] T12 `.goreleaser.yml`, `README.md`, `examples/` - verify six-target snapshots, document only tested support and exact release behavior, and verify local signing and release workflow contracts (AC-15, AC-16).
+- [x] T1 `tests/render/cases.yaml`, `examples/` - resolve and pin actual runtime versions/variants and add complete shared scenarios; fixture validation succeeds (AC-07, AC-08, AC-09, AC-10, AC-15).
+- [x] T2 `pkg/generator/generator_test.go`, `cmd/root_test.go` - add failing version/schema/default/reference scenarios; failures identify the missing behavior (AC-01, AC-02, AC-03).
+- [x] T3 `pkg/generator/generator.go`, `internal/engine/`, `cmd/generate.go` - implement shared schema extraction and version selection; T2 passes (AC-01, AC-02, AC-03).
+- [x] T4 `pkg/composition/composition_test.go`, `tests/render/render_test.go` - add failing patch/reference and pipeline scenario assertions (AC-04, AC-05, AC-06).
+- [x] T5 `pkg/composition/composition.go`, `internal/engine/`, `internal/engine/render.go` - implement source references, patch expansion and the generic renderer; T4 passes (AC-04, AC-05, AC-06).
+- [x] T6 `tests/render/render_test.go`, `examples/` - execute the complete matrix with real runtimes and assert generated documentation; every required scenario passes without skips (AC-07, AC-08, AC-09, AC-10).
+- [x] T7 `internal/engine/format.go`, `internal/engine/config.go`, `cmd/root_test.go` - add failing tests for every formatter, customization and configuration rule (AC-11, AC-12).
+- [x] T8 `internal/engine/format.go`, `internal/engine/config.go`, `cmd/` - implement the formatters, configuration and template contracts; T7 passes (AC-11, AC-12).
+- [x] T9 `cmd/root_test.go`, `internal/engine/output.go` - add failing discovery, bundle, injection, output-preservation and drift tests (AC-13, AC-14).
+- [x] T10 `cmd/`, `internal/engine/output.go` - implement batch generation and output modes; T9 passes (AC-13, AC-14).
+- [x] T13 `tests/render/render_test.go`, `internal/engine/render.go` - add failing validator/CLI scenarios for valid, invalid and missing-schema inputs (AC-17).
+- [x] T14 `internal/engine/render.go`, `cmd/` - implement the explicit upstream validation mode; T13 passes against the real validator (AC-17).
+- [x] T11 `.github/workflows/ci.yml`, `scripts/`, `Makefile`, `renovate.json5` - require the real-render, validator and formatter suites before versioning; the intentional-failure CI check blocks tagging (AC-15, AC-17).
+- [x] T12 `.goreleaser.yml`, `README.md`, `examples/` - verify six-target snapshots, document only tested support and exact release behavior, and verify local signing and release workflow contracts (AC-15, AC-16).
 
 ## Open Questions
 
@@ -303,6 +320,7 @@ baseline is separate from agreement on these individual requirements.
 | 2026-10-27 | R-2 | spec | `b435db6` | unknown | procedural | No findings; model identity not attested. |
 | 2026-10-27 | R-2 | spec | `b435db6` | n/a | n/a | accepted by owner |
 | 2026-10-27 | R-3 | implementation | `1a22ab9` | unknown | procedural | Unknown inputs, check exit codes and scenario evidence need fixes. |
+| 2026-10-27 | R-4 | implementation | `7749946` | unknown | procedural | All 17 criteria met; no findings. Model identity not attested. |
 
 ### R-1
 
@@ -414,6 +432,76 @@ SEVERITY: blocking
 WHERE: cmd/root.go:39
 EVIDENCE: pflag accepts --check=TRUE and --check=1, but Execute detects check mode only by scanning for --check or --check=true. A missing input therefore returns drift code 1 for these accepted forms instead of failure code 2.
 PROPOSAL: Determine check mode from the parsed command flag or use a typed exit classification. Add binary-level tests for accepted boolean forms and invalid input.
+
+### R-4
+
+CRITERION: AC-01 Users can document v1/v2 XRD metadata and select a named version or all versions; an unknown version fails explicitly.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh race tests for cmd, generator and engine passed. Version-selection tests cover named, all and unknown versions; CLI JSON inspection confirmed version metadata and scope.
+
+CRITERION: AC-02 Nested objects, array items, maps and referenced schemas produce deterministic paths, correct parent-relative required markers and lossless defaults; missing references fail and recursive schemas terminate with an explicit reference marker.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh reference, file-reference, default and generator tests passed. Inspected sorted traversal, parent-relative required lookup and cycle markers; generated JSON includes nested array and map paths.
+
+CRITERION: AC-03 Documentation includes numeric/string/list constraints, enums, formats, Kubernetes list/map metadata, CEL rules/messages and schema alternatives without claiming unexecuted validation.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh schema/formatter tests passed. Inspected preservation and formatting of numeric, string, list, Kubernetes, CEL and alternative-schema metadata; generation does not mark scenarios validated by default.
+
+CRITERION: AC-04 Composition references expand patch sets and document direction, combine inputs, readable transform chains, policies, readiness, connection details and environment inputs; invalid patch-set references fail.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh composition tests passed. Generated patch-and-transform JSON expands patch sets and retains direction, combine, transform chains, policies, readiness and connection details; inspected environment formatting and reference-error handling.
+
+CRITERION: AC-05 Every pipeline step and source is documented, including unknown function inputs, without presenting an incomplete declared inventory as complete runtime output.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh unknown-input regression passed. Independently ran the candidate binary with custom resources: [alpha, beta]; generation succeeded and retained the opaque input. Inspected ordered steps and declared-inventory provenance.
+
+CRITERION: AC-06 Explicit rendering and saved rendered YAML produce scenario-labelled resource/status documentation; observed/required resources, schemas and context reach the real renderer, while failures/timeouts preserve existing output.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed complete passing real-render log, including distributed CLI, mock inputs, required-resource consumption and required-schema consumption. Fresh saved-output/failure tests passed; inspected timeout handling and generation before file replacement.
+
+CRITERION: AC-07 Every advertised Go-templating source and behavior in the scenario matrix has a runnable example and passing real-render-to-documentation test, including failure cases.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed passing real-render tests for inline/template-list, environment, filesystem, condition, loop, required-resource, status and invalid-program cases. The common render helper checks scenario inventory and values through all five formatters and exact JSON scenario round trips.
+
+CRITERION: AC-08 Every advertised KCL source and target has a runnable example and passing real-render-to-documentation test, including failure cases.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed passing inline, filesystem and OCI-package render tests, all five KCL targets, mock/custom parameters and invalid-program cases. Inspected the common render-to-documentation assertions used by every successful variant.
+
+CRITERION: AC-09 CUE, Python and a custom function unknown to source adapters have passing real-render-to-documentation tests with successful and failing scenarios.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed passing CUE, Python and unknown-adapter success cases, plus invalid CUE/Python/custom programs. Successful cases run all five documentation formatters; failing cases execute the CLI and verify existing output remains intact.
+
+CRITERION: AC-10 Mixed-pipeline create/update examples prove shared context, conditional/repeated resources, mocked observed state and readiness/status behavior through real rendering and resulting documentation.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed passing mixed create/update tests. Assertions verify shared environment values, changing resource inventories, observed-region patches, Pending/Ready phase, resourceCount and Ready conditions; both scenarios also pass the common documentation assertions.
+
+CRITERION: AC-11 Markdown, offline HTML, AsciiDoc, JSON, YAML and custom templates render the same shared model correctly, with format-appropriate escaping and a tested structured-data contract.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh five-format and structured round-trip tests passed. Inspected completed formatter log: offline desktop/mobile HTML, Asciidoctor conversion and custom HTML escaping all passed, with 16 assertions. Production HTML has embedded styles and accessible table headers.
+
+CRITERION: AC-12 Configuration controls sections, columns, layout, sorting, nesting, descriptions, anchors, styling, headers/footers and output; explicit flags win and invalid configuration fails.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh config and CLI tests passed, including explicit false overrides, path handling and unknown-key rejection. Inspected section/column, layout, sorting, nesting, descriptions, anchors, styles and header/footer handling.
+
+CRITERION: AC-13 File/directory/bundle generation supports deterministic discovery and resource matching, catches collisions and malformed supported inputs, and retains existing single-resource commands.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh discovery, duplicate-identity, document and command tests passed. Inspected stable discovery/document order, API identity matching, symlink exclusion and strict single-resource commands; final fixtures are semantically equal to the previously tested formatting.
+
+CRITERION: AC-14 Replace and marker-injection output preserve unrelated content and resist partial writes; repeated injection is identical and check mode distinguishes current, drift and failure without writing.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, fresh injection and output-safety tests passed. Independently executed the final candidate binary with --check, --check=true, --check=TRUE and --check=1 against missing input; each returned 2. Inspected temporary-file replacement and byte-preserving marker handling.
+
+CRITERION: AC-15 Every advertised capability maps to a tested runnable example, and mandatory CI executes the full renderer matrix and formatter checks before any release tag can be created.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed complete mandatory real-render matrix PASS, including source variants, targets, validation, invalid programs and versioning-contract test. Inspected CI: formatter and renderer commands must succeed in verify before version runs. Independently fetched the pinned shared version workflow and confirmed tagging uses the checked commit.
+
+CRITERION: AC-16 A local six-target release snapshot has verified archive contents, checksums and version metadata; local checksum signing verifies successfully, and release workflow contract checks require the exact checked tag and protect existing assets.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, independently verified six final snapshot archives, SHA-256 checksums, LICENSE/README/executable contents and candidate version metadata. GPG reported a good temporary-key checksum signature. Independently fetched pinned shared workflows and inspected exact-tag checkout, chained version output, signing and local asset-immutability settings. No live publication was performed.
+
+CRITERION: AC-17 Optional upstream schema/CEL validation accepts valid supplied/rendered examples, rejects invalid fields, constraints and CEL rules, fails for missing required schemas, and includes real validator tests in mandatory CI.
+VERDICT: met
+EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed TestRealSchemaValidation passing for supplied and rendered valid resources and invalid field type, CEL, pattern, unknown field and missing-schema cases. Inspected mandatory CI invocation and validator error propagation before documentation output.
 
 ## Sources
 
