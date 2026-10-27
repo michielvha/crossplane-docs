@@ -1,6 +1,7 @@
 ---
-status: planned
-status_description: "Independent spec review passed and owner authorized implementation."
+status: in-progress
+status_description: "Implementing the accepted v0.2.0 scope and its real-render test matrix."
+branch: feat/v0.2.0
 issue: null
 goal: "Generate configurable, tested documentation for Crossplane APIs and composition pipelines in one v0.2.0 release."
 covers:
