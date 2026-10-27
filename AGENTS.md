@@ -21,10 +21,13 @@ Feature documents: docs/specs/
   golangci-lint v2.15.0, matching the shared Go CI action.
 - `actionlint .github/workflows/ci.yml` checks the workflow.
 - `goreleaser check` checks release configuration with GoReleaser v2.18.3.
+- `make integration` executes the real renderer matrix with Docker and verifies the pinned CLI.
+- `make formats` runs offline Chromium and Asciidoctor checks using the locked Bun dependencies in `tests/format/`.
 - `make examples` deliberately refreshes the expected Markdown. Review those
   diffs before accepting an output change.
 
 Keep the public `pkg/generator` and `pkg/composition` APIs and the root Go entry
-point while maintaining existing behavior. Fixtures and expected outputs live in
-`examples/` and require no network services. Input must not be silently truncated
+point while maintaining existing behavior. Static fixtures and expected outputs live in `examples/`. Real render tests use
+Docker and the verified package pins in `tests/render/cases.yaml`; they require no
+live cluster, provider or cloud account. Input must not be silently truncated
 to the first document in a YAML bundle.
