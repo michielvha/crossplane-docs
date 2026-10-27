@@ -302,6 +302,7 @@ baseline is separate from agreement on these individual requirements.
 | 2026-10-27 | R-1 | spec | `d9a09ca` | unknown | procedural | Blocking publication prerequisite corrected in the next revision. |
 | 2026-10-27 | R-2 | spec | `b435db6` | unknown | procedural | No findings; model identity not attested. |
 | 2026-10-27 | R-2 | spec | `b435db6` | n/a | n/a | accepted by owner |
+| 2026-10-27 | R-3 | implementation | `1a22ab9` | unknown | procedural | Unknown inputs, check exit codes and scenario evidence need fixes. |
 
 ### R-1
 
@@ -315,6 +316,104 @@ PROPOSAL: Make AC-16 completion depend on local snapshot, checksum, version, sig
 ### R-2
 
 NO FINDINGS
+
+### R-3
+
+CRITERION: AC-01 Users can document v1/v2 XRD metadata and select a named version or all versions; an unknown version fails explicitly.
+VERDICT: met
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh race tests for cmd, pkg and internal packages passed. CLI generation of examples/platform.yaml with --all-versions produced v1alpha1 and v1beta1 with scope, served and referenceable metadata; version-selection and unknown-version tests passed.
+
+CRITERION: AC-02 Nested objects, array items, maps and referenced schemas produce deterministic paths, correct parent-relative required markers and lossless defaults; missing references fail and recursive schemas terminate with an explicit reference marker.
+VERDICT: met
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh reference, file-reference, default and generator tests passed. CLI JSON contained spec.networks[].name with required=true and spec.tags.*. Inspection of schema traversal confirmed sorted property traversal, parent-relative required lookup and reference-cycle markers.
+
+CRITERION: AC-03 Documentation includes numeric/string/list constraints, enums, formats, Kubernetes list/map metadata, CEL rules/messages and schema alternatives without claiming unexecuted validation.
+VERDICT: met
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh formatter and schema tests passed. CLI JSON retained minimum, minLength, maxLength, pattern and oneOf metadata; schema.go preserves the other named constraint categories. Scenario validation defaults to false.
+
+CRITERION: AC-04 Composition references expand patch sets and document direction, combine inputs, readable transform chains, policies, readiness, connection details and environment inputs; invalid patch-set references fail.
+VERDICT: met
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh composition and patch-reference tests passed. CLI generation for examples/platform/patch-and-transform.yaml expanded the region patch set and emitted conversion, math, combine, policy, ToCompositeFieldPath, readiness and connection details. Composition extraction and formatting preserve environment configuration.
+
+CRITERION: AC-05 Every pipeline step and source is documented, including unknown function inputs, without presenting an incomplete declared inventory as complete runtime output.
+VERDICT: not met
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, a valid custom function input with apiVersion custom.example.org/v1, kind Input and resources: [alpha, beta] failed CLI generation with exit 1 and "step custom: resource entry must be an object". Unknown inputs are interpreted as patch-and-transform resources whenever they contain a resources key.
+
+CRITERION: AC-06 Explicit rendering and saved rendered YAML produce scenario-labelled resource/status documentation; observed/required resources, schemas and context reach the real renderer, while failures/timeouts preserve existing output.
+VERDICT: not verified
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh saved-output classification, renderer failure and cancellation tests passed. Inspection confirmed argument forwarding and generation before file replacement. The complete real-render run was still progressing during this review, and no observed test established the required-schemas path through the real renderer.
+
+CRITERION: AC-07 Every advertised Go-templating source and behavior in the scenario matrix has a runnable example and passing real-render-to-documentation test, including failure cases.
+VERDICT: untested
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, TestGoTemplateSourceVariants checks parsed resource counts for template-list, environment, condition and extra-resources variants; TestFileSystemSources checks parsed counts. These variants do not generate or inspect documentation. The extra-resource variant requests resources without asserting a consumed resource value.
+
+CRITERION: AC-08 Every advertised KCL source and target has a runnable example and passing real-render-to-documentation test, including failure cases.
+VERDICT: untested
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, KCL filesystem, OCI-package and target tests inspect parsed scenarios without generating resulting documentation. The base matrix formats documentation, but it does not cover the other source forms and targets through that path.
+
+CRITERION: AC-09 CUE, Python and a custom function unknown to source adapters have passing real-render-to-documentation tests with successful and failing scenarios.
+VERDICT: untested
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, TestUnknownFunctionInput exercises a successful Python runtime with an unknown input API and verifies source classification. It does not format resulting documentation or exercise a failing custom-function scenario. CUE and Python error tests call Render directly without checking CLI failure/output preservation.
+
+CRITERION: AC-10 Mixed-pipeline create/update examples prove shared context, conditional/repeated resources, mocked observed state and readiness/status behavior through real rendering and resulting documentation.
+VERDICT: untested
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, TestMixedPipelineAndObservedState asserts resource counts, environment propagation and observedRegion. It does not generate documentation or assert readiness behavior and the other expected status values.
+
+CRITERION: AC-11 Markdown, offline HTML, AsciiDoc, JSON, YAML and custom templates render the same shared model correctly, with format-appropriate escaping and a tested structured-data contract.
+VERDICT: not verified
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh formatter tests for all five formats and JSON/YAML round trips passed. Independent execution of bun test --cwd tests/format failed before the tests because Chromium could not launch in the restricted environment: sandbox_host_linux.cc reported "shutdown: Operation not permitted". The offline-browser and Asciidoctor checks were not established by that execution.
+
+CRITERION: AC-12 Configuration controls sections, columns, layout, sorting, nesting, descriptions, anchors, styling, headers/footers and output; explicit flags win and invalid configuration fails.
+VERDICT: met
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh config and CLI tests passed, including explicit false overrides and unknown-key rejection. Inspection confirmed configuration-owned path resolution, section/column selection, layout, sorting, nesting, descriptions, anchors, styles and header/footer handling.
+
+CRITERION: AC-13 File/directory/bundle generation supports deterministic discovery and resource matching, catches collisions and malformed supported inputs, and retains existing single-resource commands.
+VERDICT: met
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh discovery, duplicate-identity, command compatibility and document-decoding tests passed. Inspection confirmed sorted file traversal, bundle ordering, API-identity matching of example XRs, symlink exclusion and strict single-resource kind checks.
+
+CRITERION: AC-14 Replace and marker-injection output preserve unrelated content and resist partial writes; repeated injection is identical and check mode distinguishes current, drift and failure without writing.
+VERDICT: not met
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, fresh injection and output-safety tests passed. A built CLI returned exit 2 for a missing input with --check and --check=true, but returned exit 1 for the same invalid input with accepted boolean forms --check=TRUE and --check=1.
+
+CRITERION: AC-15 Every advertised capability maps to a tested runnable example, and mandatory CI executes the full renderer matrix and formatter checks before any release tag can be created.
+VERDICT: untested
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, TestVersioningRequiresRealChecks passed and CI inspection confirmed mandatory formatter/render commands before the version job. The per-variant documentation, custom failure and readiness coverage gaps identified for AC-07 through AC-10 prevent establishing the advertised-capability mapping. The complete integration execution remained pending during this review.
+
+CRITERION: AC-16 A local six-target release snapshot has verified archive contents, checksums and version metadata; local checksum signing verifies successfully, and release workflow contract checks require the exact checked tag and protect existing assets.
+VERDICT: not verified
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, independently inspected six snapshot archives, verified their SHA-256 checksums and confirmed README, LICENSE and executable contents. The Linux binary reported the exact target commit and snapshot version. gpg --verify reported a good signature from the temporary snapshot-test key. Local release configuration prevents replacing existing artifacts, and CI passes the version output tag to the publisher. The pinned external shared workflow contract could not be independently retrieved in this review.
+
+CRITERION: AC-17 Optional upstream schema/CEL validation accepts valid supplied/rendered examples, rejects invalid fields, constraints and CEL rules, fails for missing required schemas, and includes real validator tests in mandatory CI.
+VERDICT: not verified
+EVIDENCE: At 1a22ab9e6c8e5d26af16fcc701f9ed93111ccab8, inspected TestRealSchemaValidation, which covers supplied and rendered valid resources plus field-type, CEL, pattern, unknown-field and missing-schema failures. CI invokes the integration suite without optional skips. That real-validator execution had not completed during this review.
+
+FINDING: F-01
+KIND: factual
+SEVERITY: blocking
+WHERE: internal/engine/composition.go:62
+EVIDENCE: A custom.example.org/v1 Input containing resources: [alpha, beta] exits with "step custom: resource entry must be an object". The resourcesFrom condition applies patch-and-transform semantics to every unknown input with a resources key.
+PROPOSAL: Parse resource templates only after positively identifying the patch-and-transform input contract. Preserve unknown inputs unchanged for reference generation and generic rendering, and add a regression test with a differently shaped resources field.
+
+FINDING: F-02
+KIND: factual
+SEVERITY: blocking
+WHERE: tests/render/render_test.go and tests/render/oci_test.go
+EVIDENCE: Source variants, KCL targets, mixed scenarios and the unknown-adapter case mostly stop after parsed-scenario assertions. They do not run the required resulting-documentation checks; the custom-adapter case has no failure scenario, and readiness is not asserted in the mixed test.
+PROPOSAL: Route every advertised scenario variant through documentation generation and assert its expected inventory and distinguishing values. Add custom failure, consumed required-resource and readiness assertions.
+
+FINDING: F-03
+KIND: factual
+SEVERITY: should-fix
+WHERE: internal/engine/model.go Scenario and internal/engine/format.go scenario output
+EVIDENCE: The design requires scenario identity and inputs used. Scenario records retain only the name and XR path, and the built-in formatter does not display the XR path; observed resources, required resources, supplied schemas and context input provenance are absent.
+PROPOSAL: Record and display the scenario's supplied inputs with credential-safe values or references. Test that two scenarios with different mock inputs remain distinguishable in generated documentation.
+
+FINDING: F-04
+KIND: factual
+SEVERITY: blocking
+WHERE: cmd/root.go:39
+EVIDENCE: pflag accepts --check=TRUE and --check=1, but Execute detects check mode only by scanning for --check or --check=true. A missing input therefore returns drift code 1 for these accepted forms instead of failure code 2.
+PROPOSAL: Determine check mode from the parsed command flag or use a typed exit classification. Add binary-level tests for accepted boolean forms and invalid input.
 
 ## Sources
 
