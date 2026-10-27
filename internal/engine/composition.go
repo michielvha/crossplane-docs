@@ -28,6 +28,11 @@ func extractComposition(m Object, funcs map[string]Object) (Composition, error) 
 	}
 	for _, raw := range List(spec["pipeline"]) {
 		p := Map(raw)
+		if raw, exists := p["input"]; exists && raw != nil {
+			if _, ok := raw.(map[string]interface{}); !ok {
+				return c, fmt.Errorf("pipeline step input must be an object")
+			}
+		}
 		input := Map(p["input"])
 		s := Step{Name: text(p, "step"), Function: text(p, "functionRef", "name"), Input: Map(redacted(input)), Requirements: Map(redacted(p["requirements"])), Adapter: "custom"}
 		s.Package = text(funcs[s.Function], "spec", "package")

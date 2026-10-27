@@ -194,3 +194,77 @@ func TestCredentialRedaction(t *testing.T) {
 		t.Fatalf("bad redaction: %s", out)
 	}
 }
+
+func TestExplicitFileReferences(t *testing.T) {
+	dir := t.TempDir()
+	ref := writeFixture(t, dir, "types.yaml", "definitions:\n  labels:\n    type: object\n    additionalProperties: {type: string}\n")
+	inputs, err := Load("../../examples/platform.yaml", Defaults())
+	if err != nil {
+		t.Fatal(err)
+	}
+	schema := Map(at(Map(List(at(inputs[0].Object, "spec", "versions"))[0]), "schema", "openAPIV3Schema"))
+	Map(Map(schema["properties"])["spec"])["properties"] = Object{"labels": Object{"$ref": "types.yaml#/definitions/labels"}}
+	inputs[0].File = filepath.Join(dir, "xrd.yaml")
+	if _, err := Build(inputs, Options{Config: Defaults()}); err == nil {
+		t.Fatal("unsupplied external schema read implicitly")
+	}
+	doc, err := Build(inputs, Options{Config: Defaults(), RefFiles: []string{ref}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	data, _ := json.Marshal(doc)
+	if !strings.Contains(string(data), "spec.labels.*") {
+		t.Fatalf("external map schema missing: %s", data)
+	}
+}
+
+func TestLosslessDefaults(t *testing.T) {
+	for _, value := range []interface{}{false, 0, "", nil, []interface{}{}, Object{}} {
+		t.Run(compact(value), func(t *testing.T) {
+			f := Field{Path: "spec.value", Type: "any", HasDefault: true, Default: value}
+			doc := Document{SchemaVersion: "1", Title: "Defaults", APIs: []API{{Kind: "X", Version: "v1", Fields: []Field{f}}}}
+			c := Defaults()
+			c.Formatter = "json"
+			data, err := Format(doc, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var parsed map[string]interface{}
+			if err := json.Unmarshal(data, &parsed); err != nil {
+				t.Fatal(err)
+			}
+			field := Map(Map(parsed["apis"].([]interface{})[0])["fields"].([]interface{})[0])
+			if _, exists := field["default"]; !exists {
+				t.Fatalf("default lost: %s", data)
+			}
+			if field["hasDefault"] != true {
+				t.Fatal("default presence lost")
+			}
+		})
+	}
+}
+
+func TestSavedCompositeClassification(t *testing.T) {
+	data := []byte("apiVersion: example.org/v1\nkind: XExample\nmetadata: {name: test}\nstatus: {phase: Ready}\n---\napiVersion: v1\nkind: ConfigMap\nmetadata: {name: child}\n")
+	s, err := ParseScenario(data, "saved", "", Composition{APIVersion: "example.org/v1", Kind: "XExample"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if text(s.Composite, "status", "phase") != "Ready" || len(s.Resources) != 1 {
+		t.Fatalf("saved composite misclassified: %+v", s)
+	}
+}
+
+func TestHTMLNavigationAndEscaping(t *testing.T) {
+	doc := model(t)
+	doc.Title = "<script>unsafe</script>"
+	c := Defaults()
+	c.Formatter = "html"
+	data, err := Format(doc, c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), "<script>") || strings.Contains(string(data), "href=\"#scenarios\"") {
+		t.Fatalf("unsafe HTML or broken navigation: %s", data)
+	}
+}

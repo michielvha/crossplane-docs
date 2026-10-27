@@ -35,7 +35,7 @@ type Field struct {
 	Type        string      `json:"type" yaml:"type"`
 	Description string      `json:"description,omitempty" yaml:"description,omitempty"`
 	Required    bool        `json:"required" yaml:"required"`
-	Default     interface{} `json:"default,omitempty" yaml:"default,omitempty"`
+	Default     interface{} `json:"default" yaml:"default"`
 	HasDefault  bool        `json:"hasDefault" yaml:"hasDefault"`
 	Nullable    bool        `json:"nullable,omitempty" yaml:"nullable,omitempty"`
 	Constraints Object      `json:"constraints,omitempty" yaml:"constraints,omitempty"`

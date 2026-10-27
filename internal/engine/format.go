@@ -8,6 +8,7 @@ import (
 	htmltemplate "html/template"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -58,13 +59,20 @@ func Format(doc Document, c Config) ([]byte, error) {
 		err = t.Execute(&buf, doc)
 		return buf.Bytes(), err
 	}
+	visible := []string{}
+	for _, section := range c.Sections {
+		if (section == "apis" && len(doc.APIs) > 0) || (section == "compositions" && len(doc.Compositions) > 0) || (section == "scenarios" && len(doc.Scenarios) > 0) || (section == "examples" && c.Settings.Examples && len(doc.Examples) > 0) {
+			visible = append(visible, section)
+		}
+	}
+	c.Sections = visible
 	w := writer{config: c}
 	if c.Formatter == "html" {
-		w.buf.WriteString("<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>" + html.EscapeString(doc.Title) + "</title><style>" + pageStyle + c.Settings.Style + "</style></head><body><a class=\"skip\" href=\"#content\">Skip to content</a><div class=\"shell\"><aside><div class=\"brand\">crossplane<span>docs</span></div><p class=\"eyebrow\">API REFERENCE</p><nav aria-label=\"Contents\">")
+		w.buf.WriteString("<!doctype html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><link rel=\"icon\" href=\"data:,\"><title>" + html.EscapeString(doc.Title) + "</title><style>" + pageStyle + c.Settings.Style + "</style></head><body><a class=\"skip\" href=\"#content\">Skip to content</a><div class=\"shell\"><aside><div class=\"brand\">crossplane<span>docs</span></div><p class=\"eyebrow\">API REFERENCE</p><nav aria-label=\"Contents\">")
 		for _, s := range c.Sections {
 			w.buf.WriteString("<a href=\"#" + s + "\">" + html.EscapeString(strings.ToUpper(s[:1])+s[1:]) + "</a>")
 		}
-		w.buf.WriteString("</nav><p class=\"aside-note\">Generated from your platform definitions.<br>One reference for the APIs your teams use.</p></aside><main id=\"content\"><header class=\"hero\"><p class=\"eyebrow\">PLATFORM DOCUMENTATION</p><h1>" + html.EscapeString(doc.Title) + "</h1><p>Explore your APIs, follow the composition pipeline, and inspect the resources produced by tested scenarios.</p><div class=\"metrics\">")
+		w.buf.WriteString("</nav><p class=\"aside-note\">Generated from your platform definitions.<br>One reference for the APIs your teams use.</p></aside><main id=\"content\"><header class=\"hero\"><p class=\"eyebrow\">PLATFORM DOCUMENTATION</p><h1>" + html.EscapeString(doc.Title) + "</h1><p>Explore your APIs, follow the composition pipeline, and inspect the resources produced by sample scenarios.</p><div class=\"metrics\">")
 		fields := 0
 		for _, a := range doc.APIs {
 			fields += len(a.Fields)
@@ -127,6 +135,11 @@ func Format(doc Document, c Config) ([]byte, error) {
 								value := "-"
 								if f.HasDefault {
 									value = compact(f.Default)
+									if f.Default == nil {
+										value = "null"
+									} else if str, ok := f.Default.(string); ok {
+										value = strconv.Quote(str)
+									}
 								}
 								row = append(row, value)
 							case "constraints":

@@ -20,7 +20,7 @@ func NewRootCommand() *cobra.Command {
 	root := &cobra.Command{
 		Use:           "crossplane-docs",
 		Short:         "Generate documentation for Crossplane resources",
-		Long:          `Generate Markdown reference tables from Crossplane XRDs and static Composition definitions.`,
+		Long:          `Generate configurable API and composition documentation from Crossplane manifests.`,
 		Version:       fmt.Sprintf("%s (commit: %s, built: %s)", version, commit, date),
 		SilenceErrors: true,
 		SilenceUsage:  true,

@@ -18,7 +18,7 @@ func newGenerateCommand(name, kind string) *cobra.Command {
 	var configFile, format, output, version, templateFile, outputMode, rendered, extensions string
 	var allVersions, check, render, validate, nested, patches, recursive bool
 	var schemas, include, exclude []string
-	runtime := engine.RenderOptions{Timeout: 2 * time.Minute, Name: "example", CrossplaneVersion: "v2.4.3"}
+	runtime := engine.RenderOptions{Timeout: 2 * time.Minute, Name: "example", CrossplaneVersion: "v2.4.3", CrossplaneImage: engine.DefaultCrossplaneImage}
 	command := &cobra.Command{Use: name + " PATH", Short: "Generate configurable documentation from Crossplane manifests", Args: cobra.ExactArgs(1)}
 	flags := command.Flags()
 	flags.StringVar(&configFile, "config", "", "Configuration file (default: .crossplane-docs.yml)")
@@ -46,6 +46,7 @@ func newGenerateCommand(name, kind string) *cobra.Command {
 	flags.StringVar(&runtime.Schemas, "required-schemas", "", "Schema directory supplied to functions")
 	flags.StringArrayVar(&runtime.Context, "context-values", nil, "Pipeline context KEY=JSON (repeatable)")
 	flags.StringVar(&runtime.Name, "scenario", "example", "Render scenario name")
+	flags.StringVar(&runtime.CrossplaneImage, "crossplane-image", engine.DefaultCrossplaneImage, "Pinned Crossplane engine image")
 	flags.StringVar(&runtime.CrossplaneVersion, "crossplane-version", "v2.4.3", "Pinned Crossplane engine version")
 	flags.DurationVar(&runtime.Timeout, "timeout", 2*time.Minute, "Maximum renderer/validator duration")
 	flags.BoolVar(&validate, "validate", false, "Validate XR or rendered output against supplied schemas")
@@ -88,6 +89,9 @@ func newGenerateCommand(name, kind string) *cobra.Command {
 		if allVersions && version != "" {
 			return fmt.Errorf("--all-versions and --api-version are mutually exclusive")
 		}
+		if flags.Changed("crossplane-version") && !flags.Changed("crossplane-image") {
+			runtime.CrossplaneImage = ""
+		}
 		if render && rendered != "" {
 			return fmt.Errorf("choose --render or --rendered")
 		}
@@ -129,7 +133,7 @@ func newGenerateCommand(name, kind string) *cobra.Command {
 			}
 		}
 		if len(result) > 0 {
-			scenario, err := engine.ParseScenario(result, runtime.Name, runtime.XR)
+			scenario, err := engine.ParseScenario(result, runtime.Name, runtime.XR, doc.Compositions...)
 			if err != nil {
 				return err
 			}

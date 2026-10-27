@@ -13,6 +13,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const DefaultCrossplaneImage = "xpkg.crossplane.io/crossplane/crossplane:v2.4.3@sha256:1c66261d805a73cade46e2ac94b665c73aebd4a00844de5fcae4bcadaa2be638"
+
 type RenderOptions struct {
 	Binary            string
 	XR                string
@@ -25,6 +27,7 @@ type RenderOptions struct {
 	Name              string
 	Timeout           time.Duration
 	CrossplaneVersion string
+	CrossplaneImage   string
 }
 
 func (o RenderOptions) binary() string {
@@ -64,7 +67,9 @@ func Render(ctx context.Context, o RenderOptions) ([]byte, error) {
 	}
 	defer func() { _ = os.Remove(functions) }()
 	args := []string{"composition", "render", o.XR, o.Composition, functions, "--include-full-xr", "--include-context", "--include-function-results"}
-	if o.CrossplaneVersion != "" {
+	if o.CrossplaneImage != "" {
+		args = append(args, "--crossplane-image="+o.CrossplaneImage)
+	} else if o.CrossplaneVersion != "" {
 		args = append(args, "--crossplane-version="+o.CrossplaneVersion)
 	}
 	if o.Observed != "" {
@@ -99,14 +104,16 @@ func Validate(ctx context.Context, o RenderOptions, extensions string, resources
 		return err
 	}
 	args := []string{"resource", "validate", extensions, f.Name(), "--error-on-missing-schemas"}
-	if o.CrossplaneVersion != "" {
+	if o.CrossplaneImage != "" {
+		args = append(args, "--crossplane-image="+o.CrossplaneImage)
+	} else if o.CrossplaneVersion != "" {
 		args = append(args, "--crossplane-image=xpkg.crossplane.io/crossplane/crossplane:"+o.CrossplaneVersion)
 	}
 	_, err = o.run(ctx, args...)
 	return err
 }
 
-func ParseScenario(data []byte, name, xr string) (Scenario, error) {
+func ParseScenario(data []byte, name, xr string, refs ...Composition) (Scenario, error) {
 	inputs, err := Read(data, "rendered output")
 	s := Scenario{Name: name, XR: xr, Resources: []Resource{}}
 	if err != nil {
@@ -114,6 +121,17 @@ func ParseScenario(data []byte, name, xr string) (Scenario, error) {
 	}
 	if len(inputs) == 0 {
 		return s, fmt.Errorf("renderer produced no YAML documents")
+	}
+	isComposite := func(m Object) bool {
+		if text(m, "metadata", "annotations", "crossplane.io/composition-resource-name") != "" {
+			return false
+		}
+		for _, ref := range refs {
+			if text(m, "apiVersion") == ref.APIVersion && text(m, "kind") == ref.Kind {
+				return true
+			}
+		}
+		return false
 	}
 	var xrObject Object
 	if xr != "" {
@@ -139,7 +157,7 @@ func ParseScenario(data []byte, name, xr string) (Scenario, error) {
 			s.Context = append(s.Context, Map(redacted(m)))
 		case kind == "Result" && strings.Contains(api, "render.crossplane.io"):
 			s.Results = append(s.Results, Map(redacted(m)))
-		case xrObject != nil && api == text(xrObject, "apiVersion") && kind == text(xrObject, "kind") && text(m, "metadata", "name") == text(xrObject, "metadata", "name"):
+		case (xrObject != nil && api == text(xrObject, "apiVersion") && kind == text(xrObject, "kind") && text(m, "metadata", "name") == text(xrObject, "metadata", "name")) || (xrObject == nil && isComposite(m)):
 			s.Composite = Map(redacted(m))
 		default:
 			if api == "" || kind == "" {

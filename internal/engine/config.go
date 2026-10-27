@@ -3,6 +3,7 @@ package engine
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -81,6 +82,10 @@ func LoadConfig(input, explicit string) (Config, error) {
 		if err := dec.Decode(&c); err != nil {
 			return c, fmt.Errorf("configuration %s: %w", file, err)
 		}
+		var extra interface{}
+		if err := dec.Decode(&extra); err != io.EOF {
+			return c, fmt.Errorf("configuration must contain exactly one YAML document")
+		}
 		base := filepath.Dir(file)
 		for _, p := range []*string{&c.Template, &c.HeaderFrom, &c.FooterFrom, &c.Output.File} {
 			if *p != "" && !filepath.IsAbs(*p) {
@@ -97,6 +102,9 @@ func (c Config) Validate() error {
 	}
 	if !slices.Contains([]string{"markdown", "html", "asciidoc", "json", "yaml"}, c.Formatter) {
 		return fmt.Errorf("unknown formatter %q", c.Formatter)
+	}
+	if c.Template != "" && (c.Formatter == "json" || c.Formatter == "yaml") {
+		return fmt.Errorf("custom templates require a document formatter")
 	}
 	if !slices.Contains([]string{"table", "document"}, c.Layout) {
 		return fmt.Errorf("unknown layout %q", c.Layout)
