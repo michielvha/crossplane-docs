@@ -1,6 +1,6 @@
 ---
-status: in-progress
-status_description: "Implementing the accepted v0.2.0 scope and its real-render test matrix."
+status: complete
+status_description: "All v0.2.0 criteria passed independent review; the local feature branch is ready for owner review."
 branch: feat/v0.2.0
 issue: null
 goal: "Generate configurable, tested documentation for Crossplane APIs and composition pipelines in one v0.2.0 release."
