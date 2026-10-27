@@ -15,16 +15,27 @@ spec:
       apiVersion: cue.fn.crossplane.io/v1beta1
       kind: CueInput
       source: Inline
-      script: "response: {\n    desired: {\n        resources: {\n            for\
-        \ i, n in #request.observed.composite.resource.spec.networks {\n         \
-        \       \"network-\\(i)\": {\n                    resource: {\n          \
-        \              apiVersion: \"v1\"\n                        kind: \"ConfigMap\"\
-        \n                        metadata: name: \"\\(#request.observed.composite.resource.metadata.name)-\\\
-        (n.name)\"\n                        data: {\n                            region:\
-        \ #request.observed.composite.resource.spec.region\n                     \
-        \       cidr: n.cidr\n                        }\n                    }\n \
-        \                   ready: \"READY_TRUE\"\n                }\n           \
-        \ }\n        }\n    }\n}\n"
+      script: |
+        response: {
+            desired: {
+                resources: {
+                    for i, n in #request.observed.composite.resource.spec.networks {
+                        "network-\(i)": {
+                            resource: {
+                                apiVersion: "v1"
+                                kind: "ConfigMap"
+                                metadata: name: "\(#request.observed.composite.resource.metadata.name)-\(n.name)"
+                                data: {
+                                    region: #request.observed.composite.resource.spec.region
+                                    cidr: n.cidr
+                                }
+                            }
+                            ready: "READY_TRUE"
+                        }
+                    }
+                }
+            }
+        }
   - step: ready
     functionRef:
       name: function-auto-ready
