@@ -1,6 +1,6 @@
 ---
-status: draft
-status_description: "v0.2.0 scope is specified; independent review and owner acceptance remain."
+status: planned
+status_description: "Independent spec review passed and owner authorized implementation."
 issue: null
 goal: "Generate configurable, tested documentation for Crossplane APIs and composition pipelines in one v0.2.0 release."
 covers:
@@ -298,8 +298,9 @@ baseline is separate from agreement on these individual requirements.
 
 | Date | Review | Kind | Commit | Model | Isolation | Outcome |
 | --- | --- | --- | --- | --- | --- | --- |
-
 | 2026-10-27 | R-1 | spec | `d9a09ca` | unknown | procedural | Blocking publication prerequisite corrected in the next revision. |
+| 2026-10-27 | R-2 | spec | `b435db6` | unknown | procedural | No findings; model identity not attested. |
+| 2026-10-27 | R-2 | spec | `b435db6` | n/a | n/a | accepted by owner |
 
 ### R-1
 
@@ -309,6 +310,10 @@ SEVERITY: blocking
 WHERE: Test Plan AC-16 and Tasks T12
 EVIDENCE: At d9a09ca, docs/specs/documentation-engine.spec.md:233 requires separate shipping authorization for live publication and remote tag changes, but line 271 requires an exact-tag signed-release smoke test and line 289 makes that check part of implementation completion. The authorized deliverable is a local feature branch ready for review, so these checks require an action outside that deliverable.
 PROPOSAL: Make AC-16 completion depend on local snapshot, checksum, version, signing and workflow contract checks. Describe the live exact-tag publication smoke test as a shipping procedure that runs only after separate authorization, without making it a prerequisite for local implementation completion.
+
+### R-2
+
+NO FINDINGS
 
 ## Sources
 
