@@ -1,0 +1,22 @@
+# Exact upstream versions exercised by the real-render suite.
+cli:
+  # renovate: datasource=github-releases depName=crossplane/cli
+  version: v2.5.0
+  url: https://cli.crossplane.io/stable/{{version}}/bin/linux_amd64/crossplane
+  sha256: 065dd6b40c9ea5fc71e49900d5c924cc0bec7f58375922ddbde6b402f292347e
+engine:
+  version: v2.4.3
+  image: xpkg.crossplane.io/crossplane/crossplane:v2.4.3@sha256:1c66261d805a73cade46e2ac94b665c73aebd4a00844de5fcae4bcadaa2be638
+cases:
+  - name: go-templating
+    resources: 2
+  - name: patch-and-transform
+    resources: 1
+  - name: kcl
+    resources: 2
+  - name: cue
+    resources: 2
+  - name: python
+    resources: 2
+  - name: application-stack
+    resources: 6

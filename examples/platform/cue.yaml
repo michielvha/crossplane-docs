@@ -1,0 +1,30 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: platform-cue
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.org/v1beta1
+    kind: XPlatform
+  mode: Pipeline
+  pipeline:
+  - step: compose
+    functionRef:
+      name: function-cue
+    input:
+      apiVersion: cue.fn.crossplane.io/v1beta1
+      kind: CueInput
+      source: Inline
+      script: "response: {\n    desired: {\n        resources: {\n            for\
+        \ i, n in #request.observed.composite.resource.spec.networks {\n         \
+        \       \"network-\\(i)\": {\n                    resource: {\n          \
+        \              apiVersion: \"v1\"\n                        kind: \"ConfigMap\"\
+        \n                        metadata: name: \"\\(#request.observed.composite.resource.metadata.name)-\\\
+        (n.name)\"\n                        data: {\n                            region:\
+        \ #request.observed.composite.resource.spec.region\n                     \
+        \       cidr: n.cidr\n                        }\n                    }\n \
+        \                   ready: \"READY_TRUE\"\n                }\n           \
+        \ }\n        }\n    }\n}\n"
+  - step: ready
+    functionRef:
+      name: function-auto-ready

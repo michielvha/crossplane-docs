@@ -1,0 +1,20 @@
+{{- range $i, $network := .observed.composite.resource.spec.networks }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-%s" $.observed.composite.resource.metadata.name $network.name }}
+  annotations:
+    {{ setResourceNameAnnotation (printf "network-%d" $i) }}
+    gotemplating.fn.crossplane.io/ready: "True"
+data:
+  cidr: {{ $network.cidr | quote }}
+  region: {{ $.observed.composite.resource.spec.region | quote }}
+  team: {{ index $.observed.composite.resource.spec.tags "team" | quote }}
+{{- end }}
+---
+apiVersion: platform.example.org/v1beta1
+kind: XPlatform
+status:
+  phase: Ready
+  resourceCount: {{ len .observed.composite.resource.spec.networks }}

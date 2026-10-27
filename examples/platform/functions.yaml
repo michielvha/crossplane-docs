@@ -1,0 +1,48 @@
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata:
+  name: function-go-templating
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/function-go-templating:v0.13.2@sha256:20198cb6ea5b4b8a48042343410ec9031e5ec43431d874364ecd3eac8e861290
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata:
+  name: function-patch-and-transform
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/function-patch-and-transform:v0.11.2@sha256:4a36131ebf3b4203f9e79ad1810f198c5feb52a2a796cbf0e91f34efe741e27b
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata:
+  name: function-kcl
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/function-kcl:v0.12.3@sha256:601b48f70f03a87ef67c75c14434fb3851950a9f33ae621e376f4179978400b2
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata:
+  name: function-python
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/function-python:v0.6.0@sha256:d3fb5398756a87fb29b832eae52b9ad021797b3e021298b9b42ba3d6f3550fe0
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata:
+  name: function-cue
+spec:
+  package: ghcr.io/crossplane-contrib/function-cue:v0.4.1@sha256:cb3063a318bf907876cd794d163cc1254cf78a8fdc66789db5a37afa023f372d
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata:
+  name: function-auto-ready
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/function-auto-ready:v0.7.3@sha256:cce8799e19a8f25fb84e1f8dd8855021fdbe8cd7a12a5c22a0c0c345476ae9fe
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Function
+metadata:
+  name: function-environment-configs
+spec:
+  package: xpkg.upbound.io/crossplane-contrib/function-environment-configs:v0.6.0@sha256:34f78087aa42488f29d46b8889857d996c635a169fea7e4aa56d5ea3d0829679

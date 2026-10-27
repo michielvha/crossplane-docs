@@ -1,0 +1,47 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: application-stack
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.org/v1beta1
+    kind: XPlatform
+  mode: Pipeline
+  pipeline:
+  - step: networks
+    functionRef:
+      name: function-go-templating
+    input:
+      apiVersion: gotemplating.fn.crossplane.io/v1beta1
+      kind: GoTemplate
+      source: Inline
+      inline:
+        template: "{{- $xr := .observed.composite.resource -}}\n{{- range $i, $network\
+          \ := $xr.spec.networks }}\n---\napiVersion: ec2.aws.upbound.io/v1beta1\n\
+          kind: VPC\nmetadata:\n  name: {{ $xr.metadata.name }}-{{ $network.name }}\n\
+          \  annotations:\n    {{ setResourceNameAnnotation (printf \"vpc-%d\" $i)\
+          \ }}\n  labels:\n    platform.example.org/network: {{ $network.name }}\n\
+          spec:\n  forProvider:\n    region: {{ $xr.spec.region }}\n    cidrBlock:\
+          \ {{ $network.cidr }}\n    enableDnsSupport: true\n    enableDnsHostnames:\
+          \ true\n{{- range $j, $subnet := $network.subnets }}\n---\napiVersion: ec2.aws.upbound.io/v1beta1\n\
+          kind: Subnet\nmetadata:\n  name: {{ $xr.metadata.name }}-{{ $network.name\
+          \ }}-{{ $j }}\n  annotations:\n    {{ setResourceNameAnnotation (printf\
+          \ \"subnet-%d-%d\" $i $j) }}\nspec:\n  forProvider:\n    region: {{ $xr.spec.region\
+          \ }}\n    availabilityZone: {{ $subnet.zone }}\n    cidrBlock: {{ $subnet.cidr\
+          \ }}\n    vpcIdSelector:\n      matchLabels:\n        platform.example.org/network:\
+          \ {{ $network.name }}\n{{- end }}\n{{- end }}\n{{- range $i := until (int\
+          \ $xr.spec.capacity.replicas) }}\n---\napiVersion: ec2.aws.upbound.io/v1beta1\n\
+          kind: Instance\nmetadata:\n  name: {{ $xr.metadata.name }}-worker-{{ $i\
+          \ }}\n  annotations:\n    {{ setResourceNameAnnotation (printf \"worker-%d\"\
+          \ $i) }}\nspec:\n  forProvider:\n    region: {{ $xr.spec.region }}\n   \
+          \ instanceType: {{ if eq $xr.spec.capacity.class \"large\" }}m7i.large{{\
+          \ else }}t3.small{{ end }}\n{{- end }}\n---\napiVersion: rds.aws.upbound.io/v1beta1\n\
+          kind: Instance\nmetadata:\n  name: {{ $xr.metadata.name }}-database\n  annotations:\n\
+          \    {{ setResourceNameAnnotation \"database\" }}\nspec:\n  forProvider:\n\
+          \    region: {{ $xr.spec.region }}\n    engine: postgres\n    engineVersion:\
+          \ \"16\"\n    allocatedStorage: {{ $xr.spec.storage.sizeGiB }}\n    storageEncrypted:\
+          \ {{ $xr.spec.storage.encrypted }}\n    backupRetentionPeriod: {{ if $xr.spec.storage.backup\
+          \ }}7{{ else }}0{{ end }}\n"
+  - step: ready
+    functionRef:
+      name: function-auto-ready

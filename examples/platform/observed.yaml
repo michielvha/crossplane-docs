@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: team-atlas-applications
+  namespace: default
+  annotations:
+    crossplane.io/composition-resource-name: network-0
+data:
+  cidr: 10.42.0.0/16
+  region: eu-west-1
+status:
+  conditions:
+  - type: Ready
+    status: 'True'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: team-atlas-data
+  namespace: default
+  annotations:
+    crossplane.io/composition-resource-name: network-1
+data:
+  cidr: 10.43.0.0/16
+  region: eu-west-1
+status:
+  conditions:
+  - type: Ready
+    status: 'True'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-summary
+  namespace: default
+  annotations:
+    crossplane.io/composition-resource-name: summary
+data:
+  region: eu-central-1

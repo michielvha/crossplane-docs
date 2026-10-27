@@ -1,0 +1,26 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: platform-kcl
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.org/v1beta1
+    kind: XPlatform
+  mode: Pipeline
+  pipeline:
+  - step: compose
+    functionRef:
+      name: function-kcl
+    input:
+      apiVersion: krm.kcl.dev/v1alpha1
+      kind: KCLInput
+      spec:
+        target: Resources
+        source: "oxr = option(\"params\").oxr\nitems = [{\n    apiVersion = \"v1\"\
+          \n    kind = \"ConfigMap\"\n    metadata = {\n        name = \"${oxr.metadata.name}-${n.name}\"\
+          \n        annotations = {\"krm.kcl.dev/composition-resource-name\" = \"\
+          network-${i}\"}\n    }\n    data = {region = oxr.spec.region, cidr = n.cidr}\n\
+          } for i, n in oxr.spec.networks]\n"
+  - step: ready
+    functionRef:
+      name: function-auto-ready

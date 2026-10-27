@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: platform-defaults
+  namespace: default
+  labels:
+    platform.example.org/config: defaults
+data:
+  environment: integration
+---
+apiVersion: apiextensions.crossplane.io/v1beta1
+kind: EnvironmentConfig
+metadata:
+  name: platform-defaults
+data:
+  environment: integration
+  owner: platform-team

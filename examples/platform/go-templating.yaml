@@ -1,0 +1,31 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: platform-go-template
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.org/v1beta1
+    kind: XPlatform
+  mode: Pipeline
+  pipeline:
+  - step: networks
+    functionRef:
+      name: function-go-templating
+    input:
+      apiVersion: gotemplating.fn.crossplane.io/v1beta1
+      kind: GoTemplate
+      source: Inline
+      inline:
+        template: "{{- range $i, $network := .observed.composite.resource.spec.networks\
+          \ }}\n---\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: {{ printf\
+          \ \"%s-%s\" $.observed.composite.resource.metadata.name $network.name }}\n\
+          \  annotations:\n    {{ setResourceNameAnnotation (printf \"network-%d\"\
+          \ $i) }}\n    gotemplating.fn.crossplane.io/ready: \"True\"\ndata:\n  cidr:\
+          \ {{ $network.cidr | quote }}\n  region: {{ $.observed.composite.resource.spec.region\
+          \ | quote }}\n  team: {{ index $.observed.composite.resource.spec.tags \"\
+          team\" | quote }}\n{{- end }}\n---\napiVersion: platform.example.org/v1beta1\n\
+          kind: XPlatform\nstatus:\n  phase: Ready\n  resourceCount: {{ len .observed.composite.resource.spec.networks\
+          \ }}\n"
+  - step: ready
+    functionRef:
+      name: function-auto-ready
