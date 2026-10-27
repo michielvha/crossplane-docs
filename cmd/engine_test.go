@@ -138,3 +138,13 @@ func TestDiscoveryAndDuplicateIdentity(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestEmptySavedRenderFails(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "rendered.yaml")
+	if err := os.WriteFile(file, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if out, _, err := execute("composition", "../examples/platform/go-templating.yaml", "--rendered", file); err == nil || out != "" {
+		t.Fatalf("empty render fell back to static success: %q %v", out, err)
+	}
+}

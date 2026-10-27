@@ -37,3 +37,5 @@ EXAMPLE_OUTPUT.md
 
 # Formatter test dependencies
 node_modules/
+
+/tests/format/core.*

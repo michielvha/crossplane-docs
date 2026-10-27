@@ -58,7 +58,7 @@ func extractAPI(in Input, opts Options) ([]API, error) {
 		walker := schemaWalker{root: m, file: in.File, opts: opts, stack: map[string]bool{}}
 		for _, section := range []string{"spec", "status"} {
 			if prop, ok := Map(schema["properties"])[section]; ok {
-				if err := walker.walk(Map(prop), section, false, 0, &api.Fields); err != nil {
+				if err := walker.walk(Map(prop), section, has(schema["required"], section), 0, &api.Fields); err != nil {
 					return nil, err
 				}
 			}
@@ -146,7 +146,11 @@ func (w schemaWalker) walk(schema Object, path string, required bool, depth int,
 		if err != nil {
 			return err
 		}
-		key := file + "#" + strings.SplitN(ref+"#", "#", 2)[1]
+		fragment := ""
+		if parts := strings.SplitN(ref, "#", 2); len(parts) == 2 {
+			fragment = parts[1]
+		}
+		key := file + "#" + fragment
 		if w.stack[key] {
 			*out = append(*out, Field{Path: path, Type: "reference", Reference: ref, Required: required})
 			return nil
@@ -221,6 +225,11 @@ func (w schemaWalker) walk(schema Object, path string, required bool, depth int,
 	}
 	if items, ok := schema["items"].(map[string]interface{}); ok && w.opts.Config.Settings.Nested {
 		if err := w.walk(items, path+"[]", false, depth+1, out); err != nil {
+			return err
+		}
+	}
+	if boolean(schema["additionalProperties"]) && w.opts.Config.Settings.Nested {
+		if err := w.walk(Object{}, path+".*", false, depth+1, out); err != nil {
 			return err
 		}
 	}

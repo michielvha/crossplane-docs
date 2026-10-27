@@ -132,7 +132,7 @@ func newGenerateCommand(name, kind string) *cobra.Command {
 				return err
 			}
 		}
-		if len(result) > 0 {
+		if render || rendered != "" {
 			scenario, err := engine.ParseScenario(result, runtime.Name, runtime.XR, doc.Compositions...)
 			if err != nil {
 				return err

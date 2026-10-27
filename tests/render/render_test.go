@@ -352,7 +352,23 @@ func TestRealSchemaValidation(t *testing.T) {
 	if err := engine.Validate(context.Background(), o, extensions, data); err != nil {
 		t.Fatal(err)
 	}
-	rendered, err := engine.Render(context.Background(), o)
+	nested := compositionObject(t, o)
+	pipelineInput(nested)["inline"] = engine.Object{"template": `apiVersion: platform.example.org/v1beta1
+kind: XPlatform
+metadata:
+  name: nested-platform
+  annotations:
+    {{ setResourceNameAnnotation "nested-platform" }}
+spec:
+  region: eu-west-1
+  minReplicas: 0
+  maxReplicas: 1
+  networks:
+    - name: nested
+      cidr: 10.44.0.0/16
+`}
+	validationRuntime := replaceComposition(t, o, nested)
+	rendered, err := engine.Render(context.Background(), validationRuntime)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -427,6 +443,40 @@ func TestKCLTargets(t *testing.T) {
 				}
 				if len(s.Resources) != 1 {
 					t.Fatalf("patch resources lost: %+v", s.Resources)
+				}
+			}
+		})
+	}
+}
+
+func TestKCLAndPythonMockInputs(t *testing.T) {
+	for _, name := range []string{"kcl", "python"} {
+		t.Run(name, func(t *testing.T) {
+			o := runtimeOptions(t, name)
+			o.Observed = filepath.Join(root(t), "examples/platform/observed.yaml")
+			o.Context = []string{`platform={"owner":"platform-team"}`}
+			m := compositionObject(t, o)
+			input := pipelineInput(m)
+			if name == "kcl" {
+				spec := engine.Map(input["spec"])
+				spec["params"] = engine.Object{"owner": "platform-team"}
+				source := engine.String(spec["source"])
+				source = strings.Replace(source, "cidr = n.cidr", "cidr = n.cidr, owner = option(\"params\").owner, observedCount = str(len(option(\"params\").ocds))", 1)
+				spec["source"] = source
+			} else {
+				source := engine.String(input["script"])
+				source = strings.Replace(source, `"cidr": network["cidr"]`, `"cidr": network["cidr"], "owner": req.context["platform"]["owner"], "observedCount": str(len(req.observed.resources))`, 1)
+				input["script"] = source
+			}
+			o = replaceComposition(t, o, m)
+			s := render(t, o)
+			if len(s.Resources) != 2 {
+				t.Fatal("mock-input resources missing")
+			}
+			for _, r := range s.Resources {
+				data := engine.Map(r.Manifest["data"])
+				if engine.String(data["owner"]) != "platform-team" || engine.String(data["observedCount"]) != "3" {
+					t.Fatalf("mock/parameter data missing: %+v", data)
 				}
 			}
 		})

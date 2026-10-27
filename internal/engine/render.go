@@ -91,6 +91,27 @@ func Validate(ctx context.Context, o RenderOptions, extensions string, resources
 	if extensions == "" {
 		return fmt.Errorf("validation requires --extensions with XRD/CRD schemas")
 	}
+	inputs, err := Read(resources, "validation input")
+	if err != nil {
+		return err
+	}
+	var payload bytes.Buffer
+	for _, in := range inputs {
+		api, kind := text(in.Object, "apiVersion"), text(in.Object, "kind")
+		if strings.HasPrefix(api, "render.crossplane.io/") && (kind == "Context" || kind == "Result") {
+			continue
+		}
+		data, err := yaml.Marshal(in.Object)
+		if err != nil {
+			return err
+		}
+		payload.WriteString("---\n")
+		payload.Write(data)
+	}
+	if payload.Len() == 0 {
+		return fmt.Errorf("no Kubernetes resources to validate")
+	}
+	resources = payload.Bytes()
 	f, err := os.CreateTemp("", "crossplane-docs-validate-*.yaml")
 	if err != nil {
 		return err
