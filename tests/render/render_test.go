@@ -5,10 +5,12 @@ package render_test
 import (
 	"context"
 	"encoding/json"
+	"html"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -45,6 +47,8 @@ func render(t *testing.T, o engine.RenderOptions) engine.Scenario {
 	if err != nil {
 		t.Fatal(err)
 	}
+	scenario.Inputs = engine.ScenarioInputs(o, "")
+	assertScenarioDocumentation(t, o, scenario)
 	return scenario
 }
 
@@ -99,9 +103,13 @@ func TestRealFunctionMatrix(t *testing.T) {
 }
 
 func TestInvalidFunctionPrograms(t *testing.T) {
-	for _, name := range []string{"go-templating", "kcl", "cue", "python", "patch-and-transform"} {
+	for _, name := range []string{"go-templating", "kcl", "cue", "python", "patch-and-transform", "custom"} {
 		t.Run(name, func(t *testing.T) {
-			o := runtimeOptions(t, name)
+			fixture := name
+			if name == "custom" {
+				fixture = "python"
+			}
+			o := runtimeOptions(t, fixture)
 			data, err := os.ReadFile(o.Composition)
 			if err != nil {
 				t.Fatal(err)
@@ -119,6 +127,9 @@ func TestInvalidFunctionPrograms(t *testing.T) {
 				engine.Map(input["spec"])["source"] = "invalid !!!"
 			case "cue":
 				input["script"] = "invalid !!!"
+			case "custom":
+				input["apiVersion"] = "custom.platform.example.org/v1"
+				input["script"] = "def compose(req, rsp):\n    raise Exception('custom fixture failure')\n"
 			case "python":
 				input["script"] = "def compose(req, rsp):\n    raise Exception('fixture failure')\n"
 			case "patch-and-transform":
@@ -135,6 +146,18 @@ func TestInvalidFunctionPrograms(t *testing.T) {
 			o.Composition = file
 			if _, err := engine.Render(context.Background(), o); err == nil {
 				t.Fatal("invalid program was accepted")
+			}
+			output := filepath.Join(t.TempDir(), "reference.md")
+			if err := os.WriteFile(output, []byte("keep existing docs"), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			cmd := exec.Command(reviewBinary(t), "composition", o.Composition, "--render", "--xr", o.XR, "--functions", o.Functions, "--crossplane", o.Binary, "-o", output)
+			if bytes, err := cmd.CombinedOutput(); err == nil {
+				t.Fatalf("failing runtime accepted by CLI: %s", bytes)
+			}
+			existing, err := os.ReadFile(output)
+			if err != nil || string(existing) != "keep existing docs" {
+				t.Fatal("failed render replaced existing output")
 			}
 		})
 	}
@@ -222,12 +245,39 @@ requirements:
     apiVersion: v1
     kind: ConfigMap
     matchName: platform-defaults
+    namespace: default
+{{- if .requiredResources }}
+{{- $found := index .requiredResources "defaults" }}
+{{- if $found.items }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: required-consumer
+  annotations:
+    {{ setResourceNameAnnotation "required-consumer" }}
+data:
+  environment: {{ (index $found.items 0).resource.data.environment | quote }}
+{{- end }}
+{{- end }}
 `}
 				o.Required = []string{filepath.Join(root(t), "examples/platform/required.yaml")}
 			}
 			o = replaceComposition(t, o, m)
 			s := render(t, o)
 			want := 2
+			if variant == "extra-resources" {
+				want = 3
+				found := false
+				for _, r := range s.Resources {
+					if r.Name == "required-consumer" && engine.String(engine.Map(r.Manifest["data"])["environment"]) == "integration" {
+						found = true
+					}
+				}
+				if !found {
+					t.Fatalf("required resource value was not consumed: %+v", s.Resources)
+				}
+			}
 			if variant == "condition" {
 				want = 0
 			}
@@ -267,6 +317,24 @@ func TestMixedPipelineAndObservedState(t *testing.T) {
 			if !found {
 				t.Fatal("template resources missing")
 			}
+			status := engine.Map(s.Composite["status"])
+			wantPhase := "Pending"
+			if observed {
+				wantPhase = "Ready"
+			}
+			if engine.String(status["phase"]) != wantPhase || engine.String(status["resourceCount"]) != "2" {
+				t.Fatalf("mixed composite status missing: %+v", status)
+			}
+			ready := false
+			for _, condition := range status["conditions"].([]interface{}) {
+				m := engine.Map(condition)
+				if engine.String(m["type"]) == "Ready" && engine.String(m["status"]) == "True" {
+					ready = true
+				}
+			}
+			if ready != observed {
+				t.Fatalf("mixed readiness differs from observed state: %+v", status)
+			}
 			if observed && engine.String(engine.Map(s.Composite["status"])["observedRegion"]) != "eu-central-1" {
 				t.Fatalf("observed patch missing: %+v", s.Composite)
 			}
@@ -278,6 +346,7 @@ func TestUnknownFunctionInput(t *testing.T) {
 	o := runtimeOptions(t, "python")
 	m := compositionObject(t, o)
 	pipelineInput(m)["apiVersion"] = "custom.platform.example.org/v1"
+	pipelineInput(m)["resources"] = []interface{}{"alpha", "beta"}
 	o = replaceComposition(t, o, m)
 	s := render(t, o)
 	if len(s.Resources) != 2 {
@@ -480,5 +549,130 @@ func TestKCLAndPythonMockInputs(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func assertScenarioDocumentation(t *testing.T, o engine.RenderOptions, s engine.Scenario) {
+	t.Helper()
+	c := engine.Defaults()
+	inputs, err := engine.Load(o.Composition, c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	functions, err := engine.Load(o.Functions, c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	inputs = append(inputs, functions...)
+	doc, err := engine.Build(inputs, engine.Options{Config: c})
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc.Scenarios = append(doc.Scenarios, s)
+	for _, format := range []string{"markdown", "html", "asciidoc", "json", "yaml"} {
+		c.Formatter = format
+		data, err := engine.Format(doc, c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, r := range s.Resources {
+			if !strings.Contains(string(data), r.Name) {
+				t.Fatalf("%s lost rendered identity %s", format, r.Name)
+			}
+			for key, value := range engine.Map(r.Manifest["data"]) {
+				if scalar, ok := value.(string); ok && scalar != "" && !strings.Contains(html.UnescapeString(string(data)), scalar) {
+					t.Fatalf("%s lost rendered %s.%s = %q", format, r.Name, key, scalar)
+				}
+			}
+		}
+		if !strings.Contains(string(data), s.Name) || !strings.Contains(string(data), "live render") {
+			t.Fatalf("%s lost scenario provenance", format)
+		}
+		if format == "json" {
+			var actual engine.Document
+			if err := json.Unmarshal(data, &actual); err != nil {
+				t.Fatal(err)
+			}
+			if len(actual.Scenarios) != 1 {
+				t.Fatal("scenario omitted")
+			}
+			want, _ := json.Marshal(s)
+			got, _ := json.Marshal(actual.Scenarios[0])
+			if string(want) != string(got) {
+				t.Fatalf("structured output changed scenario facts:\n%s\n%s", want, got)
+			}
+		}
+	}
+}
+
+var (
+	reviewBuildOnce sync.Once
+	reviewBuildPath string
+)
+
+func reviewBinary(t *testing.T) string {
+	t.Helper()
+	reviewBuildOnce.Do(func() {
+		dir, err := os.MkdirTemp("", "crossplane-docs-review-cli-*")
+		if err != nil {
+			t.Fatal(err)
+		}
+		reviewBuildPath = filepath.Join(dir, "crossplane-docs")
+		command := exec.Command("go", "build", "-o", reviewBuildPath, ".")
+		command.Dir = root(t)
+		if out, err := command.CombinedOutput(); err != nil {
+			t.Fatalf("build: %s: %v", out, err)
+		}
+	})
+	return reviewBuildPath
+}
+
+func TestCheckModeBooleanExitCodes(t *testing.T) {
+	for _, flag := range []string{"--check", "--check=true", "--check=TRUE", "--check=1"} {
+		t.Run(flag, func(t *testing.T) {
+			command := exec.Command(reviewBinary(t), "xrd", filepath.Join(t.TempDir(), "missing.yaml"), flag, "-o", filepath.Join(t.TempDir(), "docs.md"))
+			if err := command.Run(); err == nil {
+				t.Fatal("missing input succeeded")
+			} else if exit, ok := err.(*exec.ExitError); !ok || exit.ExitCode() != 2 {
+				t.Fatalf("wrong check failure exit: %v", err)
+			}
+		})
+	}
+}
+
+func TestRequiredSchemasAreConsumed(t *testing.T) {
+	o := runtimeOptions(t, "python")
+	m := compositionObject(t, o)
+	pipelineInput(m)["script"] = `from crossplane.function.proto.v1 import run_function_pb2 as fnv1
+
+def compose(req, rsp):
+    rsp.requirements.schemas["platform"].api_version = "platform.example.org/v1beta1"
+    rsp.requirements.schemas["platform"].kind = "XPlatform"
+    if "platform" not in req.required_schemas:
+        return
+    schema = req.required_schemas["platform"].openapi_v3
+    rsp.desired.resources["schema-consumer"].resource.update({
+        "apiVersion": "v1", "kind": "ConfigMap",
+        "metadata": {"name": "schema-consumer"},
+        "data": {"description": schema["description"]},
+    })
+    rsp.desired.resources["schema-consumer"].ready = fnv1.READY_TRUE
+`
+	o = replaceComposition(t, o, m)
+	o.Schemas = t.TempDir()
+	schema := engine.Object{"components": engine.Object{"schemas": engine.Object{"platform": engine.Object{
+		"type": "object", "description": "received-platform-schema",
+		"x-kubernetes-group-version-kind": []engine.Object{{"group": "platform.example.org", "version": "v1beta1", "kind": "XPlatform"}},
+	}}}}
+	data, err := json.Marshal(schema)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(o.Schemas, "platform.json"), data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	scenario := render(t, o)
+	if len(scenario.Resources) != 1 || engine.String(engine.Map(scenario.Resources[0].Manifest["data"])["description"]) != "received-platform-schema" {
+		t.Fatalf("required schema was not consumed: %+v", scenario.Resources)
 	}
 }

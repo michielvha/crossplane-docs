@@ -31,17 +31,15 @@ func NewRootCommand() *cobra.Command {
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 func Execute() {
-	if err := NewRootCommand().Execute(); err != nil {
+	root := NewRootCommand()
+	command, err := root.ExecuteC()
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		code := 1
-		if cmd, _, findErr := NewRootCommand().Find(os.Args[1:]); findErr == nil && cmd != nil {
-			for _, arg := range os.Args[1:] {
-				if arg == "--check" || arg == "--check=true" {
-					if !engine.IsDrift(err) {
-						code = 2
-					}
-					break
-				}
+		if command != nil {
+			check, _ := command.Flags().GetBool("check")
+			if check && !engine.IsDrift(err) {
+				code = 2
 			}
 		}
 		os.Exit(code)

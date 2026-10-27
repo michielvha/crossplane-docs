@@ -78,6 +78,7 @@ type Patch struct {
 	Definition  Object `json:"definition" yaml:"definition"`
 }
 type Scenario struct {
+	Inputs    Object     `json:"inputs,omitempty" yaml:"inputs,omitempty"`
 	Name      string     `json:"name" yaml:"name"`
 	XR        string     `json:"xr,omitempty" yaml:"xr,omitempty"`
 	Validated bool       `json:"validated" yaml:"validated"`
@@ -149,7 +150,7 @@ func redacted(v interface{}) interface{} {
 		out := Object{}
 		for k, val := range x {
 			lower := strings.ToLower(k)
-			if (text(x, "kind") == "Secret" && (k == "data" || k == "stringData")) || strings.Contains(lower, "password") || strings.Contains(lower, "credential") || lower == "token" || lower == "clientsecret" {
+			if (text(x, "kind") == "Secret" && (k == "data" || k == "stringData")) || strings.Contains(lower, "password") || strings.Contains(lower, "credential") || strings.HasSuffix(lower, "token") || lower == "apikey" || lower == "api-key" || strings.HasSuffix(lower, "accesskey") || strings.HasSuffix(lower, "accesskeyid") || lower == "clientsecret" {
 				out[k] = "[redacted]"
 			} else {
 				out[k] = redacted(val)

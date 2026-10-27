@@ -268,3 +268,29 @@ func TestHTMLNavigationAndEscaping(t *testing.T) {
 		t.Fatalf("unsafe HTML or broken navigation: %s", data)
 	}
 }
+
+func TestScenarioInputProvenance(t *testing.T) {
+	o := RenderOptions{XR: "xr.yaml", Composition: "composition.yaml", Functions: "functions.yaml", Observed: "observed.yaml", Required: []string{"required.yaml"}, Schemas: "schemas", Context: []string{`platform={"owner":"atlas","apiToken":"private"}`}}
+	inputs := ScenarioInputs(o, "")
+	raw, _ := json.Marshal(inputs)
+	if strings.Contains(string(raw), "private") || !strings.Contains(string(raw), "atlas") || !strings.Contains(string(raw), "required.yaml") {
+		t.Fatalf("bad input provenance: %s", raw)
+	}
+	doc := Document{Title: "Scenarios", SchemaVersion: "1", Scenarios: []Scenario{{Name: "update", Inputs: inputs}}}
+	for _, format := range []string{"markdown", "html", "asciidoc", "json", "yaml"} {
+		c := Defaults()
+		c.Formatter = format
+		data, err := Format(doc, c)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !strings.Contains(string(data), "observed.yaml") || !strings.Contains(string(data), "update") {
+			t.Fatalf("%s lost scenario inputs", format)
+		}
+	}
+	o.Observed = "another-state.yaml"
+	other, _ := json.Marshal(ScenarioInputs(o, ""))
+	if string(other) == string(raw) {
+		t.Fatal("different mock inputs are indistinguishable")
+	}
+}

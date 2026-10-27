@@ -81,7 +81,9 @@ transform chains, policies, readiness, connection details, environment inputs an
 function source settings. Named render scenarios show the resources produced for
 that XR and its supplied inputs, including composite status, context and function
 results. A different input can produce a different inventory. Secret contents and
-credential fields are redacted in generated documentation.
+credential fields are redacted in generated documentation. Scenario sections also
+record the supplied XR, mock-file and schema references and safe context values
+so readers can distinguish create and update inputs.
 
 Rendering requires the Crossplane CLI and Docker. The tested CLI and engine pins
 are in [the render matrix](tests/render/cases.yaml); the engine image and function

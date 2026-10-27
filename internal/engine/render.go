@@ -3,6 +3,7 @@ package engine
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -246,4 +247,41 @@ func neededFunctions(composition, functions string) (string, error) {
 		return "", err
 	}
 	return f.Name(), nil
+}
+
+// ScenarioInputs records supplied inputs without embedding credential-bearing files.
+func ScenarioInputs(o RenderOptions, saved string) Object {
+	inputs := Object{"xr": o.XR}
+	if saved != "" {
+		inputs["mode"] = "saved output"
+		inputs["renderedFile"] = saved
+	} else {
+		inputs["mode"] = "live render"
+		inputs["composition"] = o.Composition
+		inputs["functions"] = o.Functions
+	}
+	if o.Observed != "" {
+		inputs["observedResources"] = o.Observed
+	}
+	if len(o.Required) > 0 {
+		inputs["requiredResources"] = o.Required
+	}
+	if o.Schemas != "" {
+		inputs["requiredSchemas"] = o.Schemas
+	}
+	contextValues := Object{}
+	for _, entry := range o.Context {
+		parts := strings.SplitN(entry, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		var value interface{}
+		if err := json.Unmarshal([]byte(parts[1]), &value); err == nil {
+			contextValues[parts[0]] = redacted(value)
+		}
+	}
+	if len(contextValues) > 0 {
+		inputs["contextValues"] = redacted(contextValues)
+	}
+	return inputs
 }

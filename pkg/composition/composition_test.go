@@ -50,7 +50,7 @@ func TestCompositionValidation(t *testing.T) {
 		"", "kind: CompositeResourceDefinition", "kind: [broken",
 		"apiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nspec: {}",
 		"apiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nspec:\n  compositeTypeRef: {apiVersion: example.org/v1, kind: XDatabase}\n  mode: Unknown",
-		"apiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nspec:\n  compositeTypeRef: {apiVersion: example.org/v1, kind: XDatabase}\n  mode: Pipeline\n  pipeline:\n    - step: broken\n      functionRef: {name: function-patch-and-transform}\n      input: {resources: invalid}",
+		"apiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nspec:\n  compositeTypeRef: {apiVersion: example.org/v1, kind: XDatabase}\n  mode: Pipeline\n  pipeline:\n    - step: broken\n      functionRef: {name: function-patch-and-transform}\n      input: {apiVersion: pt.fn.crossplane.io/v1beta1, kind: Resources, resources: invalid}",
 	} {
 		t.Run(input, func(t *testing.T) {
 			file := filepath.Join(t.TempDir(), "input.yaml")

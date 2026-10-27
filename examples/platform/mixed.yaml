@@ -100,7 +100,8 @@ spec:
           \ | quote }}\n  team: {{ index $.observed.composite.resource.spec.tags \"\
           team\" | quote }}\n  environment: {{ (index $.context \"apiextensions.crossplane.io/environment\"\
           ).environment | quote }}\n{{- end }}\n---\napiVersion: platform.example.org/v1beta1\n\
-          kind: XPlatform\nstatus:\n  phase: Ready\n  resourceCount: {{ len .observed.composite.resource.spec.networks\
+          kind: XPlatform\nstatus:\n  phase: {{ if .observed.resources }}Ready{{ else\
+          \ }}Pending{{ end }}\n  resourceCount: {{ len .observed.composite.resource.spec.networks\
           \ }}\n"
   - step: ready
     functionRef:

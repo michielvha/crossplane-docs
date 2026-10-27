@@ -137,6 +137,7 @@ func newGenerateCommand(name, kind string) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			scenario.Inputs = engine.ScenarioInputs(runtime, rendered)
 			if validate {
 				if err := engine.Validate(cmd.Context(), runtime, extensions, result); err != nil {
 					return err

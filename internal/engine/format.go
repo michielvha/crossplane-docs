@@ -230,6 +230,10 @@ func Format(doc Document, c Config) ([]byte, error) {
 				w.heading(3, s.Name)
 				w.para("Concrete resources for this sample XR and its supplied mock inputs. Other inputs may produce different resources.")
 				w.para(fmt.Sprintf("Schema validation: %t", s.Validated))
+				if len(s.Inputs) > 0 {
+					w.heading(4, "Scenario inputs")
+					w.code("yaml", yamlText(s.Inputs))
+				}
 				resourceTable(&w, s.Resources)
 				for _, r := range s.Resources {
 					w.heading(4, r.Name+" · "+r.Kind)

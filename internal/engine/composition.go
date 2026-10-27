@@ -59,7 +59,7 @@ func extractComposition(m Object, funcs map[string]Object) (Composition, error) 
 			s.Adapter = "cue"
 			s.Source = text(input, "source")
 		}
-		if s.Adapter == "patch-and-transform" || input["resources"] != nil {
+		if s.Adapter == "patch-and-transform" {
 			resources, err := resourcesFrom(input, "declared", s.Name)
 			if err != nil {
 				return c, fmt.Errorf("step %s: %w", s.Name, err)

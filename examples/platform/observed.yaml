@@ -37,3 +37,7 @@ metadata:
     crossplane.io/composition-resource-name: summary
 data:
   region: eu-central-1
+status:
+  conditions:
+  - type: Ready
+    status: 'True'

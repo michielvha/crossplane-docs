@@ -148,3 +148,28 @@ func TestEmptySavedRenderFails(t *testing.T) {
 		t.Fatalf("empty render fell back to static success: %q %v", out, err)
 	}
 }
+
+func TestUnknownFunctionResourcesStayOpaque(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "custom.yaml")
+	data := `apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata: {name: custom}
+spec:
+  compositeTypeRef: {apiVersion: example.org/v1, kind: XCustom}
+  mode: Pipeline
+  pipeline:
+    - step: custom
+      functionRef: {name: arbitrary-function}
+      input:
+        apiVersion: custom.example.org/v1
+        kind: Input
+        resources: [alpha, beta]
+`
+	if err := os.WriteFile(file, []byte(data), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	out, _, err := execute("composition", file, "--format", "json")
+	if err != nil || !strings.Contains(out, "alpha") {
+		t.Fatalf("unknown input was interpreted instead of documented: %s %v", out, err)
+	}
+}
