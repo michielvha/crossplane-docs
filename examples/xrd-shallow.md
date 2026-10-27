@@ -1,33 +1,34 @@
-# XDatabase
+<a id="crossplane-api-reference-1"></a>
+# Crossplane API reference
+
+<a id="api-definitions-2"></a>
+## API definitions
+
+<a id="xdatabase-v1alpha1-3"></a>
+### XDatabase · v1alpha1
 
 A database API for application teams.
 
-**API Group:** example.org  
-**API Version:** v1alpha1  
-**Kind:** XDatabase  
-**Claim Kind:** Database  
+| Property | Value |
+| --- | --- |
+| API Group | example.org |
+| API Version | v1alpha1 |
+| Kind | XDatabase |
+| Scope |  |
+| Claim Kind | Database |
+| Served | true |
+| Referenceable | true |
 
-## Spec Fields
+<a id="spec-fields-4"></a>
+#### Spec Fields
 
-| Name | Type | Description | Required | Default | Constraints |
-|------|------|-------------|----------|---------|-------------|
-| parameters | object |  | ✅ | - | - |
+| path | type | description | required | default | constraints |
+| --- | --- | --- | --- | --- | --- |
+| spec.parameters | object |  | true | - | {} |
 
+<a id="status-fields-5"></a>
+#### Status Fields
 
-## Status Fields
-
-| Name | Type | Description |
-|------|------|-------------|
-| connection | object |  |
-
-
-## Example
-
-```yaml
-apiVersion: example.org/v1alpha1
-kind: Database
-metadata:
-  name: example
-spec:
-  # Add your spec fields here
-```
+| path | type | description | required | default | constraints |
+| --- | --- | --- | --- | --- | --- |
+| status.connection | object |  | false | - | {} |

@@ -89,6 +89,7 @@ func TestPatchSetAndCombinedTransforms(t *testing.T) {
 		APIVersion: "apiextensions.crossplane.io/v1", Kind: "Composition",
 		Spec: CompositionSpec{
 			CompositeTypeRef: CompositeTypeRef{APIVersion: "example.org/v1", Kind: "XDatabase"},
+			PatchSets:        []PatchSet{{Name: "common", Patches: []Patch{{FromFieldPath: "spec.region", ToFieldPath: "spec.region"}}}},
 			Resources: []Resource{{Name: "database", Patches: []Patch{
 				{Type: "PatchSet", PatchSetName: "common"},
 				{
@@ -102,7 +103,7 @@ func TestPatchSetAndCombinedTransforms(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"Patch set: common (not expanded)", "%s-name;", "ToLower"} {
+	for _, want := range []string{"spec.region", "%s-name", "ToLower"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("output missing %q: %s", want, got)
 		}
@@ -118,7 +119,7 @@ func TestRuntimeOnlyPipeline(t *testing.T) {
 		},
 	}
 	got, err := New().Generate(comp, Options{})
-	if err != nil || !strings.Contains(got, "function-go-templating") || !strings.Contains(got, "functions may create additional resources at runtime") {
+	if err != nil || !strings.Contains(got, "function-go-templating") || !strings.Contains(got, "Functions may create additional resources at runtime") {
 		t.Fatalf("runtime-only pipelines need an explicit limitation: %s, %v", got, err)
 	}
 	comp.Spec.Pipeline = nil

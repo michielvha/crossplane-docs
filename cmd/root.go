@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/michielvha/crossplane-docs/internal/engine"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +25,7 @@ func NewRootCommand() *cobra.Command {
 		SilenceErrors: true,
 		SilenceUsage:  true,
 	}
-	root.AddCommand(newXRDCommand(), newCompositionCommand())
+	root.AddCommand(newXRDCommand(), newCompositionCommand(), newBatchCommand())
 	return root
 }
 
@@ -32,6 +33,17 @@ func NewRootCommand() *cobra.Command {
 func Execute() {
 	if err := NewRootCommand().Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		code := 1
+		if cmd, _, findErr := NewRootCommand().Find(os.Args[1:]); findErr == nil && cmd != nil {
+			for _, arg := range os.Args[1:] {
+				if arg == "--check" || arg == "--check=true" {
+					if !engine.IsDrift(err) {
+						code = 2
+					}
+					break
+				}
+			}
+		}
+		os.Exit(code)
 	}
 }

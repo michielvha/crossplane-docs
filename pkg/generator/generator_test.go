@@ -88,12 +88,12 @@ func TestServedVersionSelection(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(got, "**API Version:** v1  ") {
+	if !strings.Contains(got, "| API Version | v1 |") {
 		t.Fatal("did not select first served version")
 	}
 	xrd.Spec.Versions[1].Served = false
 	got, err = New().Generate(xrd, Options{})
-	if err != nil || !strings.Contains(got, "**API Version:** v1alpha1") {
+	if err != nil || !strings.Contains(got, "| API Version | v1alpha1 |") {
 		t.Fatalf("first version fallback failed: %s, %v", got, err)
 	}
 }
