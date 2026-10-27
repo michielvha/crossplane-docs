@@ -249,7 +249,7 @@ remote tag changes require explicit shipping authorization.
 - [ ] AC-13: File/directory/bundle generation supports deterministic discovery and resource matching, catches collisions and malformed supported inputs, and retains existing single-resource commands.
 - [ ] AC-14: Replace and marker-injection output preserve unrelated content and resist partial writes; repeated injection is identical and check mode distinguishes current, drift and failure without writing.
 - [ ] AC-15: Every advertised capability maps to a tested runnable example, and mandatory CI executes the full renderer matrix and formatter checks before any release tag can be created.
-- [ ] AC-16: A local six-target release snapshot has verified archive contents, checksums and version metadata; the reviewed release workflow publishes and signs only the exact checked tag without replacing assets.
+- [ ] AC-16: A local six-target release snapshot has verified archive contents, checksums and version metadata; local checksum signing verifies successfully, and release workflow contract checks require the exact checked tag and protect existing assets.
 - [ ] AC-17: Optional upstream schema/CEL validation accepts valid supplied/rendered examples, rejects invalid fields, constraints and CEL rules, fails for missing required schemas, and includes real validator tests in mandatory CI.
 
 ## Test Plan
@@ -268,7 +268,7 @@ remote tag changes require explicit shipping authorization.
 | AC-13 | Temporary directory and bundle tests cover discovery, excludes, symlinks, identity matching, collisions, malformed inputs and command compatibility. |
 | AC-14 | Byte-preservation and idempotence tests cover replace/inject/error behavior; binary tests assert check-mode exit codes and unchanged files. |
 | AC-15 | CI runs the complete pinned integration matrix and formatter checks; force one render failure to prove the version job cannot run; reconcile advertised support with tested cases. |
-| AC-16 | GoReleaser check/snapshot, archive checksum and version tests; inspect the selected shared workflows and perform an explicitly authorized exact-tag signed-release smoke test. |
+| AC-16 | GoReleaser check/snapshot, archive checksum and version tests; verify local checksum signing with a temporary test key and inspect exact-tag and asset-immutability contracts in the selected shared workflows. A live publication smoke test is a separately authorized shipping step. |
 | AC-17 | Invoke the pinned upstream validator on valid/invalid XR and rendered-resource fixtures with local XRD/CRD schemas; assert field, constraint, CEL and missing-schema failures and resulting CLI exit behavior. |
 
 ## Tasks
@@ -286,7 +286,7 @@ remote tag changes require explicit shipping authorization.
 - [ ] T13 `tests/render/render_test.go`, `internal/render/` - add failing validator/CLI scenarios for valid, invalid and missing-schema inputs (AC-17).
 - [ ] T14 `internal/render/`, `cmd/` - implement the explicit upstream validation mode; T13 passes against the real validator (AC-17).
 - [ ] T11 `.github/workflows/ci.yml`, `scripts/`, `Makefile`, `renovate.json5` - require the real-render, validator and formatter suites before versioning; the intentional-failure CI check blocks tagging (AC-15, AC-17).
-- [ ] T12 `.goreleaser.yml`, `README.md`, `examples/` - verify six-target snapshots, document only tested support and exact release behavior, and complete the authorized signed-release check (AC-15, AC-16).
+- [ ] T12 `.goreleaser.yml`, `README.md`, `examples/` - verify six-target snapshots, document only tested support and exact release behavior, and verify local signing and release workflow contracts (AC-15, AC-16).
 
 ## Open Questions
 
@@ -299,8 +299,16 @@ baseline is separate from agreement on these individual requirements.
 | Date | Review | Kind | Commit | Model | Isolation | Outcome |
 | --- | --- | --- | --- | --- | --- | --- |
 
-No independent review or owner acceptance is recorded yet. Existing maintenance
-checks do not prove these new acceptance criteria.
+| 2026-10-27 | R-1 | spec | `d9a09ca` | unknown | procedural | Blocking publication prerequisite corrected in the next revision. |
+
+### R-1
+
+FINDING: F-01
+KIND: factual
+SEVERITY: blocking
+WHERE: Test Plan AC-16 and Tasks T12
+EVIDENCE: At d9a09ca, docs/specs/documentation-engine.spec.md:233 requires separate shipping authorization for live publication and remote tag changes, but line 271 requires an exact-tag signed-release smoke test and line 289 makes that check part of implementation completion. The authorized deliverable is a local feature branch ready for review, so these checks require an action outside that deliverable.
+PROPOSAL: Make AC-16 completion depend on local snapshot, checksum, version, signing and workflow contract checks. Describe the live exact-tag publication smoke test as a shipping procedure that runs only after separate authorization, without making it a prerequisite for local implementation completion.
 
 ## Sources
 
