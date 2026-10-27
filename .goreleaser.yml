@@ -1,0 +1,57 @@
+version: 2
+project_name: crossplane-docs
+
+builds:
+  - main: .
+    binary: crossplane-docs
+    env:
+      - CGO_ENABLED=0
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    flags:
+      - -trimpath
+    ldflags:
+      - >-
+        -s -w
+        -X github.com/michielvha/crossplane-docs/cmd.version={{.Version}}
+        -X github.com/michielvha/crossplane-docs/cmd.commit={{.Commit}}
+        -X github.com/michielvha/crossplane-docs/cmd.date={{.Date}}
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+
+archives:
+  - formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}'
+    files:
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+  algorithm: sha256
+
+signs:
+  - artifacts: checksum
+    args:
+      - --batch
+      - --local-user
+      - '{{ .Env.GPG_FINGERPRINT }}'
+      - --output
+      - '${signature}'
+      - --detach-sign
+      - '${artifact}'
+
+release:
+  draft: false
+  prerelease: auto
+  use_existing_draft: true
+  replace_existing_draft: false
+  replace_existing_artifacts: false
+
+changelog:
+  use: git
+  sort: asc
+  filters:
+    include:
+      - '^(feat|fix|perf|refactor|chore)(\([^)]*\))?!?:'

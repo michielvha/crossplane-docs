@@ -14,26 +14,24 @@ var (
 	date    = "unknown"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "crossplane-docs",
-	Short: "Generate documentation for Crossplane resources",
-	Long: `crossplane-docs generates terraform-docs style markdown documentation 
-for Crossplane resources including XRDs, Compositions, and more.
-
-Parse OpenAPI schemas and resource definitions to create clean, readable
-documentation tables with field names, types, descriptions, defaults, and validations.`,
-	Version: fmt.Sprintf("%s (commit: %s, built: %s)", version, commit, date),
+// NewRootCommand returns a fresh command tree for each invocation.
+func NewRootCommand() *cobra.Command {
+	root := &cobra.Command{
+		Use:           "crossplane-docs",
+		Short:         "Generate documentation for Crossplane resources",
+		Long:          `Generate Markdown reference tables from Crossplane XRDs and static Composition definitions.`,
+		Version:       fmt.Sprintf("%s (commit: %s, built: %s)", version, commit, date),
+		SilenceErrors: true,
+		SilenceUsage:  true,
+	}
+	root.AddCommand(newXRDCommand(), newCompositionCommand())
+	return root
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	if err := NewRootCommand().Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-}
-
-func init() {
-	// Global flags can be added here
 }

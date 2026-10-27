@@ -2,13 +2,14 @@ package generator
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
 	"strings"
 	"text/template"
 
-	"gopkg.in/yaml.v3"
+	"github.com/michielvha/crossplane-docs/internal/document"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -98,7 +99,7 @@ func (g *Generator) GenerateFromFile(filename string, opts Options) (string, err
 	}
 
 	var xrd XRD
-	if err := yaml.Unmarshal(data, &xrd); err != nil {
+	if err := document.Decode(data, &xrd); err != nil {
 		return "", fmt.Errorf("failed to parse XRD YAML: %w", err)
 	}
 
@@ -107,6 +108,15 @@ func (g *Generator) GenerateFromFile(filename string, opts Options) (string, err
 
 // Generate generates documentation from an XRD struct
 func (g *Generator) Generate(xrd *XRD, opts Options) (string, error) {
+	if xrd == nil {
+		return "", fmt.Errorf("XRD must not be nil")
+	}
+	if xrd.Kind != "CompositeResourceDefinition" || !strings.HasPrefix(xrd.APIVersion, "apiextensions.crossplane.io/") {
+		return "", fmt.Errorf("expected an apiextensions.crossplane.io CompositeResourceDefinition")
+	}
+	if xrd.Spec.Group == "" || xrd.Spec.Names.Kind == "" {
+		return "", fmt.Errorf("XRD requires spec.group and spec.names.kind")
+	}
 	if len(xrd.Spec.Versions) == 0 {
 		return "", fmt.Errorf("no versions found in XRD")
 	}
@@ -124,17 +134,17 @@ func (g *Generator) Generate(xrd *XRD, opts Options) (string, error) {
 	}
 
 	// Extract spec fields
-	specFields := g.extractFields(version.Schema.OpenAPIV3Schema, "spec", []string{}, 0, opts.ShowNested)
+	specFields := g.extractFields(version.Schema.OpenAPIV3Schema, "spec", 0, opts.ShowNested)
 
 	// Always include status fields (they're part of the API!)
-	statusFields := g.extractFields(version.Schema.OpenAPIV3Schema, "status", []string{}, 0, opts.ShowNested)
+	statusFields := g.extractFields(version.Schema.OpenAPIV3Schema, "status", 0, opts.ShowNested)
 
 	// Generate markdown
 	return g.generateMarkdown(xrd, version, specFields, statusFields)
 }
 
 // extractFields recursively extracts fields from the schema
-func (g *Generator) extractFields(schema OpenAPISchema, prefix string, required []string, level int, showNested bool) []Field {
+func (g *Generator) extractFields(schema OpenAPISchema, prefix string, level int, showNested bool) []Field {
 	var fields []Field
 
 	if schema.Properties == nil {
@@ -207,7 +217,7 @@ func (g *Generator) formatType(schema OpenAPISchema) string {
 	if schema.Type == "object" {
 		return "object"
 	}
-	if len(schema.Enum) > 0 {
+	if schema.Type == "" && len(schema.Enum) > 0 {
 		return "string"
 	}
 	return schema.Type
@@ -217,6 +227,12 @@ func (g *Generator) formatType(schema OpenAPISchema) string {
 func (g *Generator) formatDefault(value interface{}) string {
 	if value == nil {
 		return ""
+	}
+	switch value.(type) {
+	case map[string]interface{}, []interface{}:
+		if data, err := json.Marshal(value); err == nil {
+			return string(data)
+		}
 	}
 	return fmt.Sprintf("%v", value)
 }
@@ -286,7 +302,7 @@ func (g *Generator) generateMarkdown(xrd *XRD, version *XRDVersion, specFields [
 | Name | Type | Description | Required | Default | Constraints |
 |------|------|-------------|----------|---------|-------------|
 {{ range .SpecFields -}}
-| {{ if gt .Level 0 }}{{ indent .Level }}{{ end }}{{ .Name }} | {{ .Type }} | {{ .Description }} | {{ if .Required }}✅{{ else }}❌{{ end }} | {{ if .Default }}` + "`{{ .Default }}`" + `{{ else }}-{{ end }} | {{ if .Constraints }}{{ .Constraints }}{{ else }}-{{ end }} |
+| {{ if gt .Level 0 }}{{ indent .Level }}{{ end }}{{ cell .Name }} | {{ cell .Type }} | {{ cell .Description }} | {{ if .Required }}✅{{ else }}❌{{ end }} | {{ if .Default }}` + "`{{ cell .Default }}`" + `{{ else }}-{{ end }} | {{ if .Constraints }}{{ cell .Constraints }}{{ else }}-{{ end }} |
 {{ end }}
 {{ if .StatusFields }}
 ## Status Fields
@@ -294,7 +310,7 @@ func (g *Generator) generateMarkdown(xrd *XRD, version *XRDVersion, specFields [
 | Name | Type | Description |
 |------|------|-------------|
 {{ range .StatusFields -}}
-| {{ if gt .Level 0 }}{{ indent .Level }}{{ end }}{{ .Name }} | {{ .Type }} | {{ .Description }} |
+| {{ if gt .Level 0 }}{{ indent .Level }}{{ end }}{{ cell .Name }} | {{ cell .Type }} | {{ cell .Description }} |
 {{ end }}
 {{ end }}
 ## Example
@@ -310,6 +326,7 @@ spec:
 `
 
 	funcMap := template.FuncMap{
+		"cell": document.Cell,
 		"indent": func(level int) string {
 			return strings.Repeat("&nbsp;&nbsp;", level) + "↳ "
 		},
@@ -342,6 +359,14 @@ spec:
 
 // flattenFields converts nested field structure to flat list for table display
 func (g *Generator) flattenFields(fields []Field) []Field {
+	// Sort every level; sorting only the top level leaves map iteration order
+	// visible in generated documentation.
+	sort.Slice(fields, func(i, j int) bool {
+		if fields[i].Required != fields[j].Required {
+			return fields[i].Required
+		}
+		return fields[i].Name < fields[j].Name
+	})
 	var result []Field
 	for _, field := range fields {
 		result = append(result, field)

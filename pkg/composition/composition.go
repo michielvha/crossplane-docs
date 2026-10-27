@@ -2,12 +2,14 @@ package composition
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"sort"
 	"strings"
 	"text/template"
 
+	"github.com/michielvha/crossplane-docs/internal/document"
 	"gopkg.in/yaml.v3"
 )
 
@@ -68,11 +70,13 @@ type FunctionRef struct {
 
 // Patch represents a field patch
 type Patch struct {
-	Type          string                 `yaml:"type"`
-	FromFieldPath string                 `yaml:"fromFieldPath,omitempty"`
-	ToFieldPath   string                 `yaml:"toFieldPath,omitempty"`
-	Combine       *Combine               `yaml:"combine,omitempty"`
-	Policy        map[string]interface{} `yaml:"policy,omitempty"`
+	Type          string                   `yaml:"type"`
+	FromFieldPath string                   `yaml:"fromFieldPath,omitempty"`
+	ToFieldPath   string                   `yaml:"toFieldPath,omitempty"`
+	Combine       *Combine                 `yaml:"combine,omitempty"`
+	Policy        map[string]interface{}   `yaml:"policy,omitempty"`
+	Transforms    []map[string]interface{} `yaml:"transforms,omitempty"`
+	PatchSetName  string                   `yaml:"patchSetName,omitempty"`
 }
 
 // Combine represents a field combination
@@ -111,6 +115,7 @@ type ManagedResource struct {
 
 // PatchInfo represents patch information
 type PatchInfo struct {
+	Type           string
 	XRDField       string
 	MappedTo       string
 	Transformation string
@@ -124,7 +129,7 @@ func (g *Generator) GenerateFromFile(filename string, opts Options) (string, err
 	}
 
 	var comp Composition
-	if err := yaml.Unmarshal(data, &comp); err != nil {
+	if err := document.Decode(data, &comp); err != nil {
 		return "", fmt.Errorf("failed to parse Composition YAML: %w", err)
 	}
 
@@ -133,12 +138,31 @@ func (g *Generator) GenerateFromFile(filename string, opts Options) (string, err
 
 // Generate generates documentation from a Composition struct
 func (g *Generator) Generate(comp *Composition, opts Options) (string, error) {
+	if comp == nil {
+		return "", fmt.Errorf("Composition must not be nil")
+	}
+	if comp.Kind != "Composition" || !strings.HasPrefix(comp.APIVersion, "apiextensions.crossplane.io/") {
+		return "", fmt.Errorf("expected an apiextensions.crossplane.io Composition")
+	}
+	if comp.Spec.CompositeTypeRef.APIVersion == "" || comp.Spec.CompositeTypeRef.Kind == "" {
+		return "", fmt.Errorf("Composition requires spec.compositeTypeRef.apiVersion and kind")
+	}
+	if comp.Spec.Mode != "" && comp.Spec.Mode != "Resources" && comp.Spec.Mode != "Pipeline" {
+		return "", fmt.Errorf("unsupported Composition mode %q", comp.Spec.Mode)
+	}
 	// Extract resources
 	var resources []ManagedResource
 
-	if comp.Spec.Mode == "Pipeline" && len(comp.Spec.Pipeline) > 0 {
+	if comp.Spec.Mode == "Pipeline" {
+		if len(comp.Spec.Pipeline) == 0 {
+			return "", fmt.Errorf("pipeline mode requires spec.pipeline steps")
+		}
 		// Parse pipeline mode
-		resources = g.extractPipelineResources(comp, opts)
+		var err error
+		resources, err = g.extractPipelineResources(comp, opts)
+		if err != nil {
+			return "", err
+		}
 	} else {
 		// Parse resources mode
 		resources = g.extractResources(comp.Spec.Resources, opts)
@@ -148,21 +172,28 @@ func (g *Generator) Generate(comp *Composition, opts Options) (string, error) {
 }
 
 // extractPipelineResources extracts resources from pipeline mode
-func (g *Generator) extractPipelineResources(comp *Composition, opts Options) []ManagedResource {
+func (g *Generator) extractPipelineResources(comp *Composition, opts Options) ([]ManagedResource, error) {
 	var resources []ManagedResource
 
 	for _, step := range comp.Spec.Pipeline {
-		if input, ok := step.Input["resources"].([]interface{}); ok {
-			for _, r := range input {
-				if resMap, ok := r.(map[string]interface{}); ok {
-					resource := g.parseResource(resMap, opts)
-					resources = append(resources, resource)
-				}
-			}
+		input, exists := step.Input["resources"]
+		if !exists {
+			continue
 		}
+		// Decode both modes into the same types, preserving transforms and combine
+		// variables instead of maintaining a second, incomplete patch parser.
+		data, err := yaml.Marshal(input)
+		if err != nil {
+			return nil, fmt.Errorf("pipeline step %q resources: %w", step.Step, err)
+		}
+		var typed []Resource
+		if err := yaml.Unmarshal(data, &typed); err != nil {
+			return nil, fmt.Errorf("pipeline step %q resources: %w", step.Step, err)
+		}
+		resources = append(resources, g.extractResources(typed, opts)...)
 	}
 
-	return resources
+	return resources, nil
 }
 
 // extractResources extracts resources from resources mode
@@ -172,8 +203,8 @@ func (g *Generator) extractResources(resources []Resource, opts Options) []Manag
 	for _, res := range resources {
 		mr := ManagedResource{
 			Name:       res.Name,
-			Kind:       getStringFromMap(res.Base, "kind"),
-			APIVersion: getStringFromMap(res.Base, "apiVersion"),
+			Kind:       getString(res.Base, "kind"),
+			APIVersion: getString(res.Base, "apiVersion"),
 		}
 
 		if opts.ShowPatches {
@@ -186,35 +217,26 @@ func (g *Generator) extractResources(resources []Resource, opts Options) []Manag
 	return result
 }
 
-// parseResource parses a resource from map
-func (g *Generator) parseResource(resMap map[string]interface{}, opts Options) ManagedResource {
-	resource := ManagedResource{
-		Name: getString(resMap, "name"),
-	}
-
-	if base, ok := resMap["base"].(map[string]interface{}); ok {
-		resource.Kind = getString(base, "kind")
-		resource.APIVersion = getString(base, "apiVersion")
-	}
-
-	if opts.ShowPatches {
-		if patches, ok := resMap["patches"].([]interface{}); ok {
-			resource.Patches = g.parsePatchesFromInterface(patches)
-		}
-	}
-
-	return resource
-}
-
 // extractPatches extracts patch information
 func (g *Generator) extractPatches(patches []Patch) []PatchInfo {
 	var result []PatchInfo
 
 	for _, p := range patches {
+		if p.Type == "" {
+			p.Type = "FromCompositeFieldPath"
+		}
 		info := PatchInfo{
+			Type:           p.Type,
 			XRDField:       p.FromFieldPath,
 			MappedTo:       p.ToFieldPath,
 			Transformation: g.formatTransformation(p),
+		}
+		if p.Combine != nil {
+			var variables []string
+			for _, variable := range p.Combine.Variables {
+				variables = append(variables, variable.FromFieldPath)
+			}
+			info.XRDField = strings.Join(variables, ", ")
 		}
 		result = append(result, info)
 	}
@@ -222,41 +244,25 @@ func (g *Generator) extractPatches(patches []Patch) []PatchInfo {
 	return result
 }
 
-// parsePatchesFromInterface parses patches from interface
-func (g *Generator) parsePatchesFromInterface(patches []interface{}) []PatchInfo {
-	var result []PatchInfo
-
-	for _, p := range patches {
-		if patchMap, ok := p.(map[string]interface{}); ok {
-			info := PatchInfo{
-				XRDField: getString(patchMap, "fromFieldPath"),
-				MappedTo: getString(patchMap, "toFieldPath"),
-			}
-
-			// Handle combine transformations
-			if combine, ok := patchMap["combine"].(map[string]interface{}); ok {
-				if str, ok := combine["string"].(map[string]interface{}); ok {
-					if fmt, ok := str["fmt"].(string); ok {
-						info.Transformation = fmt
-					}
-				}
-			} else if info.XRDField != "" {
-				info.Transformation = "Direct copy"
-			}
-
-			if info.XRDField != "" || info.MappedTo != "" {
-				result = append(result, info)
-			}
-		}
-	}
-
-	return result
-}
-
 // formatTransformation formats the transformation description
 func (g *Generator) formatTransformation(p Patch) string {
+	var details []string
 	if p.Combine != nil && p.Combine.String != nil {
-		return p.Combine.String.Fmt
+		details = append(details, p.Combine.String.Fmt)
+	}
+	if len(p.Transforms) > 0 {
+		data, err := json.Marshal(p.Transforms)
+		if err == nil {
+			details = append(details, string(data))
+		} else {
+			details = append(details, "Transforms defined (cannot display as JSON)")
+		}
+	}
+	if len(details) > 0 {
+		return strings.Join(details, "; ")
+	}
+	if p.Type == "PatchSet" {
+		return "Patch set: " + p.PatchSetName + " (not expanded)"
 	}
 	if p.Type == "FromCompositeFieldPath" || p.Type == "ToCompositeFieldPath" {
 		return "Direct copy"
@@ -276,25 +282,37 @@ func (g *Generator) generateMarkdown(comp *Composition, resources []ManagedResou
 **Composition Name:** {{ .Name }}  
 **Composite Type:** {{ .Composition.Spec.CompositeTypeRef.APIVersion }}/{{ .Composition.Spec.CompositeTypeRef.Kind }}  
 {{ if .Composition.Spec.Mode }}**Mode:** {{ .Composition.Spec.Mode }}{{ end }}
+{{ if .Composition.Spec.Pipeline }}
+## Pipeline Steps
+
+| Step | Function |
+|------|----------|
+{{ range .Composition.Spec.Pipeline -}}
+| {{ cell .Step }} | {{ cell .FunctionRef.Name }} |
+{{ end }}
+Pipeline functions are not executed. Only static input.resources entries are listed below; functions may create additional resources at runtime.
+{{ end }}
 
 ## Managed Resources
 
-This composition creates {{ len .Resources }} managed resource(s):
+Static resource definitions found: {{ len .Resources }}.
 
 | Resource Name | Kind | API Version |
 |---------------|------|-------------|
 {{ range .Resources -}}
-| {{ .Name }} | {{ .Kind }} | {{ .APIVersion }} |
+| {{ cell .Name }} | {{ cell .Kind }} | {{ cell .APIVersion }} |
 {{ end }}
 {{ if .ShowPatches }}
 ## Field Mappings
 {{ range .Resources }}
 ### {{ .Name }} ({{ .Kind }})
 {{ if .Patches }}
-| XRD Field | Mapped To | Transformation |
-|-----------|-----------|----------------|
+FromComposite patches copy from the composite to the resource; ToComposite patches copy from the resource to the composite.
+
+| Patch Type | Source Field | Destination Field | Transformation |
+|------------|--------------|-------------------|----------------|
 {{ range .Patches -}}
-| {{ if .XRDField }}{{ .XRDField }}{{ else }}-{{ end }} | {{ .MappedTo }} | {{ .Transformation }} |
+| {{ cell .Type }} | {{ if .XRDField }}{{ cell .XRDField }}{{ else }}-{{ end }} | {{ if .MappedTo }}{{ cell .MappedTo }}{{ else }}-{{ end }} | {{ cell .Transformation }} |
 {{ end }}
 {{ else }}
 No patches defined.
@@ -303,7 +321,7 @@ No patches defined.
 {{ end }}
 `
 
-	t, err := template.New("markdown").Parse(tmpl)
+	t, err := template.New("markdown").Funcs(template.FuncMap{"cell": document.Cell}).Parse(tmpl)
 	if err != nil {
 		return "", err
 	}
@@ -337,26 +355,6 @@ No patches defined.
 func getString(m map[string]interface{}, key string) string {
 	if v, ok := m[key].(string); ok {
 		return v
-	}
-	return ""
-}
-
-func getStringFromMap(m map[string]interface{}, key string) string {
-	keys := strings.Split(key, ".")
-	current := m
-
-	for i, k := range keys {
-		if i == len(keys)-1 {
-			if v, ok := current[k].(string); ok {
-				return v
-			}
-			return ""
-		}
-		if next, ok := current[k].(map[string]interface{}); ok {
-			current = next
-		} else {
-			return ""
-		}
 	}
 	return ""
 }

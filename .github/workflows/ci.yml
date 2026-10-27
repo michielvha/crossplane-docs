@@ -1,0 +1,46 @@
+name: CI and Release
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: michielvha/go-ci-action@ab14d6420148179e8d20ecc0b7cb89760193cb37 # v0.1.0
+      - name: Check for data races
+        run: go test -race ./...
+
+  # The same-workflow arrangement uses GITHUB_TOKEN to tag, then passes that
+  # exact tag to the publisher. It needs no release App credentials.
+  version:
+    needs: verify
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: read
+    uses: vhco-pro/version-workflow/.github/workflows/version.yml@3b78b04df802ea1592cbe19338d7a882d1888389 # v0.1.0
+
+  release:
+    needs: version
+    if: needs.version.outputs.tagged == 'true'
+    permissions:
+      contents: write
+    uses: vhco-pro/go-release-workflow/.github/workflows/go-release.yml@311467ed4ba150944298460af16497abad8b7a69 # v0.1.0
+    with:
+      tag: ${{ needs.version.outputs.tag }}
+    secrets:
+      pgp-private-key: ${{ secrets.PGP_PRIVATE_KEY }}
