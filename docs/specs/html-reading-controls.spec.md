@@ -79,7 +79,10 @@ Print uses a light background and dark text regardless of the reader theme.
 
 ## Tasks
 
-None yet; populated after specification review.
+- [ ] T1 `tests/format/format.test.ts` - write filter, theme and fallback checks and observe failures for missing behavior (AC-01 through AC-06).
+- [ ] T2 `internal/engine/html.go`, `internal/engine/html.js`, `internal/engine/html.css` - implement controls and colours so the new and existing browser checks pass (AC-01 through AC-06).
+- [ ] T3 `README.md` - describe controls and observe make check plus generated private HTTPS previews in both themes (AC-06).
+- [ ] T4 `docs/specs/html-reading-controls.spec.md` - store an independent implementation review and pass the complete gate (AC-01 through AC-06).
 
 ## Open Questions
 
