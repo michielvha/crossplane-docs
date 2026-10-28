@@ -31,6 +31,23 @@ func TestStructuredAndHTMLOutput(t *testing.T) {
 	}
 }
 
+func TestHTMLLayoutFlagOverridesConfig(t *testing.T) {
+	dir := t.TempDir()
+	config := filepath.Join(dir, "config.yml")
+	if err := os.WriteFile(config, []byte("version: 1\nformatter: html\nhtml-layout: explorer\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, layout := range []string{"reference", "explorer", "compact"} {
+		out, _, err := execute("xrd", "../examples/xrd.yaml", "--config", config, "--html-layout", layout)
+		if err != nil || !strings.Contains(out, `data-html-layout="`+layout+`"`) {
+			t.Fatalf("HTML layout override %s failed: %v", layout, err)
+		}
+	}
+	if _, _, err := execute("xrd", "../examples/xrd.yaml", "--html-layout", "invalid"); err == nil {
+		t.Fatal("invalid HTML layout accepted")
+	}
+}
+
 func TestConfigInjectionAndCheck(t *testing.T) {
 	dir := t.TempDir()
 	input, err := os.ReadFile("../examples/xrd.yaml")
