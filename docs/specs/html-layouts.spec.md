@@ -1,6 +1,6 @@
 ---
-status: draft
-status_description: "Owner requested all three reviewed concepts as configurable HTML output."
+status: planned
+status_description: "Reviewed and accepted; implementing the three configured HTML layouts."
 branch: feat/v0.2.0
 issue: null
 goal: "Generate three readable, configurable HTML reference layouts with legible embedded source programs."
