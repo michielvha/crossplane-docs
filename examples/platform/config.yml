@@ -1,5 +1,6 @@
 version: 1
 formatter: html
+html-layout: reference
 title: Team Atlas platform reference
 layout: table
 sections: [apis, compositions, scenarios, examples]

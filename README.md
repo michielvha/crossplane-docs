@@ -142,7 +142,19 @@ root, then the invocation directory. Explicit flags override configuration,
 including false values. Paths in a configuration file are relative to that file.
 Unknown keys and invalid option combinations fail.
 
-Configure section order and visibility, field columns, table/document layouts,
+Select `html-layout: reference`, `explorer` or `compact` in the configuration, or
+override it with `--html-layout`. The default is `reference`: field definitions
+next to a matching example manifest. `explorer` provides a field browser and
+inspector; `compact` uses comparison columns on desktop and stacked field
+definitions on phones. All three are standalone files with embedded styles and
+interactions, and remain readable with JavaScript disabled. HTML search and API
+selection operate on the versions included by `--api-version` or `--all-versions`.
+
+Embedded templates and programs use separate code blocks with real line breaks.
+Copy controls preserve the program text, including intentional literal escapes.
+Manifest and settings blocks use YAML rather than JSON-escaped source strings.
+
+Configure section order and visibility, field columns, table/document text layouts,
 sorting, nesting, descriptions, anchors, examples, HTML styles, indentation and
 output location. Optional `template`, `header-from` and `footer-from` files
 customize presentation. Custom templates receive the shared documentation model;
