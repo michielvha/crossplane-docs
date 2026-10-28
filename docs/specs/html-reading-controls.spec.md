@@ -93,7 +93,9 @@ Print uses a light background and dark text regardless of the reader theme.
       Evidence: make check passed; real CLI generation matched all three private HTTPS files byte-for-byte. Both themes and requirement/search/reload interactions passed at desktop/mobile widths, and all three 64-line sources copied exactly. README describes the controls.
 - [x] T5 `internal/engine/html.js`, `internal/engine/html.go`, `tests/format/format.test.ts` - reproduce and fix conflicting query-field links and no-JavaScript browser metadata, then pass regressions (AC-02, AC-03, AC-05).
       Evidence: Both review regressions failed before correction (/tmp/crossplane-reading-review-red.log). After resolving explicit query targets before filtering and supplying media-qualified metadata, all 16 browser cases passed with 320 assertions; make check passed.
-- [ ] T4 `docs/specs/html-reading-controls.spec.md` - store an independent implementation review and pass the complete gate (AC-01 through AC-06).
+- [x] T4 `docs/specs/html-reading-controls.spec.md` - store an independent implementation review and pass the complete gate (AC-01 through AC-06).
+
+      Evidence: R-3 independently reran 16 browser cases/320 assertions, package race tests and both HTTPS repros. All six criteria met with no findings; exact records verified with review check.
 
 ## Open Questions
 
@@ -107,6 +109,7 @@ previously authorized end-to-end implementation once the specification is ready.
 | 2026-10-29 | R-1 | spec | `c21e362` | unknown | procedural | No findings; model identity not attested. |
 | 2026-10-29 | R-1 | spec | `c21e362` | n/a | n/a | accepted by owner |
 | 2026-10-29 | R-2 | implementation | `41ddfb0` | unknown | procedural | Query field links and no-JavaScript browser colour need fixes; identity not attested. |
+| 2026-10-29 | R-3 | implementation | `f7d00a8` | unknown | procedural | All six criteria met; no findings. Model identity not attested. |
 
 ### R-1
 
@@ -151,6 +154,32 @@ SEVERITY: should-fix
 WHERE: internal/engine/html.go theme-colour metadata
 EVIDENCE: With JavaScript disabled and OS dark preference, the actual reference preview has dark ink and the Postbode gradient but retains the single theme-color meta value #f5f8f8. The Design requires theme-colour metadata to follow the active theme.
 PROPOSAL: Provide light/dark media-qualified theme-colour metadata for the no-JavaScript case and keep it synchronized with explicit JavaScript choices. Test the effective metadata under both OS themes with JavaScript disabled.
+
+### R-3
+
+CRITERION: AC-01 All three layouts filter fields by All, Required or Optional together with text search, using parent-relative requirement semantics and showing correct groups, explorer links, counts and empty states.
+VERDICT: met
+EVIDENCE: At f7d00a822f829fea6727e07ff524b184ea72ba01, independently ran the final browser suite: 16 cases and 320 assertions passed, including all layouts, parent-relative nested/alternative requirements, hidden required columns, combined search, counts, groups, explorer links and empty states. Fresh package race tests also passed.
+
+CRITERION: AC-02 Requirement and text filters survive API/version changes and reloads, invalid requirement URLs fall back to All, and explicit field links reveal their targets despite conflicting filters.
+VERDICT: met
+EVIDENCE: At f7d00a822f829fea6727e07ff524b184ea72ba01, final browser regressions passed for API/version transitions, reload persistence, invalid URLs and hash/query deep links. Independently opened the original conflicting explorer query on HTTPS: spec.region remained selected, the requirement became All and conflicting text cleared. Compatible saved filters still pass reload tests.
+
+CRITERION: AC-03 Every HTML document offers a keyboard-accessible theme toggle with an accurate accessible name and state, follows the OS preference before an explicit choice, remembers choices on reload, and remains usable with denied storage, offline or as a local file.
+VERDICT: met
+EVIDENCE: At f7d00a822f829fea6727e07ff524b184ea72ba01, independently executed passing system-change, keyboard-toggle, explicit-choice persistence, denied-storage, offline and composition-only local-file browser tests. Inspected synchronous pre-style initialization and OS-change handling; accessible toggle state and metadata follow explicit choices.
+
+CRITERION: AC-04 Dark mode uses the Postbode gradient with legible text, controls, code and focus states, while light mode retains the existing colours; all three layouts remain usable at 360px, 390px, 768px and desktop widths.
+VERDICT: met
+EVIDENCE: At f7d00a822f829fea6727e07ff524b184ea72ba01, final browser checks passed for the exact Postbode gradient, composited text/control/focus contrast, original light colours and geometry at 360px, 390px, 768px and desktop widths. Independently observed the HTTPS compact preview switch to the pinned gradient and restore the original light ink.
+
+CRITERION: AC-05 Without JavaScript all documentation stays readable under the OS colour preference with inactive controls hidden, and printing uses a light palette with documentation content available.
+VERDICT: met
+EVIDENCE: At f7d00a822f829fea6727e07ff524b184ea72ba01, final browser tests passed for JavaScript-disabled light/dark output and print after filtering in every layout. Independently checked both OS themes on the HTTPS reference with JavaScript disabled: readable palette, hidden toggle and exactly one correctly matching media-qualified theme-colour metadata value were observed.
+
+CRITERION: AC-06 Existing format and source-copy behavior passes regression checks, and generated private HTTPS previews demonstrate the requirement filter and both themes.
+VERDICT: met
+EVIDENCE: At f7d00a822f829fea6727e07ff524b184ea72ba01, fresh package race tests and the complete 16-case formatter/browser suite passed, including exact multiline source copying and AsciiDoc/template compatibility. Inspected successful final make-check output. Independently reached the refreshed reference, explorer and compact private HTTPS outputs and verified the reported regressions, filtering and theme behavior. The feature tree is clean and its spec review is fresh.
 
 ## Sources
 
