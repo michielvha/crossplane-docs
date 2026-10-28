@@ -1,5 +1,5 @@
 ---
-status: planned
+status: in-progress
 status_description: "Reviewed and accepted; implementing the three configured HTML layouts."
 branch: feat/v0.2.0
 issue: null
