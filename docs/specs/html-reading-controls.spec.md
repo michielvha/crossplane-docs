@@ -1,6 +1,6 @@
 ---
-status: draft
-status_description: "Filter and theme behavior specified for independent review."
+status: planned
+status_description: "Reviewed specification; continuing under the owner’s end-to-end implementation instruction."
 branch: feat/v0.2.0
 issue: null
 goal: "Readers can narrow HTML fields by requirement and choose a readable Postbode-inspired dark theme."
@@ -90,6 +90,12 @@ previously authorized end-to-end implementation once the specification is ready.
 
 | Date | Review | Kind | Commit | Model | Isolation | Outcome |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-10-29 | R-1 | spec | `c21e362` | unknown | procedural | No findings; model identity not attested. |
+| 2026-10-29 | R-1 | spec | `c21e362` | n/a | n/a | accepted by owner |
+
+### R-1
+
+NO FINDINGS
 
 ## Sources
 
