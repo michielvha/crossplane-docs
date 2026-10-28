@@ -86,7 +86,8 @@ replacing escapes. Escape HTML and retain the existing credential redaction boun
 
 - [x] T1 `internal/engine/`, `cmd/`, `tests/format/` - write and observe failing config, multiline-source and three-layout browser regressions (AC-01 through AC-06).
       Evidence: Targeted Go regressions failed on unknown html-layout configuration and --html-layout flag; all three new browser cases failed on the missing flag before implementation.
-- [ ] T2 `internal/engine/`, `cmd/` - implement the shared renderer, configuration, readable sources and interactions; the new regressions pass (AC-01 through AC-06).
+- [x] T2 `internal/engine/`, `cmd/` - implement the shared renderer, configuration, readable sources and interactions; the new regressions pass (AC-01 through AC-06).
+      Evidence: New configuration/source/model regressions and seven Chromium/AsciiDoc/template cases passed, including 98 assertions across all three layouts, four widths, plain HTML and reload/copy behavior.
 - [ ] T3 `examples/platform/config.yml`, `README.md`, `tests/format/` - document usage, generate all three examples and execute required quality checks (AC-07).
 - [ ] T4 `docs/specs/html-layouts.spec.md` - record a fresh independent implementation review and completion evidence, then pass the complete gate (AC-07).
 

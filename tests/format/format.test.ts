@@ -19,6 +19,9 @@ function generateHTML(layout: string) {
 function generate(format: string) {
  const result = Bun.spawnSync([binary, 'generate', join(root, 'examples/platform.yaml'), '--all-versions', '--format', format]);
  expect(result.exitCode).toBe(0);
+ return result.stdout.toString();
+}
+function writeBundle() {
  const files = ['examples/platform.yaml', 'examples/platform/go-templating.yaml', 'examples/platform/xr.yaml'];
  writeFileSync(bundle, files.map(file => readFileSync(join(root, file), 'utf8')).join('\n---\n') + `
 ---
@@ -54,9 +57,9 @@ spec:
     input:
       script: ${JSON.stringify(sourceProgram)}
 `);
- return result.stdout.toString();
 }
 beforeAll(async () => {
+ writeBundle();
  const result = Bun.spawnSync(['go', 'build', '-o', binary, '.'], {cwd: root});
  expect(result.exitCode).toBe(0);
  browser = await chromium.launch({headless: true});
@@ -70,9 +73,9 @@ test('standalone HTML works offline on desktop and mobile', async () => {
  const errors: string[] = [];
  page.on('pageerror', error => errors.push(error.message));
  await page.setContent(html);
- expect(await page.locator('h1').textContent()).toContain('Crossplane');
- expect(await page.locator('table').count()).toBeGreaterThan(0);
- expect(await page.locator('th[scope="col"]').count()).toBeGreaterThan(0);
+ expect(await page.locator('h1:visible').textContent()).toContain('XPlatform');
+ expect(await page.locator('.field-entry').count()).toBeGreaterThan(0);
+ expect(await page.locator('label[for="field-search"]').count()).toBe(1);
  expect(await page.locator('script[src], link[rel="stylesheet"]').count()).toBe(0);
  for (const width of [1280, 390]) {
   await page.setViewportSize({width, height: 800});
@@ -101,6 +104,12 @@ for (const layout of ['reference', 'explorer', 'compact']) {
    const ids = nodes.map(n => n.id); return ids.filter((id, i) => ids.indexOf(id) !== i);
   });
   expect(duplicates).toEqual([]);
+  await page.evaluate(() => {
+   Object.defineProperty(navigator, 'clipboard', {configurable: true, value: {writeText: async (value: string) => { (window as any).copiedSource = value; }}});
+  });
+  const programBlock = page.locator('.code-block').filter({has: page.locator('code.source-code')}).last();
+  await programBlock.locator('[data-copy]').click();
+  expect(await page.evaluate(() => (window as any).copiedSource)).toBe(sourceProgram);
   await page.locator('#field-search').fill('region');
   expect(await page.locator('#search-status').textContent()).toContain('matching');
   await page.locator('#field-search').fill('does-not-exist');
@@ -144,6 +153,26 @@ for (const layout of ['reference', 'explorer', 'compact']) {
   await plain.close();
  });
 }
+
+test('field links, search and API selection survive reload without a stale hash', async () => {
+ const output = generateHTML('explorer');
+ const page = await browser.newPage();
+ await page.route('https://reference.test/**', route => route.fulfill({body: output, contentType: 'text/html'}));
+ await page.goto('https://reference.test/');
+ await page.locator('#api-select').selectOption({label: 'XPlatform / platform.example.org'});
+ const field = page.locator('.api-panel:visible .field-link[data-path="spec.storage.sizeGiB"]');
+ const target = await field.getAttribute('href');
+ await page.goto('https://reference.test/' + target);
+ expect(await page.locator('.api-panel:visible .field-entry:visible').getAttribute('data-path')).toBe('spec.storage.sizeGiB');
+ await page.locator('#version-select').selectOption({label: 'v1alpha1'});
+ await page.reload();
+ expect(await page.locator('.api-panel:visible').getAttribute('data-version')).toBe('v1alpha1');
+ await page.locator('#field-search').fill('region');
+ await page.reload();
+ expect(await page.locator('#field-search').inputValue()).toBe('region');
+ expect(await page.locator('.api-panel:visible .field-entry:visible').getAttribute('data-path')).toContain('region');
+ await page.close();
+});
 
 test('AsciiDoc is consumable by Asciidoctor', async () => {
  const output = (await convert(generate('asciidoc'), {standalone: true, safe: 'secure'})).toString();

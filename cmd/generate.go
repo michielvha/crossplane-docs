@@ -20,8 +20,10 @@ func newGenerateCommand(name, kind string) *cobra.Command {
 	var schemas, include, exclude []string
 	runtime := engine.RenderOptions{Timeout: 2 * time.Minute, Name: "example", CrossplaneVersion: "v2.4.3", CrossplaneImage: engine.DefaultCrossplaneImage}
 	command := &cobra.Command{Use: name + " PATH", Short: "Generate configurable documentation from Crossplane manifests", Args: cobra.ExactArgs(1)}
+	var htmlLayout string
 	flags := command.Flags()
 	flags.StringVar(&configFile, "config", "", "Configuration file (default: .crossplane-docs.yml)")
+	flags.StringVar(&htmlLayout, "html-layout", "reference", "HTML layout: reference, explorer or compact")
 	flags.StringVar(&format, "format", "markdown", "Output: markdown, html, asciidoc, json or yaml")
 	flags.StringVarP(&output, "output", "o", "", "Output file (default: stdout)")
 	flags.StringVar(&outputMode, "output-mode", "replace", "replace or inject")
@@ -55,6 +57,9 @@ func newGenerateCommand(name, kind string) *cobra.Command {
 		config, err := engine.LoadConfig(args[0], configFile)
 		if err != nil {
 			return err
+		}
+		if flags.Changed("html-layout") {
+			config.HTMLLayout = htmlLayout
 		}
 		if flags.Changed("format") {
 			config.Formatter = format

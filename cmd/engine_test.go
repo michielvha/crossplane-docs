@@ -24,7 +24,7 @@ func TestStructuredAndHTMLOutput(t *testing.T) {
 					t.Fatalf("missing model contract: %s", out)
 				}
 			}
-			if format == "html" && (!strings.Contains(out, "<!doctype html>") || !strings.Contains(out, "<table")) {
+			if format == "html" && (!strings.Contains(out, "<!doctype html>") || !strings.Contains(out, `id="apis"`) || !strings.Contains(out, `class="field-entry"`)) {
 				t.Fatalf("not standalone HTML: %s", out)
 			}
 		})

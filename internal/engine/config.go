@@ -17,6 +17,7 @@ type Config struct {
 	Formatter  string   `yaml:"formatter"`
 	Title      string   `yaml:"title"`
 	Layout     string   `yaml:"layout"`
+	HTMLLayout string   `yaml:"html-layout"`
 	Sections   []string `yaml:"sections"`
 	Columns    []string `yaml:"columns"`
 	Template   string   `yaml:"template"`
@@ -52,7 +53,7 @@ type (
 )
 
 func Defaults() Config {
-	return Config{Version: 1, Formatter: "markdown", Title: "Crossplane API reference", Layout: "table", Sections: []string{"apis", "compositions", "scenarios", "examples"}, Columns: []string{"path", "type", "description", "required", "default", "constraints"}, Settings: Settings{Nested: true, Descriptions: true, Anchors: true, Examples: true, Patches: true, Indent: 2}, Sort: Sort{By: "name", RequiredFirst: true}, Output: Output{Mode: "replace"}, Recursive: true}
+	return Config{Version: 1, Formatter: "markdown", Title: "Crossplane API reference", Layout: "table", HTMLLayout: "reference", Sections: []string{"apis", "compositions", "scenarios", "examples"}, Columns: []string{"path", "type", "description", "required", "default", "constraints"}, Settings: Settings{Nested: true, Descriptions: true, Anchors: true, Examples: true, Patches: true, Indent: 2}, Sort: Sort{By: "name", RequiredFirst: true}, Output: Output{Mode: "replace"}, Recursive: true}
 }
 
 func LoadConfig(input, explicit string) (Config, error) {
@@ -105,6 +106,9 @@ func (c Config) Validate() error {
 	}
 	if c.Template != "" && (c.Formatter == "json" || c.Formatter == "yaml") {
 		return fmt.Errorf("custom templates require a document formatter")
+	}
+	if !slices.Contains([]string{"reference", "explorer", "compact"}, c.HTMLLayout) {
+		return fmt.Errorf("unknown html-layout %q", c.HTMLLayout)
 	}
 	if !slices.Contains([]string{"table", "document"}, c.Layout) {
 		return fmt.Errorf("unknown layout %q", c.Layout)
