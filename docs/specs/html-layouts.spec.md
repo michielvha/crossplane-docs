@@ -99,11 +99,8 @@ fresh review. Existing branch placement and local-review publication boundaries 
 | Date | Review | Kind | Commit | Model | Isolation | Outcome |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-10-28 | R-1 | spec | `cda8c93` | unknown | procedural | Circular review prerequisite needs correction. |
-
-## Sources
-
-- [Anthropic frontend-design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): content-first hierarchy, deliberate layouts and visual verification.
-- [Vercel interface guidelines](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): keyboard, focus, touch, overflow and content-handling checks.
+| 2026-10-28 | R-2 | spec | `bb9a5cc` | unknown | procedural | No blocking findings; move historical review records under Review Log. |
+| 2026-10-28 | R-2 | spec | `bb9a5cc` | n/a | n/a | accepted by owner |
 
 ### R-1
 
@@ -113,3 +110,17 @@ SEVERITY: blocking
 WHERE: Acceptance Criteria AC-07
 EVIDENCE: AC-07 requires that "the final committed implementation receives a clean independent review". The pinned conventions/feature-documents.md requires an implementation review to establish every current criterion as met before that review is clean. The first review cannot observe an existing clean review of this criterion, so making that review an acceptance condition introduces a circular prerequisite.
 PROPOSAL: Keep the independent review in the Test Plan, T4 and the standard complete gate. State AC-07 in terms of the executable quality checks and the three private previews, without requiring a clean review as a criterion that the same review must establish.
+
+### R-2
+
+FINDING: F-01
+KIND: factual
+SEVERITY: should-fix
+WHERE: Review Log and Sources
+EVIDENCE: At bb9a5cc4100654a70a829f323ed06e56e1b2af39, the recorded R-1 subsection follows the Sources heading and source links. The pinned feature-document standard places each returned review subsection under Review Log and Sources last. The corrected AC-07 removes the circular prerequisite; no blocking normative finding remains.
+PROPOSAL: Move the complete R-1 subsection before Sources without changing its returned records. This is a review-storage correction and does not change the normative baseline.
+
+## Sources
+
+- [Anthropic frontend-design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): content-first hierarchy, deliberate layouts and visual verification.
+- [Vercel interface guidelines](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): keyboard, focus, touch, overflow and content-handling checks.
