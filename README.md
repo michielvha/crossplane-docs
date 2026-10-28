@@ -150,6 +150,17 @@ definitions on phones. All three are standalone files with embedded styles and
 interactions, and remain readable with JavaScript disabled. HTML search and API
 selection operate on the versions included by `--api-version` or `--all-versions`.
 
+Use Field requirement to show all, required or optional fields alongside text
+search. Required means required within the field's parent object or schema
+alternative. Filters stay in the URL across API/version changes and reloads;
+opening a direct field link reveals it even if a filter would hide it.
+
+The sun/moon toggle switches between the existing light palette and VH Midnight,
+using Postbode's blue gradient with teal accents. The reference follows the system
+theme until you choose a mode, then remembers that choice when browser storage
+is available. Both themes work offline and with local files. Printing uses a
+light palette and includes fields hidden by filters.
+
 Embedded templates and programs use separate code blocks with real line breaks.
 Copy controls preserve the program text, including intentional literal escapes.
 Manifest and settings blocks use YAML rather than JSON-escaped source strings.

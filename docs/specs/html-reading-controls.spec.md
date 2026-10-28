@@ -59,12 +59,18 @@ Print uses a light background and dark text regardless of the reader theme.
 
 ## Acceptance Criteria
 
-- [ ] AC-01: All three layouts filter fields by All, Required or Optional together with text search, using parent-relative requirement semantics and showing correct groups, explorer links, counts and empty states.
-- [ ] AC-02: Requirement and text filters survive API/version changes and reloads, invalid requirement URLs fall back to All, and explicit field links reveal their targets despite conflicting filters.
-- [ ] AC-03: Every HTML document offers a keyboard-accessible theme toggle with an accurate accessible name and state, follows the OS preference before an explicit choice, remembers choices on reload, and remains usable with denied storage, offline or as a local file.
-- [ ] AC-04: Dark mode uses the Postbode gradient with legible text, controls, code and focus states, while light mode retains the existing colours; all three layouts remain usable at 360px, 390px, 768px and desktop widths.
-- [ ] AC-05: Without JavaScript all documentation stays readable under the OS colour preference with inactive controls hidden, and printing uses a light palette with documentation content available.
-- [ ] AC-06: Existing format and source-copy behavior passes regression checks, and generated private HTTPS previews demonstrate the requirement filter and both themes.
+- [x] AC-01: All three layouts filter fields by All, Required or Optional together with text search, using parent-relative requirement semantics and showing correct groups, explorer links, counts and empty states.
+      Evidence: Chromium verified all three layouts using a config that omits the required column: six required fields, including array-item and schema-alternative properties; optional/text combinations, counts and empty states passed.
+- [x] AC-02: Requirement and text filters survive API/version changes and reloads, invalid requirement URLs fall back to All, and explicit field links reveal their targets despite conflicting filters.
+      Evidence: Chromium verified API/version selection, saved URL filters on reload, invalid requirement fallback and explicit conflicting field links in every layout.
+- [x] AC-03: Every HTML document offers a keyboard-accessible theme toggle with an accurate accessible name and state, follows the OS preference before an explicit choice, remembers choices on reload, and remains usable with denied storage, offline or as a local file.
+      Evidence: Chromium verified OS changes, keyboard activation, explicit light/dark persistence, denied storage without page errors, offline operation and a composition-only local file.
+- [x] AC-04: Dark mode uses the Postbode gradient with legible text, controls, code and focus states, while light mode retains the existing colours; all three layouts remain usable at 360px, 390px, 768px and desktop widths.
+      Evidence: Computed Postbode gradient, native control colours, text/control/focus contrast and four-width geometry checks passed in all layouts; inspected actual private desktop/mobile dark screenshots.
+- [x] AC-05: Without JavaScript all documentation stays readable under the OS colour preference with inactive controls hidden, and printing uses a light palette with documentation content available.
+      Evidence: JavaScript-disabled checks passed for both OS themes and all three layouts. Print emulation after zero-match filtering showed all API panels/fields, light text colours and no empty-filter message.
+- [x] AC-06: Existing format and source-copy behavior passes regression checks, and generated private HTTPS previews demonstrate the requirement filter and both themes.
+      Evidence: make check passed and 16 browser cases passed with 302 assertions. Each private HTTPS file matched real CLI bytes; actual filtering, toggling, reload and exact 64-line copying passed.
 
 ## Test Plan
 
@@ -83,7 +89,8 @@ Print uses a light background and dark text regardless of the reader theme.
       Evidence: New Chromium checks failed for the absent requirement selector, missing theme toggle and unchanged dark-system colours; eight existing checks passed (/tmp/crossplane-reading-red.log).
 - [x] T2 `internal/engine/html.go`, `internal/engine/html.js`, `internal/engine/html.css` - implement controls and colours so the new and existing browser checks pass (AC-01 through AC-06).
       Evidence: All 16 browser checks passed with 302 assertions, including filters, URL/deep links, native dark controls, persistence, denied storage, file opening, mobile geometry and print; make check passed.
-- [ ] T3 `README.md` - describe controls and observe make check plus generated private HTTPS previews in both themes (AC-06).
+- [x] T3 `README.md` - describe controls and observe make check plus generated private HTTPS previews in both themes (AC-06).
+      Evidence: make check passed; real CLI generation matched all three private HTTPS files byte-for-byte. Both themes and requirement/search/reload interactions passed at desktop/mobile widths, and all three 64-line sources copied exactly. README describes the controls.
 - [ ] T4 `docs/specs/html-reading-controls.spec.md` - store an independent implementation review and pass the complete gate (AC-01 through AC-06).
 
 ## Open Questions
