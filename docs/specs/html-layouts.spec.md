@@ -68,7 +68,7 @@ replacing escapes. Escape HTML and retain the existing credential redaction boun
 - [ ] AC-04: Multiline templates and programs display and copy with real line breaks; readable manifest/settings output preserves scalar types and intentional literal escapes, and malicious text cannot become executable HTML.
 - [ ] AC-05: At 360px, 390px, 768px and desktop widths, the layouts remain usable without page overflow; phones present readable field definitions, usable controls and accessible field/example navigation.
 - [ ] AC-06: Generated output is deterministic, field/navigation anchors are unique and correct across API identities and versions, and selection/search/deep-link state cannot strand hidden content.
-- [ ] AC-07: The CLI-generated examples pass formatter, regression, lint and real-render checks, and the final committed implementation receives a clean independent review with private tailnet previews of all three layouts.
+- [ ] AC-07: The CLI-generated examples pass formatter, regression, lint and real-render checks, and all three layouts have verified private tailnet previews.
 
 ## Test Plan
 
@@ -98,8 +98,18 @@ fresh review. Existing branch placement and local-review publication boundaries 
 
 | Date | Review | Kind | Commit | Model | Isolation | Outcome |
 | --- | --- | --- | --- | --- | --- | --- |
+| 2026-10-28 | R-1 | spec | `cda8c93` | unknown | procedural | Circular review prerequisite needs correction. |
 
 ## Sources
 
 - [Anthropic frontend-design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): content-first hierarchy, deliberate layouts and visual verification.
 - [Vercel interface guidelines](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): keyboard, focus, touch, overflow and content-handling checks.
+
+### R-1
+
+FINDING: F-01
+KIND: factual
+SEVERITY: blocking
+WHERE: Acceptance Criteria AC-07
+EVIDENCE: AC-07 requires that "the final committed implementation receives a clean independent review". The pinned conventions/feature-documents.md requires an implementation review to establish every current criterion as met before that review is clean. The first review cannot observe an existing clean review of this criterion, so making that review an acceptance condition introduces a circular prerequisite.
+PROPOSAL: Keep the independent review in the Test Plan, T4 and the standard complete gate. State AC-07 in terms of the executable quality checks and the three private previews, without requiring a clean review as a criterion that the same review must establish.
