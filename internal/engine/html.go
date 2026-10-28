@@ -26,7 +26,7 @@ const htmlThemeInit = `(() => {
   const theme = preference === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : preference;
   document.documentElement.dataset.themePreference = preference;
   document.documentElement.dataset.theme = theme;
-  document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#020814' : '#f5f8f8';
+  for (const meta of document.querySelectorAll('meta[name="theme-color"]')) meta.content = theme === 'dark' ? '#020814' : '#f5f8f8';
 })();`
 
 const htmlThemeButton = `<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false" title="Switch to dark mode" hidden><svg class="theme-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.9 13a9 9 0 0 1-9.9-9.9A9 9 0 1 0 20.9 13Z"/></svg><svg class="theme-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>`
@@ -41,7 +41,7 @@ func formatHTML(doc Document, c Config) ([]byte, error) {
 	c.Sections = sections
 	w := &writer{config: c}
 	fmt.Fprintf(&w.buf, `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f8f8"><link rel="icon" href="data:,"><title>%s</title><script type="text/javascript">%s</script><style>%s%s</style></head><body data-html-layout="%s"><a class="skip" href="#content">Skip to reference</a><header class="appbar"><span class="brand">crossplane<span>docs</span></span><span class="document-title">%s</span>%s</header><div class="shell"><nav class="rail" aria-label="Contents">`, html.EscapeString(doc.Title), htmlThemeInit, htmlStyle, c.Settings.Style, c.HTMLLayout, html.EscapeString(doc.Title), htmlThemeButton)
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f8f8" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#020814" media="(prefers-color-scheme: dark)"><link rel="icon" href="data:,"><title>%s</title><script type="text/javascript">%s</script><style>%s%s</style></head><body data-html-layout="%s"><a class="skip" href="#content">Skip to reference</a><header class="appbar"><span class="brand">crossplane<span>docs</span></span><span class="document-title">%s</span>%s</header><div class="shell"><nav class="rail" aria-label="Contents">`, html.EscapeString(doc.Title), htmlThemeInit, htmlStyle, c.Settings.Style, c.HTMLLayout, html.EscapeString(doc.Title), htmlThemeButton)
 	for _, section := range c.Sections {
 		label := map[string]string{"apis": "API reference", "compositions": "Compositions", "scenarios": "Rendered scenarios", "examples": "Examples"}[section]
 		fmt.Fprintf(&w.buf, `<a href="#%s">%s</a>`, section, label)

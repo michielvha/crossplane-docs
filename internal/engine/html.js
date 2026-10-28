@@ -37,11 +37,15 @@ function saveState() {
   try { history.replaceState(null, '', url); } catch { /* Embedded previews may prohibit URL changes. */ }
 }
 
+function matchesFilters(entry) {
+  return entry.dataset.search.includes(search.value.trim().toLowerCase()) && (requirement.value === 'all' || entry.dataset.required === String(requirement.value === 'required'));
+}
+
 function filterFields() {
   if (!panel) return;
   const query = search.value.trim().toLowerCase();
   const entries = [...panel.querySelectorAll('.field-entry')];
-  const matches = entries.filter(entry => entry.dataset.search.includes(query) && (requirement.value === 'all' || entry.dataset.required === String(requirement.value === 'required')));
+  const matches = entries.filter(matchesFilters);
   const links = [...panel.querySelectorAll('.field-link')];
   let selected = matches.find(entry => entry.dataset.path === selectedPath);
   if (!selected) selected = matches.find(entry => entry.dataset.path === 'spec.region') || matches[0];
@@ -61,9 +65,14 @@ function filterFields() {
   saveState();
 }
 
-function selectPanel(id) {
+function selectPanel(id, revealPath = '') {
   panel = panels.find(item => item.id === id) || panels.find(item => item.dataset.preferred === 'true') || panels[0];
   if (!panel) return;
+  const requested = [...panel.querySelectorAll('.field-entry')].find(entry => entry.dataset.path === revealPath);
+  if (requested && !matchesFilters(requested)) {
+    search.value = '';
+    requirement.value = 'all';
+  }
   for (const item of panels) item.hidden = item !== panel;
   const focused = document.activeElement;
   panel.querySelector('.api-header').insertAdjacentElement('afterend', controls);
@@ -101,7 +110,7 @@ if (panels.length && controls) {
   if (resources.size === 1) resourceSelect.closest('.control').hidden = true;
   search.value = params.get('q') || '';
   requirement.value = ['required', 'optional'].includes(params.get('requirement')) ? params.get('requirement') : 'all';
-  selectPanel(params.get('api'));
+  selectPanel(params.get('api'), selectedPath);
   revealHash();
   search.addEventListener('input', () => { clearFieldHash(); filterFields(); });
   requirement.addEventListener('change', () => { clearFieldHash(); filterFields(); });
@@ -148,7 +157,7 @@ if (themeToggle) {
     root.dataset.theme = theme;
     themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
     themeToggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#020814' : '#f5f8f8';
+    for (const meta of document.querySelectorAll('meta[name="theme-color"]')) meta.content = theme === 'dark' ? '#020814' : '#f5f8f8';
   }
   applyTheme(root.dataset.theme);
   themeToggle.hidden = false;

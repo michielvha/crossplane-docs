@@ -61,8 +61,8 @@ Print uses a light background and dark text regardless of the reader theme.
 
 - [x] AC-01: All three layouts filter fields by All, Required or Optional together with text search, using parent-relative requirement semantics and showing correct groups, explorer links, counts and empty states.
       Evidence: Chromium verified all three layouts using a config that omits the required column: six required fields, including array-item and schema-alternative properties; optional/text combinations, counts and empty states passed.
-- [ ] AC-02: Requirement and text filters survive API/version changes and reloads, invalid requirement URLs fall back to All, and explicit field links reveal their targets despite conflicting filters.
-      Evidence: R-2 returned not met: a conflicting requirement filter replaced an explicit explorer field query.
+- [x] AC-02: Requirement and text filters survive API/version changes and reloads, invalid requirement URLs fall back to All, and explicit field links reveal their targets despite conflicting filters.
+      Evidence: The R-2 query-link regression failed before correction. Conflicting requirement, text and combined query-form links now reveal the requested field; all 16 browser checks with 320 assertions pass.
 - [x] AC-03: Every HTML document offers a keyboard-accessible theme toggle with an accurate accessible name and state, follows the OS preference before an explicit choice, remembers choices on reload, and remains usable with denied storage, offline or as a local file.
       Evidence: Chromium verified OS changes, keyboard activation, explicit light/dark persistence, denied storage without page errors, offline operation and a composition-only local file.
 - [x] AC-04: Dark mode uses the Postbode gradient with legible text, controls, code and focus states, while light mode retains the existing colours; all three layouts remain usable at 360px, 390px, 768px and desktop widths.
@@ -91,7 +91,8 @@ Print uses a light background and dark text regardless of the reader theme.
       Evidence: All 16 browser checks passed with 302 assertions, including filters, URL/deep links, native dark controls, persistence, denied storage, file opening, mobile geometry and print; make check passed.
 - [x] T3 `README.md` - describe controls and observe make check plus generated private HTTPS previews in both themes (AC-06).
       Evidence: make check passed; real CLI generation matched all three private HTTPS files byte-for-byte. Both themes and requirement/search/reload interactions passed at desktop/mobile widths, and all three 64-line sources copied exactly. README describes the controls.
-- [ ] T5 `internal/engine/html.js`, `internal/engine/html.go`, `tests/format/format.test.ts` - reproduce and fix conflicting query-field links and no-JavaScript browser metadata, then pass regressions (AC-02, AC-03, AC-05).
+- [x] T5 `internal/engine/html.js`, `internal/engine/html.go`, `tests/format/format.test.ts` - reproduce and fix conflicting query-field links and no-JavaScript browser metadata, then pass regressions (AC-02, AC-03, AC-05).
+      Evidence: Both review regressions failed before correction (/tmp/crossplane-reading-review-red.log). After resolving explicit query targets before filtering and supplying media-qualified metadata, all 16 browser cases passed with 320 assertions; make check passed.
 - [ ] T4 `docs/specs/html-reading-controls.spec.md` - store an independent implementation review and pass the complete gate (AC-01 through AC-06).
 
 ## Open Questions

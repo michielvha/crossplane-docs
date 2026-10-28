@@ -253,6 +253,16 @@ for (const layout of ['reference', 'explorer', 'compact']) {
   expect(await requirement.inputValue()).toBe('all');
   expect(await page.locator('#field-search').inputValue()).toBe('');
   expect(await active.locator('.field-entry[data-path="spec.region"]').isVisible()).toBe(true);
+  if (layout === 'explorer') {
+   const api = await active.getAttribute('id');
+   for (const filters of ['requirement=optional', 'q=optionalNote', 'requirement=optional&q=optionalNote']) {
+    await page.goto(`https://reading.test/?api=${api}&field=spec.region&${filters}`);
+    expect(await active.locator('.field-entry:visible').getAttribute('data-path')).toBe('spec.region');
+    expect(await requirement.inputValue()).toBe('all');
+    expect(await page.locator('#field-search').inputValue()).toBe('');
+    expect(new URL(page.url()).searchParams.get('field')).toBe('spec.region');
+   }
+  }
   await page.goto('https://reading.test/?requirement=unknown');
   expect(await requirement.inputValue()).toBe('all');
   expect(new URL(page.url()).searchParams.has('requirement')).toBe(false);
@@ -364,6 +374,8 @@ test('no JavaScript uses system colours and print reveals all filtered fields in
    expect(await page.locator('.controls').isVisible()).toBe(false);
    expect(await page.locator('.api-panel:visible').count()).toBe(3);
    expect(await page.locator('body').evaluate(el => getComputedStyle(el).color)).toBe(colorScheme === 'dark' ? 'rgb(234, 240, 255)' : 'rgb(23, 42, 57)');
+   const effectiveMeta = await page.locator('meta[name="theme-color"]').evaluateAll(nodes => nodes.filter(node => !node.getAttribute('media') || matchMedia(node.getAttribute('media')!).matches).map(node => node.getAttribute('content')));
+   expect(effectiveMeta).toEqual([colorScheme === 'dark' ? '#020814' : '#f5f8f8']);
    await page.close();
   }
   const page = await browser.newPage({colorScheme: 'dark'});
