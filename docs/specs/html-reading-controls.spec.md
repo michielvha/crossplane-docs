@@ -1,6 +1,6 @@
 ---
-status: in-progress
-status_description: "Implementing and testing the reviewed reading controls on the existing feature branch."
+status: complete
+status_description: "All reading controls passed regression checks, independent re-review and the complete gate."
 branch: feat/v0.2.0
 issue: null
 goal: "Readers can narrow HTML fields by requirement and choose a readable Postbode-inspired dark theme."
