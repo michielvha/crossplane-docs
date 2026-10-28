@@ -1,6 +1,6 @@
 ---
-status: in-progress
-status_description: "Reviewed and accepted; implementing the three configured HTML layouts."
+status: complete
+status_description: "All three layouts and source readability passed independent re-review and the complete gate."
 branch: feat/v0.2.0
 issue: null
 goal: "Generate three readable, configurable HTML reference layouts with legible embedded source programs."
@@ -99,7 +99,9 @@ replacing escapes. Escape HTML and retain the existing credential redaction boun
       Evidence: Watched the ID-collision, CRLF source and mobile empty-state regressions fail, then pass after namespace, escaped-code and pane-state fixes; eight browser cases with 106 assertions now pass.
 - [x] T3 `examples/platform/config.yml`, `README.md`, `tests/format/` - document usage, generate all three examples and execute required quality checks (AC-07).
       Evidence: README/config examples match the CLI; all three config-only outputs match their HTTPS previews. Required quality checks and the final real-render matrix passed.
-- [ ] T4 `docs/specs/html-layouts.spec.md` - record a fresh independent implementation review and completion evidence, then pass the complete gate (AC-07).
+- [x] T4 `docs/specs/html-layouts.spec.md` - record a fresh independent implementation review and completion evidence, then pass the complete gate (AC-07).
+
+      Evidence: R-4 exact records passed review check; all seven criteria met and vh-adlc gate complete returned pass.
 
 ## Open Questions
 
