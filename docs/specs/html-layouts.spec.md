@@ -65,10 +65,15 @@ replacing escapes. Escape HTML and retain the existing credential redaction boun
 - [ ] AC-01: Configuration and CLI select reference, explorer or compact HTML, default to reference, reject unknown values, and preserve custom templates and other output formats.
 - [ ] AC-02: Every layout retains enabled API, field, constraint, reference, printer-column, composition, patch, scenario and example documentation, including multiple API identities and versions, while respecting presentation settings.
 - [ ] AC-03: All layouts work offline with JavaScript and remain readable without it; resource/version selection, field search, empty states, explorer inspection and reference example switching work through keyboard-accessible controls.
+      Evidence: R-3 at `0a4d5e3` returned not met; follow-up verification remains open.
 - [ ] AC-04: Multiline templates and programs display and copy with real line breaks; readable manifest/settings output preserves scalar types and intentional literal escapes, and malicious text cannot become executable HTML.
+      Evidence: R-3 at `0a4d5e3` returned not met; follow-up verification remains open.
 - [ ] AC-05: At 360px, 390px, 768px and desktop widths, the layouts remain usable without page overflow; phones present readable field definitions, usable controls and accessible field/example navigation.
+      Evidence: R-3 at `0a4d5e3` returned not met; follow-up verification remains open.
 - [ ] AC-06: Generated output is deterministic, field/navigation anchors are unique and correct across API identities and versions, and selection/search/deep-link state cannot strand hidden content.
+      Evidence: R-3 at `0a4d5e3` returned not met; follow-up verification remains open.
 - [ ] AC-07: The CLI-generated examples pass formatter, regression, lint and real-render checks, and all three layouts have verified private tailnet previews.
+      Evidence: R-3 at `0a4d5e3` returned not verified; follow-up verification remains open.
 
 ## Test Plan
 
@@ -88,6 +93,7 @@ replacing escapes. Escape HTML and retain the existing credential redaction boun
       Evidence: Targeted Go regressions failed on unknown html-layout configuration and --html-layout flag; all three new browser cases failed on the missing flag before implementation.
 - [x] T2 `internal/engine/`, `cmd/` - implement the shared renderer, configuration, readable sources and interactions; the new regressions pass (AC-01 through AC-06).
       Evidence: New configuration/source/model regressions and seven Chromium/AsciiDoc/template cases passed, including 98 assertions across all three layouts, four widths, plain HTML and reload/copy behavior.
+- [ ] T5 `internal/engine/`, `tests/format/` - add regressions and fix R-3 ID namespaces, mobile feedback/labels and CRLF source copying (AC-03 through AC-06).
 - [ ] T3 `examples/platform/config.yml`, `README.md`, `tests/format/` - document usage, generate all three examples and execute required quality checks (AC-07).
 - [ ] T4 `docs/specs/html-layouts.spec.md` - record a fresh independent implementation review and completion evidence, then pass the complete gate (AC-07).
 
@@ -103,6 +109,7 @@ fresh review. Existing branch placement and local-review publication boundaries 
 | 2026-10-28 | R-1 | spec | `cda8c93` | unknown | procedural | Circular review prerequisite needs correction. |
 | 2026-10-28 | R-2 | spec | `bb9a5cc` | unknown | procedural | No blocking findings; move historical review records under Review Log. |
 | 2026-10-28 | R-2 | spec | `bb9a5cc` | n/a | n/a | accepted by owner |
+| 2026-10-28 | R-3 | implementation | `0a4d5e3` | unknown | procedural | Anchor, mobile empty-state and source-fidelity fixes required; model identity not attested. |
 
 ### R-1
 
@@ -121,6 +128,64 @@ SEVERITY: should-fix
 WHERE: Review Log and Sources
 EVIDENCE: At bb9a5cc4100654a70a829f323ed06e56e1b2af39, the recorded R-1 subsection follows the Sources heading and source links. The pinned feature-document standard places each returned review subsection under Review Log and Sources last. The corrected AC-07 removes the circular prerequisite; no blocking normative finding remains.
 PROPOSAL: Move the complete R-1 subsection before Sources without changing its returned records. This is a review-storage correction and does not change the normative baseline.
+
+### R-3
+
+CRITERION: AC-01 Configuration and CLI select reference, explorer or compact HTML, default to reference, reject unknown values, and preserve custom templates and other output formats.
+VERDICT: met
+EVIDENCE: At 0a4d5e3535374bb01253e1880d06f4013c6a0390, fresh race tests for engine, cmd and public generator packages passed. Inspected defaults, enum validation, CLI override, custom-template precedence and structured-format compatibility tests.
+
+CRITERION: AC-02 Every layout retains enabled API, field, constraint, reference, printer-column, composition, patch, scenario and example documentation, including multiple API identities and versions, while respecting presentation settings.
+VERDICT: met
+EVIDENCE: At 0a4d5e3535374bb01253e1880d06f4013c6a0390, fresh rich-model and presentation-filter tests passed for all three layouts. Inspected server-rendered API/field/constraint/reference/printer-column content and reuse of composition, patch, scenario and example sections; multiple API identities and versions are covered.
+
+CRITERION: AC-03 All layouts work offline with JavaScript and remain readable without it; resource/version selection, field search, empty states, explorer inspection and reference example switching work through keyboard-accessible controls.
+VERDICT: not met
+EVIDENCE: At 0a4d5e3535374bb01253e1880d06f4013c6a0390, inspected the passing seven-case browser log and exercised the private explorer preview directly. At 390px, Browse fields followed by a query with no matches leaves zero visible field links and zero visible empty-state messages because the message is inside the hidden inspector pane.
+
+CRITERION: AC-04 Multiline templates and programs display and copy with real line breaks; readable manifest/settings output preserves scalar types and intentional literal escapes, and malicious text cannot become executable HTML.
+VERDICT: not met
+EVIDENCE: At 0a4d5e3535374bb01253e1880d06f4013c6a0390, fresh source-readability/security tests passed for LF and literal backslash sequences. A network-blocked local Chromium check on a synthetic CRLF program observed DOM textContent line1\nline2\n instead of the original line1\r\nline2\r\n. Copy uses textContent, so exact source contents change.
+
+CRITERION: AC-05 At 360px, 390px, 768px and desktop widths, the layouts remain usable without page overflow; phones present readable field definitions, usable controls and accessible field/example navigation.
+VERDICT: not met
+EVIDENCE: At 0a4d5e3535374bb01253e1880d06f4013c6a0390, inspected passing four-width overflow tests and exercised the mobile explorer preview. After selecting a field from Browse fields, the inspector is visible and browser hidden, but the control still says Return to field. The mobile control no longer describes its action.
+
+CRITERION: AC-06 Generated output is deterministic, field/navigation anchors are unique and correct across API identities and versions, and selection/search/deep-link state cannot strand hidden content.
+VERDICT: not met
+EVIDENCE: At 0a4d5e3535374bb01253e1880d06f4013c6a0390, independently generated all three layouts from a minimal two-field XRD plus a valid Composition named api-0-field. Each output contains duplicate id api-0-field-1 because API field IDs collide with the shared section-heading allocator. Existing determinism and reload tests do not cover this collision.
+
+CRITERION: AC-07 The CLI-generated examples pass formatter, regression, lint and real-render checks, and all three layouts have verified private tailnet previews.
+VERDICT: not verified
+EVIDENCE: At 0a4d5e3535374bb01253e1880d06f4013c6a0390, inspected successful make-check, browser and integration-lint evidence and directly reached the private integrated explorer preview. The complete real-render run was still progressing in /tmp/crossplane-html-matrix.log when this review closed, so the composite verification requirement remains pending.
+
+FINDING: F-01
+KIND: factual
+SEVERITY: blocking
+WHERE: internal/engine/html.go field IDs and internal/engine/format.go heading IDs
+EVIDENCE: A minimal XRD with spec.alpha and spec.beta plus a Composition named api-0-field generates duplicate id api-0-field-1 in reference, explorer and compact. The field and composition heading use the same ID namespace.
+PROPOSAL: Give shared section headings and API fields distinct ID namespaces, or use one document-wide allocator. Add a generated multi-section collision regression and verify navigation targets remain unique.
+
+FINDING: F-02
+KIND: factual
+SEVERITY: blocking
+WHERE: internal/engine/html.js filterFields and mobile explorer markup
+EVIDENCE: At 390px in the integrated explorer preview, Browse fields followed by no-matching-field leaves zero visible field links and zero visible empty-state messages. The empty message lives in field-list, which browsing mode hides.
+PROPOSAL: Present empty-state feedback in whichever explorer pane is visible. Add a mobile browse-mode no-results regression, including clearing the query and returning to a field.
+
+FINDING: F-03
+KIND: factual
+SEVERITY: blocking
+WHERE: internal/engine/html.go writeHTMLSource and internal/engine/format.go HTML code blocks
+EVIDENCE: A YAML quoted source string containing CRLF reaches the generator with CRLF but becomes LF in the browser DOM. The local Chromium check reported exactCRLF=false, and copy reads the changed textContent.
+PROPOSAL: Preserve carriage returns with HTML character references in a dedicated escaped-code rendering helper. Test copied LF, CRLF, tabs, Unicode and intentional literal backslash sequences without globally replacing escapes.
+
+FINDING: F-04
+KIND: factual
+SEVERITY: should-fix
+WHERE: internal/engine/html.js field-link selection and selectPanel
+EVIDENCE: After a mobile explorer field link is selected, browsing is removed and the inspector is visible, but the button retains Return to field. Its next action opens the browser, so its visible label describes the opposite direction.
+PROPOSAL: Synchronize the browse button label and expanded state whenever field or API selection changes the explorer pane. Cover selection and API/version transitions in the mobile browser tests.
 
 ## Sources
 
