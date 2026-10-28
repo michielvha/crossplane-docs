@@ -115,17 +115,18 @@ func writeHTMLAPIs(w *writer, doc Document, c Config) {
 			w.buf.WriteString(`<div class="mobile-views" hidden><button type="button" data-view="fields" aria-pressed="true">Fields</button><button type="button" data-view="example" aria-pressed="false">Example YAML</button></div>`)
 		}
 		if c.HTMLLayout == "explorer" {
-			w.buf.WriteString(`<button type="button" class="browse-fields" data-browse-fields hidden>Browse fields</button>`)
+			fmt.Fprintf(&w.buf, `<button type="button" class="browse-fields" data-browse-fields aria-expanded="false" aria-controls="%s-browser" hidden>Browse fields</button>`, id)
 		}
+		w.buf.WriteString(`<p class="empty-fields" role="status" hidden>No matching fields. Try another field name or clear the search.</p>`)
 		w.buf.WriteString(`<div class="schema-layout">`)
 		if c.HTMLLayout == "explorer" {
-			w.buf.WriteString(`<nav class="field-browser" aria-label="Schema fields">`)
+			fmt.Fprintf(&w.buf, `<nav class="field-browser" id="%s-browser" aria-label="Schema fields">`, id)
 			for j, field := range fields {
 				fmt.Fprintf(&w.buf, `<a class="field-link" href="#%s-field-%d" data-path="%s"><code>%s</code></a>`, id, j, html.EscapeString(field.Path), html.EscapeString(field.Path))
 			}
 			w.buf.WriteString(`</nav>`)
 		}
-		w.buf.WriteString(`<div class="field-list"><h2>Field reference</h2><p class="field-help">Required markers apply within each field’s parent object.</p><p class="empty-fields" hidden>No matching fields. Try another field name or clear the search.</p>`)
+		w.buf.WriteString(`<div class="field-list"><h2>Field reference</h2><p class="field-help">Required markers apply within each field’s parent object.</p>`)
 		if c.HTMLLayout == "compact" {
 			w.buf.WriteString(`<div class="table-wrap field-table"><table role="table"><thead role="rowgroup"><tr role="row">`)
 			for _, column := range c.Columns {
@@ -341,8 +342,14 @@ func writeHTMLSource(w *writer, step Step) {
 	}
 	for _, program := range programs {
 		w.heading(5, program.path)
-		fmt.Fprintf(&w.buf, `<div class="code-block"><div class="code-bar"><span>%s</span><button type="button" data-copy hidden>Copy</button></div><pre><code class="source-code language-%s">%s</code></pre><span class="copy-status" role="status"></span></div>`, language, language, html.EscapeString(program.content))
+		fmt.Fprintf(&w.buf, `<div class="code-block"><div class="code-bar"><span>%s</span><button type="button" data-copy hidden>Copy</button></div><pre><code class="source-code language-%s">%s</code></pre><span class="copy-status" role="status"></span></div>`, language, language, escapedCode(program.content))
 	}
+}
+
+// HTML normalizes raw CRLF before tokenization. Character references preserve
+// carriage returns in the code text and clipboard without decoding literal escapes.
+func escapedCode(source string) string {
+	return strings.ReplaceAll(html.EscapeString(source), "\r", "&#13;")
 }
 
 // sourceSettings copies the input. Program extraction must never mutate the shared model.

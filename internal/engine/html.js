@@ -11,6 +11,14 @@ const params = new URLSearchParams(location.search);
 let panel;
 let selectedPath = params.get('field') || '';
 
+function syncBrowseAction() {
+  const button = panel?.querySelector('[data-browse-fields]');
+  if (!button) return;
+  const browsing = panel.classList.contains('browsing');
+  button.textContent = browsing ? 'Return to field' : 'Browse fields';
+  button.setAttribute('aria-expanded', String(browsing));
+}
+
 function clearFieldHash() {
   if (!['http:', 'https:', 'file:'].includes(location.protocol)) return;
   const url = new URL(location.href);
@@ -62,6 +70,7 @@ function selectPanel(id) {
   versionSelect.replaceChildren(...versions.filter(option => option.dataset.resource === panel.dataset.resource).map(option => option.cloneNode(true)));
   versionSelect.value = panel.id;
   panel.classList.remove('browsing', 'example-view');
+  syncBrowseAction();
   for (const button of panel.querySelectorAll('[data-view]')) button.setAttribute('aria-pressed', String(button.dataset.view === 'fields'));
   for (const link of document.querySelectorAll('.api-nav')) link.setAttribute('aria-current', String(link.hash === '#' + panel.id));
   filterFields();
@@ -103,6 +112,7 @@ if (panels.length && controls) {
     clearFieldHash();
     selectedPath = link.dataset.path;
     panel.classList.remove('browsing');
+    syncBrowseAction();
     filterFields();
     const target = document.getElementById(link.hash.slice(1));
     const heading = target?.querySelector('h3');
@@ -113,7 +123,7 @@ if (panels.length && controls) {
     button.hidden = false;
     button.addEventListener('click', () => {
       const browsing = panel.classList.toggle('browsing');
-      button.textContent = browsing ? 'Return to field' : 'Browse fields';
+      syncBrowseAction();
       if (browsing) panel.querySelector('.field-link:not([hidden])')?.focus({preventScroll: true});
     });
   }
@@ -125,7 +135,7 @@ if (panels.length && controls) {
   addEventListener('hashchange', revealHash);
 }
 
-for (const button of document.querySelectorAll('[data-copy]')) {
+for (const button of document.querySelectorAll('.code-block [data-copy]')) {
   button.hidden = false;
   button.addEventListener('click', async () => {
     const block = button.closest('.code-block');

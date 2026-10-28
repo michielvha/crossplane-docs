@@ -10,7 +10,7 @@ const work = mkdtempSync(join(tmpdir(), 'crossplane-docs-format-'));
 const binary = join(work, 'crossplane-docs');
 let browser: Browser;
 const bundle = join(work, 'bundle.yaml');
-const sourceProgram = '{{ range .spec.networks }}\nkind: ConfigMap\n# literal \\n stays literal\n{{ end }}\n</script><img src=x onerror=alert(1)>\n';
+const sourceProgram = '{{ range .spec.networks }}\nkind: ConfigMap\r\n\t# Unicode λ; literal \\n stays literal\n{{ end }}\n</script><img src=x onerror=alert(1)>\n';
 function generateHTML(layout: string) {
  const result = Bun.spawnSync([binary, 'generate', bundle, '--all-versions', '--format', 'html', '--html-layout', layout]);
  expect(result.exitCode).toBe(0);
@@ -140,8 +140,13 @@ for (const layout of ['reference', 'explorer', 'compact']) {
   if (layout === 'explorer') {
    await page.locator('.api-panel:visible [data-browse-fields]').click();
    expect(await page.locator('.api-panel:visible .field-browser').isVisible()).toBe(true);
+   await page.locator('#field-search').fill('no-matching-field');
+   expect(await page.locator('.api-panel:visible .empty-fields').isVisible()).toBe(true);
+   await page.locator('#field-search').fill('');
    await page.locator('.api-panel:visible .field-link[data-path="spec.region"]').click();
    expect(await page.locator('.api-panel:visible .field-entry:visible').textContent()).toContain('spec.region');
+   expect(await page.locator('.api-panel:visible [data-browse-fields]').textContent()).toBe('Browse fields');
+   expect(await page.locator('.api-panel:visible [data-browse-fields]').getAttribute('aria-expanded')).toBe('false');
   }
   expect(errors).toEqual([]);
   await page.close();
@@ -171,6 +176,24 @@ test('field links, search and API selection survive reload without a stale hash'
  await page.reload();
  expect(await page.locator('#field-search').inputValue()).toBe('region');
  expect(await page.locator('.api-panel:visible .field-entry:visible').getAttribute('data-path')).toContain('region');
+ await page.close();
+});
+
+test('mobile explorer reports empty searches and synchronizes its browse action', async () => {
+ const page = await browser.newPage({viewport: {width: 390, height: 844}});
+ await page.setContent(generateHTML('explorer'));
+ await page.locator('#api-select').selectOption({label: 'XPlatform / platform.example.org'});
+ const browse = page.locator('.api-panel:visible [data-browse-fields]');
+ await browse.click();
+ await page.locator('#field-search').fill('no-matching-field');
+ expect(await page.locator('.api-panel:visible .empty-fields').isVisible()).toBe(true);
+ await page.locator('#field-search').fill('');
+ await page.locator('.api-panel:visible .field-link[data-path="spec.region"]').click();
+ expect(await browse.textContent()).toBe('Browse fields');
+ expect(await browse.getAttribute('aria-expanded')).toBe('false');
+ await browse.click();
+ await page.locator('#version-select').selectOption({label: 'v1alpha1'});
+ expect(await page.locator('.api-panel:visible [data-browse-fields]').textContent()).toBe('Browse fields');
  await page.close();
 });
 

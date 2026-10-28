@@ -301,7 +301,7 @@ func (w *writer) heading(level int, title string) {
 	case "html":
 		id := ""
 		if w.config.Settings.Anchors {
-			id = fmt.Sprintf(" id=\"%s-%d\"", anchor(title), w.headingCount)
+			id = fmt.Sprintf(" id=\"heading-%s-%d\"", anchor(title), w.headingCount)
 		}
 		fmt.Fprintf(&w.buf, "<h%d%s>%s</h%d>\n", level, id, html.EscapeString(title), level)
 	case "asciidoc":
@@ -328,7 +328,7 @@ func (w *writer) para(s string) {
 func (w *writer) code(language, s string) {
 	switch w.config.Formatter {
 	case "html":
-		fmt.Fprintf(&w.buf, "<div class=\"code-block\"><div class=\"code-bar\"><span>%s</span><button type=\"button\" data-copy hidden>Copy</button></div><pre><code class=\"language-%s\">%s</code></pre><span class=\"copy-status\" role=\"status\"></span></div>\n", html.EscapeString(language), html.EscapeString(language), html.EscapeString(s))
+		fmt.Fprintf(&w.buf, "<div class=\"code-block\"><div class=\"code-bar\"><span>%s</span><button type=\"button\" data-copy hidden>Copy</button></div><pre><code class=\"language-%s\">%s</code></pre><span class=\"copy-status\" role=\"status\"></span></div>\n", html.EscapeString(language), html.EscapeString(language), escapedCode(s))
 	case "asciidoc":
 		fmt.Fprintf(&w.buf, "[source,%s]\n----\n%s\n----\n\n", language, strings.ReplaceAll(s, "\n----", "\n ----"))
 	default:

@@ -43,7 +43,7 @@ func TestHTMLLayoutConfiguration(t *testing.T) {
 }
 
 func TestHTMLSourceProgramsStayReadable(t *testing.T) {
-	program := "{{ range .spec.networks }}\nkind: ConfigMap\n# literal \\n stays literal\n{{ end }}\n</script><img src=x onerror=alert(1)>\n"
+	program := "{{ range .spec.networks }}\nkind: ConfigMap\r\n\t# Unicode λ; literal \\n stays literal\n{{ end }}\n</script><img src=x onerror=alert(1)>\n"
 	doc := model(t)
 	doc.Compositions = []Composition{{Name: "source", Steps: []Step{{Name: "template", Adapter: "go-templating", Input: Object{"apiVersion": "gotemplating.fn.crossplane.io/v1beta1", "kind": "GoTemplate", "inline": Object{"template": program}}}}}}
 	for _, layout := range []string{"reference", "explorer", "compact"} {
@@ -57,6 +57,24 @@ func TestHTMLSourceProgramsStayReadable(t *testing.T) {
 		}
 		if strings.Contains(string(out), "<img src=x") || strings.Contains(string(out), "</script><img") {
 			t.Fatalf("%s allowed source HTML injection", layout)
+		}
+	}
+}
+
+func TestHTMLHeadingAndFieldIDNamespaces(t *testing.T) {
+	doc := Document{Title: "Collision", APIs: []API{{Kind: "XExample", Group: "example.org", Version: "v1", Fields: []Field{{Path: "spec.alpha", Type: "string"}, {Path: "spec.beta", Type: "string"}}}}, Compositions: []Composition{{Name: "api-0-field"}}}
+	ids := regexp.MustCompile(`\bid="([^"]+)"`)
+	for _, layout := range []string{"reference", "explorer", "compact"} {
+		out, err := Format(doc, htmlConfig(t, layout))
+		if err != nil {
+			t.Fatal(err)
+		}
+		seen := map[string]bool{}
+		for _, id := range ids.FindAllStringSubmatch(string(out), -1) {
+			if seen[id[1]] {
+				t.Fatalf("%s duplicates field/heading anchor %s", layout, id[1])
+			}
+			seen[id[1]] = true
 		}
 	}
 }
