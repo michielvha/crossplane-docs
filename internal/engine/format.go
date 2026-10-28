@@ -328,7 +328,7 @@ func (w *writer) para(s string) {
 func (w *writer) code(language, s string) {
 	switch w.config.Formatter {
 	case "html":
-		fmt.Fprintf(&w.buf, "<div class=\"code-block\"><div class=\"code-bar\"><span>%s</span><button type=\"button\" data-copy hidden>Copy</button></div><pre><code class=\"language-%s\">%s</code></pre><span class=\"copy-status\" role=\"status\"></span></div>\n", html.EscapeString(language), html.EscapeString(language), escapedCode(s))
+		fmt.Fprintf(&w.buf, "<div class=\"code-block\"><div class=\"code-bar\"><span>%s</span>%s</div><pre><code class=\"language-%s\">%s</code></pre><span class=\"copy-status\" role=\"status\"></span></div>\n", html.EscapeString(language), htmlCopyButton, html.EscapeString(language), escapedCode(s))
 	case "asciidoc":
 		fmt.Fprintf(&w.buf, "[source,%s]\n----\n%s\n----\n\n", language, strings.ReplaceAll(s, "\n----", "\n ----"))
 	default:

@@ -17,6 +17,8 @@ var htmlStyle string
 //go:embed html.js
 var htmlScript string
 
+const htmlCopyButton = `<button type="button" data-copy hidden aria-label="Copy code" title="Copy code"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>`
+
 func formatHTML(doc Document, c Config) ([]byte, error) {
 	sections := make([]string, 0, len(c.Sections))
 	for _, section := range c.Sections {
@@ -342,7 +344,7 @@ func writeHTMLSource(w *writer, step Step) {
 	}
 	for _, program := range programs {
 		w.heading(5, program.path)
-		fmt.Fprintf(&w.buf, `<div class="code-block"><div class="code-bar"><span>%s</span><button type="button" data-copy hidden>Copy</button></div><pre><code class="source-code language-%s">%s</code></pre><span class="copy-status" role="status"></span></div>`, language, language, escapedCode(program.content))
+		fmt.Fprintf(&w.buf, `<div class="code-block"><div class="code-bar"><span>%s</span>%s</div><pre><code class="source-code language-%s">%s</code></pre><span class="copy-status" role="status"></span></div>`, language, htmlCopyButton, language, escapedCode(program.content))
 	}
 }
 
