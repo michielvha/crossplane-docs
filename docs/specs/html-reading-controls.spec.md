@@ -1,6 +1,6 @@
 ---
-status: planned
-status_description: "Reviewed specification; continuing under the owner’s end-to-end implementation instruction."
+status: in-progress
+status_description: "Implementing and testing the reviewed reading controls on the existing feature branch."
 branch: feat/v0.2.0
 issue: null
 goal: "Readers can narrow HTML fields by requirement and choose a readable Postbode-inspired dark theme."
