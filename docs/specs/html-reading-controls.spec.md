@@ -91,6 +91,7 @@ Print uses a light background and dark text regardless of the reader theme.
       Evidence: All 16 browser checks passed with 302 assertions, including filters, URL/deep links, native dark controls, persistence, denied storage, file opening, mobile geometry and print; make check passed.
 - [x] T3 `README.md` - describe controls and observe make check plus generated private HTTPS previews in both themes (AC-06).
       Evidence: make check passed; real CLI generation matched all three private HTTPS files byte-for-byte. Both themes and requirement/search/reload interactions passed at desktop/mobile widths, and all three 64-line sources copied exactly. README describes the controls.
+- [ ] T5 `internal/engine/html.js`, `internal/engine/html.go`, `tests/format/format.test.ts` - reproduce and fix conflicting query-field links and no-JavaScript browser metadata, then pass regressions (AC-02, AC-03, AC-05).
 - [ ] T4 `docs/specs/html-reading-controls.spec.md` - store an independent implementation review and pass the complete gate (AC-01 through AC-06).
 
 ## Open Questions
