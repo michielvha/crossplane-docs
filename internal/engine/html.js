@@ -5,6 +5,7 @@ const resourceSelect = document.getElementById('api-select');
 const versionSelect = document.getElementById('version-select');
 const versions = versionSelect ? [...versionSelect.options] : [];
 const search = document.getElementById('field-search');
+const requirement = document.getElementById('requirement-filter');
 const status = document.getElementById('search-status');
 const layout = document.body.dataset.htmlLayout;
 const params = new URLSearchParams(location.search);
@@ -31,6 +32,7 @@ function saveState() {
   const url = new URL(location.href);
   url.searchParams.set('api', panel.id);
   if (search.value) url.searchParams.set('q', search.value); else url.searchParams.delete('q');
+  if (requirement.value !== 'all') url.searchParams.set('requirement', requirement.value); else url.searchParams.delete('requirement');
   if (layout === 'explorer' && selectedPath) url.searchParams.set('field', selectedPath); else url.searchParams.delete('field');
   try { history.replaceState(null, '', url); } catch { /* Embedded previews may prohibit URL changes. */ }
 }
@@ -39,7 +41,7 @@ function filterFields() {
   if (!panel) return;
   const query = search.value.trim().toLowerCase();
   const entries = [...panel.querySelectorAll('.field-entry')];
-  const matches = entries.filter(entry => entry.dataset.search.includes(query));
+  const matches = entries.filter(entry => entry.dataset.search.includes(query) && (requirement.value === 'all' || entry.dataset.required === String(requirement.value === 'required')));
   const links = [...panel.querySelectorAll('.field-link')];
   let selected = matches.find(entry => entry.dataset.path === selectedPath);
   if (!selected) selected = matches.find(entry => entry.dataset.path === 'spec.region') || matches[0];
@@ -47,7 +49,7 @@ function filterFields() {
   for (const entry of entries) entry.hidden = !matches.includes(entry) || (layout === 'explorer' && entry !== selected);
   for (const group of panel.querySelectorAll('.field-group')) {
     group.hidden = !group.querySelector('.field-entry:not([hidden])');
-    if (query && !group.hidden) group.open = true;
+    if ((query || requirement.value !== 'all') && !group.hidden) group.open = true;
   }
   for (const link of links) {
     link.hidden = !matches.some(entry => entry.id === link.hash.slice(1));
@@ -55,7 +57,7 @@ function filterFields() {
   }
   const empty = panel.querySelector('.empty-fields');
   if (empty) empty.hidden = matches.length > 0;
-  status.textContent = query ? `${matches.length} matching fields` : '';
+  status.textContent = query || requirement.value !== 'all' ? `${matches.length} matching fields` : '';
   saveState();
 }
 
@@ -85,6 +87,7 @@ function revealHash() {
   if (target.classList.contains('field-entry')) {
     selectedPath = target.dataset.path;
     search.value = '';
+    requirement.value = 'all';
   }
   selectPanel(owner.id);
   for (let parent = target.parentElement; parent; parent = parent.parentElement) if (parent.tagName === 'DETAILS') parent.open = true;
@@ -97,9 +100,11 @@ if (panels.length && controls) {
   const resources = new Set(panels.map(item => item.dataset.resource));
   if (resources.size === 1) resourceSelect.closest('.control').hidden = true;
   search.value = params.get('q') || '';
+  requirement.value = ['required', 'optional'].includes(params.get('requirement')) ? params.get('requirement') : 'all';
   selectPanel(params.get('api'));
   revealHash();
   search.addEventListener('input', () => { clearFieldHash(); filterFields(); });
+  requirement.addEventListener('change', () => { clearFieldHash(); filterFields(); });
   versionSelect.addEventListener('change', () => { clearFieldHash(); selectPanel(versionSelect.value); });
   resourceSelect.addEventListener('change', () => {
     clearFieldHash();
@@ -134,6 +139,39 @@ if (panels.length && controls) {
   });
   addEventListener('hashchange', revealHash);
 }
+
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+  const root = document.documentElement;
+  const systemTheme = matchMedia('(prefers-color-scheme: dark)');
+  function applyTheme(theme) {
+    root.dataset.theme = theme;
+    themeToggle.setAttribute('aria-pressed', String(theme === 'dark'));
+    themeToggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#020814' : '#f5f8f8';
+  }
+  applyTheme(root.dataset.theme);
+  themeToggle.hidden = false;
+  systemTheme.addEventListener('change', event => {
+    if (root.dataset.themePreference === 'system') applyTheme(event.matches ? 'dark' : 'light');
+  });
+  themeToggle.addEventListener('click', () => {
+    const theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    root.dataset.themePreference = theme;
+    applyTheme(theme);
+    try { localStorage.setItem('crossplane-docs-theme', theme); } catch { /* The choice still applies for this document. */ }
+  });
+}
+
+let printClosedDetails = [];
+addEventListener('beforeprint', () => {
+  printClosedDetails = [...document.querySelectorAll('details:not([open])')];
+  for (const details of printClosedDetails) details.open = true;
+});
+addEventListener('afterprint', () => {
+  for (const details of printClosedDetails) details.open = false;
+  printClosedDetails = [];
+});
 
 for (const button of document.querySelectorAll('.code-block [data-copy]')) {
   button.hidden = false;

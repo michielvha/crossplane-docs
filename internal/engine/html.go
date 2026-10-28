@@ -19,6 +19,18 @@ var htmlScript string
 
 const htmlCopyButton = `<button type="button" data-copy hidden aria-label="Copy code" title="Copy code"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>`
 
+// Run before the stylesheet/body to avoid flashing the opposite reader theme.
+const htmlThemeInit = `(() => {
+  let preference = 'system';
+  try { const saved = localStorage.getItem('crossplane-docs-theme'); if (saved === 'light' || saved === 'dark') preference = saved; } catch {}
+  const theme = preference === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : preference;
+  document.documentElement.dataset.themePreference = preference;
+  document.documentElement.dataset.theme = theme;
+  document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#020814' : '#f5f8f8';
+})();`
+
+const htmlThemeButton = `<button type="button" id="theme-toggle" aria-label="Dark mode" aria-pressed="false" title="Switch to dark mode" hidden><svg class="theme-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20.9 13a9 9 0 0 1-9.9-9.9A9 9 0 1 0 20.9 13Z"/></svg><svg class="theme-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg></button>`
+
 func formatHTML(doc Document, c Config) ([]byte, error) {
 	sections := make([]string, 0, len(c.Sections))
 	for _, section := range c.Sections {
@@ -29,7 +41,7 @@ func formatHTML(doc Document, c Config) ([]byte, error) {
 	c.Sections = sections
 	w := &writer{config: c}
 	fmt.Fprintf(&w.buf, `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f8f8"><link rel="icon" href="data:,"><title>%s</title><style>%s%s</style></head><body data-html-layout="%s"><a class="skip" href="#content">Skip to reference</a><header class="appbar"><span class="brand">crossplane<span>docs</span></span><span class="document-title">%s</span></header><div class="shell"><nav class="rail" aria-label="Contents">`, html.EscapeString(doc.Title), htmlStyle, c.Settings.Style, c.HTMLLayout, html.EscapeString(doc.Title))
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f8f8"><link rel="icon" href="data:,"><title>%s</title><script type="text/javascript">%s</script><style>%s%s</style></head><body data-html-layout="%s"><a class="skip" href="#content">Skip to reference</a><header class="appbar"><span class="brand">crossplane<span>docs</span></span><span class="document-title">%s</span>%s</header><div class="shell"><nav class="rail" aria-label="Contents">`, html.EscapeString(doc.Title), htmlThemeInit, htmlStyle, c.Settings.Style, c.HTMLLayout, html.EscapeString(doc.Title), htmlThemeButton)
 	for _, section := range c.Sections {
 		label := map[string]string{"apis": "API reference", "compositions": "Compositions", "scenarios": "Rendered scenarios", "examples": "Examples"}[section]
 		fmt.Fprintf(&w.buf, `<a href="#%s">%s</a>`, section, label)
@@ -90,7 +102,7 @@ func writeHTMLAPIs(w *writer, doc Document, c Config) {
 	for i, api := range doc.APIs {
 		fmt.Fprintf(&w.buf, `<option value="api-%d" data-resource="%s">%s</option>`, i, groups[api.Group+"/"+api.Kind], html.EscapeString(api.Version))
 	}
-	w.buf.WriteString(`</select></div><div class="control search-control"><label for="field-search">Find a field</label><input type="search" id="field-search" name="query" autocomplete="off" spellcheck="false" placeholder="region, networks…"></div></div><p id="search-status" role="status" aria-live="polite"></p>`)
+	w.buf.WriteString(`</select></div><div class="control"><label for="requirement-filter">Field requirement</label><select id="requirement-filter" name="requirement"><option value="all">All fields</option><option value="required">Required</option><option value="optional">Optional</option></select></div><div class="control search-control"><label for="field-search">Find a field</label><input type="search" id="field-search" name="query" autocomplete="off" spellcheck="false" placeholder="region, networks…"></div></div><p id="search-status" role="status" aria-live="polite"></p>`)
 	for i, api := range doc.APIs {
 		id := fmt.Sprintf("api-%d", i)
 		fields := append([]Field(nil), api.Fields...)
@@ -119,7 +131,7 @@ func writeHTMLAPIs(w *writer, doc Document, c Config) {
 		if c.HTMLLayout == "explorer" {
 			fmt.Fprintf(&w.buf, `<button type="button" class="browse-fields" data-browse-fields aria-expanded="false" aria-controls="%s-browser" hidden>Browse fields</button>`, id)
 		}
-		w.buf.WriteString(`<p class="empty-fields" role="status" hidden>No matching fields. Try another field name or clear the search.</p>`)
+		w.buf.WriteString(`<p class="empty-fields" role="status" hidden>No matching fields. Try another field name or change the requirement filter.</p>`)
 		w.buf.WriteString(`<div class="schema-layout">`)
 		if c.HTMLLayout == "explorer" {
 			fmt.Fprintf(&w.buf, `<nav class="field-browser" id="%s-browser" aria-label="Schema fields">`, id)
@@ -207,7 +219,7 @@ func writeHTMLField(w *writer, field Field, id string, c Config) {
 		search += " " + field.Description
 	}
 	if c.HTMLLayout == "compact" {
-		fmt.Fprintf(&w.buf, `<tr role="row" class="field-entry" id="%s" data-path="%s" data-search="%s">`, id, html.EscapeString(field.Path), html.EscapeString(strings.ToLower(search)))
+		fmt.Fprintf(&w.buf, `<tr role="row" class="field-entry" id="%s" data-path="%s" data-required="%t" data-search="%s">`, id, html.EscapeString(field.Path), field.Required, html.EscapeString(strings.ToLower(search)))
 		for _, column := range c.Columns {
 			fmt.Fprintf(&w.buf, `<td role="cell" data-label="%s">`, html.EscapeString(column))
 			writeHTMLFieldValue(w, field, column, c)
@@ -216,7 +228,7 @@ func writeHTMLField(w *writer, field Field, id string, c Config) {
 		w.buf.WriteString(`</tr>`)
 		return
 	}
-	fmt.Fprintf(&w.buf, `<article class="field-entry" id="%s" data-path="%s" data-search="%s"><h3 tabindex="-1"><code>%s</code>`, id, html.EscapeString(field.Path), html.EscapeString(strings.ToLower(search)), html.EscapeString(field.Path))
+	fmt.Fprintf(&w.buf, `<article class="field-entry" id="%s" data-path="%s" data-required="%t" data-search="%s"><h3 tabindex="-1"><code>%s</code>`, id, html.EscapeString(field.Path), field.Required, html.EscapeString(strings.ToLower(search)), html.EscapeString(field.Path))
 	if slices.Contains(c.Columns, "type") {
 		fmt.Fprintf(&w.buf, `<span class="field-type">%s</span>`, html.EscapeString(field.Type))
 	}

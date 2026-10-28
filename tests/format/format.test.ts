@@ -224,13 +224,14 @@ for (const layout of ['reference', 'explorer', 'compact']) {
   const page = await browser.newPage();
   await page.route('https://reading.test/**', route => route.fulfill({body: result.stdout.toString(), contentType: 'text/html'}));
   await page.goto('https://reading.test/');
+  await page.locator('#api-select').selectOption({label: 'XPlatform / platform.example.org'});
   const requirement = page.getByLabel('Field requirement', {exact: true});
   expect(await requirement.count()).toBe(1);
   await requirement.selectOption('required');
   const active = page.locator('.api-panel:visible');
   const shown = layout === 'explorer' ? active.locator('.field-link:not([hidden])') : active.locator('.field-entry:not([hidden])');
-  expect(await shown.evaluateAll(nodes => nodes.map(n => (n as HTMLElement).dataset.path).sort())).toEqual(['spec.networks', 'spec.networks[].cidr', 'spec.networks[].name', 'spec.region']);
-  expect(await page.locator('#search-status').textContent()).toBe('4 matching fields');
+  expect(await shown.evaluateAll(nodes => nodes.map(n => (n as HTMLElement).dataset.path).sort())).toEqual(['spec.networks', 'spec.networks[].cidr', 'spec.networks[].name', 'spec.region', 'spec.variant.oneOf[0].managed', 'spec.variant.oneOf[1].externalID']);
+  expect(await page.locator('#search-status').textContent()).toBe('6 matching fields');
   await page.locator('#field-search').fill('region');
   expect(await shown.count()).toBe(1);
   await requirement.selectOption('optional');
@@ -268,6 +269,7 @@ test('theme follows the system until a keyboard choice, remembers it, and tolera
  expect(await toggle.count()).toBe(1);
  expect(await toggle.getAttribute('aria-pressed')).toBe('true');
  await page.emulateMedia({colorScheme: 'light'});
+ await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
  expect(await toggle.getAttribute('aria-pressed')).toBe('false');
  await toggle.focus();
  await page.keyboard.press('Enter');
@@ -316,6 +318,7 @@ for (const layout of ['reference', 'explorer', 'compact']) {
  test(`${layout}: midnight colours, contrast, native controls and mobile geometry`, async () => {
   const page = await browser.newPage({colorScheme: 'light'});
   await page.setContent(generateHTML(layout));
+  await page.locator('#api-select').selectOption({label: 'XPlatform / platform.example.org'});
   const toggle = page.getByRole('button', {name: 'Dark mode', exact: true});
   expect(await toggle.count()).toBe(1);
   const palette = async () => page.evaluate(() => {
