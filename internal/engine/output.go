@@ -20,6 +20,7 @@ func Write(data []byte, c Config, check bool) error {
 	var old []byte
 	mode := os.FileMode(0o644)
 	st, err := os.Lstat(file)
+	exists := err == nil
 	if err == nil {
 		if !st.Mode().IsRegular() {
 			return fmt.Errorf("output must be a regular file: %s", file)
@@ -33,7 +34,7 @@ func Write(data []byte, c Config, check bool) error {
 		return err
 	}
 	if c.Output.Mode == "inject" {
-		if old == nil {
+		if !exists {
 			return fmt.Errorf("injection target does not exist: %s", file)
 		}
 		begin, end := c.Output.Begin, c.Output.End
@@ -57,7 +58,7 @@ func Write(data []byte, c Config, check bool) error {
 		next = append(next, old[j:]...)
 		data = next
 	}
-	if bytes.Equal(old, data) {
+	if exists && bytes.Equal(old, data) {
 		return nil
 	}
 	if check {

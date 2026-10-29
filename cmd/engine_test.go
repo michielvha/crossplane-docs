@@ -89,6 +89,32 @@ func TestConfigInjectionAndCheck(t *testing.T) {
 	}
 }
 
+func TestEmptyTemplateOutputAndCheck(t *testing.T) {
+	dir := t.TempDir()
+	template := filepath.Join(dir, "empty.tmpl")
+	if err := os.WriteFile(template, nil, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	output := filepath.Join(dir, "output.md")
+	args := []string{"xrd", "../examples/xrd.yaml", "--template", template, "--output", output}
+	if _, _, err := execute(append(args, "--check")...); err == nil {
+		t.Fatal("missing output must report drift even when the template is empty")
+	}
+	if _, err := os.Stat(output); !os.IsNotExist(err) {
+		t.Fatalf("drift check created output: %v", err)
+	}
+	if _, _, err := execute(args...); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(output)
+	if err != nil || len(data) != 0 {
+		t.Fatalf("empty output was not created: %q %v", data, err)
+	}
+	if _, _, err := execute(append(args, "--check")...); err != nil {
+		t.Fatalf("existing empty output should be current: %v", err)
+	}
+}
+
 func TestVersionSelectionAndSchemaPaths(t *testing.T) {
 	out, _, err := execute("generate", "../examples/platform.yaml", "--format", "json", "--all-versions")
 	if err != nil {
