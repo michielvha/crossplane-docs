@@ -44,7 +44,8 @@ collections.
 
 Without a version flag, the first served XRD version is selected, falling back to
 the first declared version when none is served. An unknown named version fails.
-Use `--show-nested=false` for immediate properties only.
+Use `--show-nested=false` for immediate properties in document formats. JSON and
+YAML retain the complete nested model.
 
 Directory generation discovers YAML in stable order. Use `--include`, `--exclude`
 and `--recursive=false` to control discovery. Unrelated Kubernetes kinds are
