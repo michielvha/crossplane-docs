@@ -11,8 +11,8 @@ const binary = join(work, 'crossplane-docs');
 let browser: Browser;
 const bundle = join(work, 'bundle.yaml');
 const sourceProgram = '{{ range .spec.networks }}\nkind: ConfigMap\r\n\t# Unicode λ; literal \\n stays literal\n{{ end }}\n</script><img src=x onerror=alert(1)>\n';
-function generateHTML(layout: string) {
- const result = Bun.spawnSync([binary, 'generate', bundle, '--all-versions', '--format', 'html', '--html-layout', layout]);
+function generateHTML(layout: string, input = bundle) {
+ const result = Bun.spawnSync([binary, 'generate', input, '--all-versions', '--format', 'html', '--html-layout', layout]);
  expect(result.exitCode).toBe(0);
  return result.stdout.toString();
 }
@@ -390,4 +390,74 @@ test('no JavaScript uses system colours and print reveals all filtered fields in
   expect(await page.locator('.empty-fields:visible').count()).toBe(0);
   await page.close();
  }
+});
+
+test('initial fields and expanded groups follow schema order for arbitrary APIs', async () => {
+ const input = join(work, 'generic.yaml');
+ writeFileSync(input, `apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata: {name: xservices.generic.example.org}
+spec:
+  group: generic.example.org
+  names: {kind: XService, plural: xservices}
+  versions:
+  - name: v1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              alpha:
+                type: object
+                properties: {endpoint: {type: string}}
+              capacity:
+                type: object
+                properties: {size: {type: integer}}
+              networks:
+                type: object
+                properties: {name: {type: string}}
+              region: {type: string}
+`);
+ const page = await browser.newPage();
+ await page.setContent(generateHTML('explorer', input));
+ expect(await page.locator('.field-entry:visible').getAttribute('data-path')).toBe('spec.alpha');
+ await page.locator('#field-search').fill('size');
+ expect(await page.locator('.field-entry:visible').getAttribute('data-path')).toBe('spec.capacity.size');
+ await page.setContent(generateHTML('reference', input));
+ expect(await page.locator('.field-group[open] > summary').allTextContents()).toEqual(['spec.alpha']);
+ await page.close();
+});
+
+test('reference example inventory links to one copy and reveals it on mobile and reload', async () => {
+ const output = generateHTML('reference');
+ const page = await browser.newPage({viewport: {width: 390, height: 844}});
+ await page.route('https://examples.test/**', route => route.fulfill({body: output, contentType: 'text/html'}));
+ await page.goto('https://examples.test/');
+ const expected = await page.locator('.paired-example code').first().textContent();
+ expect((await page.locator('pre code').allTextContents()).filter(text => text === expected).length).toBe(1);
+ const link = page.locator('.example-index a').first();
+ expect(await link.count()).toBe(1);
+ const target = await link.getAttribute('href');
+ await page.locator('#api-select').selectOption({label: 'XPlatform / other.example.org'});
+ await link.focus();
+ await page.keyboard.press('Enter');
+ await page.locator(`${target} code`).waitFor({state: 'visible'});
+ expect(await page.locator('.api-panel:visible .identity code').textContent()).toBe('platform.example.org/v1beta1');
+ expect(await page.locator('.api-panel:visible [data-view="example"]').getAttribute('aria-pressed')).toBe('true');
+ expect(await page.locator(`${target} code`).textContent()).toBe(expected);
+ await page.reload();
+ expect(await page.locator(`${target} code`).isVisible()).toBe(true);
+ await page.setViewportSize({width: 1280, height: 900});
+ expect(await page.locator(`${target} code`).isVisible()).toBe(true);
+ expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+ await page.close();
+ const plain = await browser.newPage({javaScriptEnabled: false, viewport: {width: 390, height: 844}});
+ await plain.setContent(output);
+ expect(await plain.locator(`${target} code`).isVisible()).toBe(true);
+ expect((await plain.locator('pre code').allTextContents()).filter(text => text === expected).length).toBe(1);
+ await plain.close();
 });

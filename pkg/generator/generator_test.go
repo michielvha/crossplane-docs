@@ -31,12 +31,21 @@ func TestExampleGolden(t *testing.T) {
 	}
 }
 
-func TestFormatTypePreservesEnumType(t *testing.T) {
-	for _, typ := range []string{"integer", "number", "boolean", "string"} {
-		t.Run(typ, func(t *testing.T) {
-			got := New().formatType(OpenAPISchema{Type: typ, Enum: []interface{}{1, 2}})
-			if got != typ {
-				t.Fatalf("got %q, want %q", got, typ)
+func TestGeneratePreservesEnumFieldTypes(t *testing.T) {
+	for _, tc := range []struct {
+		typ    string
+		values []interface{}
+	}{{"integer", []interface{}{1, 2}}, {"number", []interface{}{1.25, 2.5}}, {"boolean", []interface{}{true, false}}, {"string", []interface{}{"small", "large"}}} {
+		t.Run(tc.typ, func(t *testing.T) {
+			xrd := &XRD{APIVersion: "apiextensions.crossplane.io/v2", Kind: "CompositeResourceDefinition", Spec: XRDSpec{
+				Group: "example.org", Names: XRDNames{Kind: "XExample"},
+				Versions: []XRDVersion{{Name: "v1", Served: true, Schema: XRDVersionSchema{OpenAPIV3Schema: OpenAPISchema{Type: "object", Properties: map[string]OpenAPISchema{
+					"spec": {Type: "object", Properties: map[string]OpenAPISchema{"value": {Type: tc.typ, Enum: tc.values}}},
+				}}}}},
+			}}
+			got, err := New().Generate(xrd, Options{})
+			if err != nil || !strings.Contains(got, "| spec.value | "+tc.typ+" |") {
+				t.Fatalf("generated enum field lost its type: %s, %v", got, err)
 			}
 		})
 	}

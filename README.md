@@ -13,6 +13,8 @@ go install github.com/michielvha/crossplane-docs@latest
 Source builds require the Go version in [go.mod](go.mod). Run `make build` for a
 local binary with version metadata. Published binaries live in
 [GitHub Releases](https://github.com/michielvha/crossplane-docs/releases).
+Release archives contain standalone Linux, macOS and Windows binaries for
+amd64 and arm64.
 
 ## Generate a reference
 
@@ -150,6 +152,10 @@ inspector; `compact` uses comparison columns on desktop and stacked field
 definitions on phones. All three are standalone files with embedded styles and
 interactions, and remain readable with JavaScript disabled. HTML search and API
 selection operate on the versions included by `--api-version` or `--all-versions`.
+The explorer initially selects the first matching field in configured order;
+the reference opens its first expandable field group. Its Examples inventory
+links to paired manifests so each appears once. Examples without a paired API
+reference remain inline.
 
 Use Field requirement to show all, required or optional fields alongside text
 search. Required means required within the field's parent object or schema
@@ -211,6 +217,8 @@ make formats      # Offline Chromium checks and real Asciidoctor conversion
 `make integration` downloads and verifies the pinned Linux amd64 Crossplane CLI;
 on another platform, set `CROSSPLANE_BIN` to the matching verified CLI. Fixture
 images and the temporary OCI registry are built/started by the tests.
+The [runtime Dockerfile](examples/platform/runtime/Dockerfile) builds composition
+function fixtures with template/KCL source files for those tests.
 
 The [CI workflow](.github/workflows/ci.yml) requires the Go, formatter and real
 render suites before shared versioning. A new exact tag is passed to the shared

@@ -124,13 +124,3 @@ func (g *Generator) Generate(resource *XRD, opts Options) (string, error) {
 	data, err = engine.Format(doc, config)
 	return string(data), err
 }
-
-func (g *Generator) formatType(schema OpenAPISchema) string {
-	if schema.Type == "array" && schema.Items != nil {
-		return "list(" + g.formatType(*schema.Items) + ")"
-	}
-	if schema.Type == "" && len(schema.Enum) > 0 {
-		return "string"
-	}
-	return schema.Type
-}

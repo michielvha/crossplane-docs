@@ -48,7 +48,7 @@ function filterFields() {
   const matches = entries.filter(matchesFilters);
   const links = [...panel.querySelectorAll('.field-link')];
   let selected = matches.find(entry => entry.dataset.path === selectedPath);
-  if (!selected) selected = matches.find(entry => entry.dataset.path === 'spec.region') || matches[0];
+  if (!selected) selected = matches[0];
   if (selected) selectedPath = selected.dataset.path;
   for (const entry of entries) entry.hidden = !matches.includes(entry) || (layout === 'explorer' && entry !== selected);
   for (const group of panel.querySelectorAll('.field-group')) {
@@ -99,6 +99,11 @@ function revealHash() {
     requirement.value = 'all';
   }
   selectPanel(owner.id);
+  if (target.closest('.paired-example')) {
+    owner.classList.add('example-view');
+    for (const button of owner.querySelectorAll('[data-view]')) button.setAttribute('aria-pressed', String(button.dataset.view === 'example'));
+    target.focus({preventScroll: true});
+  }
   for (let parent = target.parentElement; parent; parent = parent.parentElement) if (parent.tagName === 'DETAILS') parent.open = true;
   target.scrollIntoView({block: 'start'});
 }

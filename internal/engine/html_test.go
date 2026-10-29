@@ -1,11 +1,48 @@
 package engine
 
 import (
+	"encoding/json"
 	"html"
 	"regexp"
 	"strings"
 	"testing"
 )
+
+func TestReferenceExamplesHaveOneManifestAndCompleteInventory(t *testing.T) {
+	doc := Document{Title: "Examples", APIs: []API{{Group: "example.org", Version: "v1", Kind: "XService", ClaimKind: "Service"}}, Examples: []Object{
+		{"apiVersion": "example.org/v1", "kind": "XService", "metadata": Object{"name": "service"}, "spec": Object{"value": "composite-payload-marker"}},
+		{"apiVersion": "example.org/v1", "kind": "Service", "metadata": Object{"name": "claim"}, "spec": Object{"value": "claim-payload-marker"}},
+		{"apiVersion": "other.org/v1", "kind": "Other", "spec": Object{"value": "unmatched-payload-marker"}},
+	}}
+	before, _ := json.Marshal(doc)
+	for _, layout := range []string{"reference", "explorer", "compact"} {
+		for _, sections := range [][]string{{"apis", "examples"}, {"examples", "apis"}, {"examples"}} {
+			c := htmlConfig(t, layout)
+			c.Sections = sections
+			out, err := Format(doc, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, marker := range []string{"composite-payload-marker", "claim-payload-marker", "unmatched-payload-marker"} {
+				if strings.Count(string(out), marker) != 1 {
+					t.Errorf("%s sections=%v repeated or lost manifest %s", layout, sections, marker)
+				}
+			}
+			links := strings.Count(string(out), `href="#api-0-example-`)
+			if layout == "reference" && len(sections) > 1 {
+				if links != 2 || !strings.Contains(string(out), `id="api-0-example-0"`) || !strings.Contains(string(out), `id="api-0-example-1"`) {
+					t.Errorf("matched composite/claim inventory links are incomplete: %s %v", layout, sections)
+				}
+			} else if links != 0 {
+				t.Errorf("inventory links to manifests without paired examples: %s %v", layout, sections)
+			}
+			after, _ := json.Marshal(doc)
+			if string(before) != string(after) {
+				t.Fatal("HTML example deduplication changed the shared model")
+			}
+		}
+	}
+}
 
 func htmlConfig(t *testing.T, layout string) Config {
 	t.Helper()

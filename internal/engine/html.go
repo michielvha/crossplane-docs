@@ -67,6 +67,10 @@ func formatHTML(doc Document, c Config) ([]byte, error) {
 			writeHTMLAPIs(w, doc, c)
 			continue
 		}
+		if section == "examples" && c.HTMLLayout == "reference" && slices.Contains(c.Sections, "apis") {
+			writeHTMLExampleInventory(w, doc)
+			continue
+		}
 		one := c
 		one.Sections = []string{section}
 		writeSections(w, doc, one)
@@ -117,11 +121,11 @@ func writeHTMLAPIs(w *writer, doc Document, c Config) {
 			fmt.Fprintf(&w.buf, `<div><dt>Claim kind</dt><dd><code>%s</code></dd></div>`, html.EscapeString(api.ClaimKind))
 		}
 		w.buf.WriteString(`</dl></header>`)
-		var examples []Object
+		var examples []int
 		if c.Settings.Examples && slices.Contains(c.Sections, "examples") {
-			for _, example := range doc.Examples {
-				if text(example, "apiVersion") == api.Group+"/"+api.Version && (text(example, "kind") == api.Kind || text(example, "kind") == api.ClaimKind) {
-					examples = append(examples, example)
+			for index, example := range doc.Examples {
+				if htmlExampleMatches(example, api) {
+					examples = append(examples, index)
 				}
 			}
 		}
@@ -161,8 +165,11 @@ func writeHTMLAPIs(w *writer, doc Document, c Config) {
 		w.buf.WriteString(`</div>`)
 		if c.HTMLLayout == "reference" && len(examples) > 0 {
 			w.buf.WriteString(`<aside class="paired-example" aria-label="Example manifest"><h2>Example manifest</h2>`)
-			for _, example := range examples {
+			for _, index := range examples {
+				example := doc.Examples[index]
+				fmt.Fprintf(&w.buf, `<section class="example-manifest" id="api-%d-example-%d" tabindex="-1" aria-label="Example manifest: %s">`, i, index, html.EscapeString(htmlExampleLabel(example, index)))
 				w.code("yaml", yamlText(example))
+				w.buf.WriteString(`</section>`)
 			}
 			w.buf.WriteString(`</aside>`)
 		}
@@ -194,13 +201,15 @@ func writeHTMLFieldGroups(w *writer, fields []Field, apiID string, c Config) {
 		}
 		groups[key] = append(groups[key], i)
 	}
+	opened := false
 	for _, key := range order {
 		indices := groups[key]
 		grouped := len(indices) > 1 || key == "spec"
 		if grouped {
 			open := ""
-			if key == "spec.networks" || key == "spec.capacity" {
+			if !opened {
 				open = " open"
+				opened = true
 			}
 			label := key
 			if key == "spec" {
@@ -221,6 +230,47 @@ func writeHTMLFieldGroups(w *writer, fields []Field, apiID string, c Config) {
 			w.buf.WriteString(`</details>`)
 		}
 	}
+}
+
+func htmlExampleMatches(example Object, api API) bool {
+	return text(example, "apiVersion") == api.Group+"/"+api.Version && (text(example, "kind") == api.Kind || text(example, "kind") == api.ClaimKind)
+}
+
+func htmlExampleLabel(example Object, index int) string {
+	name := text(example, "metadata", "name")
+	if name == "" {
+		name = text(example, "metadata", "generateName")
+	}
+	if name == "" {
+		name = fmt.Sprintf("Example %d", index+1)
+	}
+	if namespace := text(example, "metadata", "namespace"); namespace != "" {
+		name = namespace + "/" + name
+	}
+	return strings.TrimSpace(text(example, "kind") + " " + name)
+}
+
+func writeHTMLExampleInventory(w *writer, doc Document) {
+	w.section("examples", "Example resources")
+	w.buf.WriteString(`<ul class="example-index">`)
+	for index, example := range doc.Examples {
+		apiIndex := -1
+		for i, api := range doc.APIs {
+			if htmlExampleMatches(example, api) {
+				apiIndex = i
+				break
+			}
+		}
+		w.buf.WriteString(`<li>`)
+		if apiIndex >= 0 {
+			fmt.Fprintf(&w.buf, `<a href="#api-%d-example-%d"><code>%s</code><span>%s</span></a>`, apiIndex, index, html.EscapeString(htmlExampleLabel(example, index)), html.EscapeString(text(example, "apiVersion")))
+		} else {
+			fmt.Fprintf(&w.buf, `<p>%s</p>`, html.EscapeString(htmlExampleLabel(example, index)))
+			w.code("yaml", yamlText(example))
+		}
+		w.buf.WriteString(`</li>`)
+	}
+	w.buf.WriteString(`</ul>`)
 }
 
 func writeHTMLField(w *writer, field Field, id string, c Config) {
