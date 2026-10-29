@@ -121,6 +121,10 @@ func Load(path string, c Config) ([]Input, error) {
 }
 
 func Build(inputs []Input, opts Options) (Document, error) {
+	// Structured output exposes the complete model, independent of document views.
+	if opts.Config.Formatter == "json" || opts.Config.Formatter == "yaml" {
+		opts.Config.Settings.Nested = true
+	}
 	doc := Document{SchemaVersion: "1", Title: opts.Config.Title, APIs: []API{}, Compositions: []Composition{}, Scenarios: []Scenario{}}
 	if len(inputs) == 0 {
 		return doc, fmt.Errorf("no YAML documents found")

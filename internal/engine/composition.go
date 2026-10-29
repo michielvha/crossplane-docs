@@ -100,6 +100,8 @@ func resourcesFrom(input Object, provenance, step string) ([]Resource, error) {
 			return nil, err
 		}
 		for _, p := range patches {
+			// Summaries and structured definitions must use the same safe values.
+			p = Map(redacted(p))
 			typ := text(p, "type")
 			if typ == "" {
 				typ = "FromCompositeFieldPath"
@@ -127,7 +129,7 @@ func resourcesFrom(input Object, provenance, step string) ([]Resource, error) {
 			if p["policy"] != nil {
 				description += "; policy: " + compact(p["policy"])
 			}
-			r.Patches = append(r.Patches, Patch{Type: typ, From: from, To: text(p, "toFieldPath"), Description: description, Definition: Map(redacted(p))})
+			r.Patches = append(r.Patches, Patch{Type: typ, From: from, To: text(p, "toFieldPath"), Description: description, Definition: p})
 		}
 		out = append(out, r)
 	}

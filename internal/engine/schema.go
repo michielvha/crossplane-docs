@@ -52,6 +52,7 @@ func extractAPI(in Input, opts Options) ([]API, error) {
 		}
 		schema := Map(at(version, "schema", "openAPIV3Schema"))
 		api := API{Name: text(m, "metadata", "name"), Group: group, Kind: kind, ClaimKind: text(spec, "claimNames", "kind"), Scope: text(spec, "scope"), Version: text(version, "name"), Served: boolean(version["served"]), Referenceable: boolean(version["referenceable"]), Description: text(schema, "description"), Fields: []Field{}}
+		api.Constraints = schemaConstraints(schema)
 		for _, c := range List(version["additionalPrinterColumns"]) {
 			api.PrinterColumns = append(api.PrinterColumns, Map(c))
 		}
@@ -185,17 +186,13 @@ func (w schemaWalker) walk(schema Object, path string, required bool, depth int,
 	if typ == "" {
 		typ = "any"
 	}
-	f := Field{Path: path, Type: typ, Description: text(schema, "description"), Required: required, Nullable: boolean(schema["nullable"]), Constraints: Object{}}
+	f := Field{Path: path, Type: typ, Description: text(schema, "description"), Required: required, Nullable: boolean(schema["nullable"]), Constraints: schemaConstraints(schema)}
 	f.Default, f.HasDefault = schema["default"]
-	for _, key := range []string{"enum", "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "multipleOf", "minLength", "maxLength", "pattern", "format", "minItems", "maxItems", "uniqueItems", "minProperties", "maxProperties", "x-kubernetes-validations", "x-kubernetes-list-type", "x-kubernetes-list-map-keys", "x-kubernetes-map-type", "x-kubernetes-int-or-string", "x-kubernetes-preserve-unknown-fields", "oneOf", "anyOf", "allOf", "not"} {
-		if v, ok := schema[key]; ok {
-			f.Constraints[key] = v
-		}
-	}
-	if (path != "spec" && path != "status") || len(f.Constraints) > 0 {
+	if (path != "spec" && path != "status") || len(f.Constraints) > 0 || f.Description != "" || f.HasDefault || f.Nullable || f.Required {
 		*out = append(*out, f)
 	}
-	if !w.opts.Config.Settings.Nested && depth > 0 {
+	// Reference indirection consumes recursion depth, but not a property level.
+	if !w.opts.Config.Settings.Nested && path != "spec" && path != "status" {
 		return nil
 	}
 	props := Map(schema["properties"])
@@ -251,4 +248,14 @@ func (w schemaWalker) walk(schema Object, path string, required bool, depth int,
 		}
 	}
 	return nil
+}
+
+func schemaConstraints(schema Object) Object {
+	constraints := Object{}
+	for _, key := range []string{"enum", "minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "multipleOf", "minLength", "maxLength", "pattern", "format", "minItems", "maxItems", "uniqueItems", "minProperties", "maxProperties", "x-kubernetes-validations", "x-kubernetes-list-type", "x-kubernetes-list-map-keys", "x-kubernetes-map-type", "x-kubernetes-int-or-string", "x-kubernetes-preserve-unknown-fields", "oneOf", "anyOf", "allOf", "not"} {
+		if v, ok := schema[key]; ok {
+			constraints[key] = v
+		}
+	}
+	return constraints
 }

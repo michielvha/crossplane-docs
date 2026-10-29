@@ -115,6 +115,24 @@ func TestEmptyTemplateOutputAndCheck(t *testing.T) {
 	}
 }
 
+func TestStructuredOutputRetainsFullNestedModel(t *testing.T) {
+	config := filepath.Join(t.TempDir(), "shallow.yml")
+	if err := os.WriteFile(config, []byte("version: 1\nsettings:\n  nested: false\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	for _, format := range []string{"json", "yaml"} {
+		t.Run(format, func(t *testing.T) {
+			for _, options := range [][]string{{"--show-nested=false"}, {"--config", config}} {
+				args := append([]string{"xrd", "../examples/platform.yaml", "--format", format}, options...)
+				out, _, err := execute(args...)
+				if err != nil || !strings.Contains(out, "spec.networks[].subnets[].zone") {
+					t.Fatalf("structured model was trimmed by presentation settings %v: %v", options, err)
+				}
+			}
+		})
+	}
+}
+
 func TestVersionSelectionAndSchemaPaths(t *testing.T) {
 	out, _, err := execute("generate", "../examples/platform.yaml", "--format", "json", "--all-versions")
 	if err != nil {
@@ -144,14 +162,14 @@ func TestConfigExplicitFalseOverrideAndUnknownKeys(t *testing.T) {
 	if err := os.WriteFile(config, []byte("version: 1\nsettings:\n  nested: false\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	out, _, err := execute("xrd", file, "--format", "json")
+	out, _, err := execute("xrd", file, "--format", "markdown")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if strings.Contains(out, "spec.parameters.region") {
 		t.Fatal("config false ignored")
 	}
-	out, _, err = execute("xrd", file, "--format", "json", "--show-nested=true")
+	out, _, err = execute("xrd", file, "--format", "markdown", "--show-nested=true")
 	if err != nil || !strings.Contains(out, "spec.parameters.region") {
 		t.Fatalf("CLI did not override config: %v", err)
 	}

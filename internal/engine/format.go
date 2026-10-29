@@ -101,8 +101,14 @@ func writeSections(w *writer, doc Document, c Config) {
 			w.section("apis", "API definitions")
 			for _, a := range doc.APIs {
 				w.heading(3, a.Kind+" · "+a.Version)
-				w.para(a.Description)
+				if c.Settings.Descriptions {
+					w.para(a.Description)
+				}
 				w.table([]string{"Property", "Value"}, [][]string{{"API Group", a.Group}, {"API Version", a.Version}, {"Kind", a.Kind}, {"Scope", a.Scope}, {"Claim Kind", a.ClaimKind}, {"Served", fmt.Sprint(a.Served)}, {"Referenceable", fmt.Sprint(a.Referenceable)}})
+				if len(a.Constraints) > 0 {
+					w.heading(4, "API validation")
+					w.code("yaml", yamlText(a.Constraints))
+				}
 				for _, area := range []string{"spec", "status"} {
 					var rows [][]string
 					for _, f := range a.Fields {

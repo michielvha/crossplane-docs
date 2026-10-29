@@ -27,6 +27,7 @@ type API struct {
 	Served         bool     `json:"served" yaml:"served"`
 	Referenceable  bool     `json:"referenceable" yaml:"referenceable"`
 	Description    string   `json:"description,omitempty" yaml:"description,omitempty"`
+	Constraints    Object   `json:"constraints,omitempty" yaml:"constraints,omitempty"`
 	PrinterColumns []Object `json:"printerColumns,omitempty" yaml:"printerColumns,omitempty"`
 	Fields         []Field  `json:"fields" yaml:"fields"`
 }

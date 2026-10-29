@@ -3,6 +3,7 @@ package engine
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -292,5 +293,212 @@ func TestScenarioInputProvenance(t *testing.T) {
 	other, _ := json.Marshal(ScenarioInputs(o, ""))
 	if string(other) == string(raw) {
 		t.Fatal("different mock inputs are indistinguishable")
+	}
+}
+
+func TestPatchSummariesPreserveRedaction(t *testing.T) {
+	inputs, err := Read([]byte(`apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata: {name: redaction}
+spec:
+  compositeTypeRef: {apiVersion: example.org/v1, kind: XExample}
+  resources:
+  - name: config
+    base: {apiVersion: v1, kind: ConfigMap}
+    patches:
+    - fromFieldPath: spec.mode
+      toFieldPath: data.value
+      transforms:
+      - type: map
+        map: {password: AUDIT_FIXTURE_SECRET, normal: visible-transform-value}
+`), "redaction.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := Build(inputs, Options{Config: Defaults()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, format := range []string{"markdown", "html", "asciidoc", "json", "yaml"} {
+		t.Run(format, func(t *testing.T) {
+			c := Defaults()
+			c.Formatter = format
+			data, err := Format(doc, c)
+			if err != nil || strings.Contains(string(data), "AUDIT_FIXTURE_SECRET") || !strings.Contains(string(data), "visible-transform-value") {
+				t.Fatalf("patch summary lost redaction or safe content: error=%v sensitive=%t safe=%t", err, strings.Contains(string(data), "AUDIT_FIXTURE_SECRET"), strings.Contains(string(data), "visible-transform-value"))
+			}
+		})
+	}
+}
+
+func TestRootConstraintsAndContainerMetadata(t *testing.T) {
+	inputs, err := Read([]byte(`apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata: {name: xexamples.example.org}
+spec:
+  group: example.org
+  names: {kind: XExample, plural: xexamples}
+  versions:
+  - name: v1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        required: [spec]
+        minProperties: 1
+        x-kubernetes-validations:
+        - rule: self.spec.min <= self.spec.max
+          message: root-range-rule
+        properties:
+          spec:
+            type: object
+            description: spec-container-description
+            nullable: true
+            default: {min: 0, max: 2}
+            properties:
+              min: {type: integer}
+              max: {type: integer}
+          status:
+            type: object
+            description: status-container-description
+            default: {}
+            properties:
+              ready: {type: boolean}
+`), "root.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := Build(inputs, Options{Config: Defaults()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	fields := map[string]Field{}
+	for _, field := range doc.APIs[0].Fields {
+		fields[field.Path] = field
+	}
+	for _, path := range []string{"spec", "status"} {
+		field, exists := fields[path]
+		if !exists || !field.HasDefault || field.Description != path+"-container-description" {
+			t.Errorf("%s container metadata was discarded: %+v", path, field)
+		}
+	}
+	if !fields["spec"].Required || !fields["spec"].Nullable || compact(fields["status"].Default) != "{}" {
+		t.Error("container required, nullable or empty default was lost")
+	}
+	for _, format := range []string{"markdown", "html", "asciidoc", "json", "yaml"} {
+		t.Run(format, func(t *testing.T) {
+			c := Defaults()
+			c.Formatter = format
+			data, err := Format(doc, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, want := range []string{"root-range-rule", "minProperties", "spec-container-description", "status-container-description"} {
+				if !strings.Contains(string(data), want) {
+					t.Errorf("%s lost %s", format, want)
+				}
+			}
+		})
+	}
+}
+
+func TestShallowReferencedContainers(t *testing.T) {
+	for _, ref := range []string{"#/definitions/container", "#/definitions/chain", "types.yaml#/definitions/container", "types.yaml#/definitions/chain"} {
+		t.Run(ref, func(t *testing.T) {
+			dir := t.TempDir()
+			definitions := `definitions:
+  chain: {$ref: '#/definitions/container'}
+  container:
+    type: object
+    properties:
+      region: {type: string}
+      settings:
+        type: object
+        properties:
+          enabled: {type: boolean}
+`
+			types := writeFixture(t, dir, "types.yaml", definitions)
+			file := writeFixture(t, dir, "xrd.yaml", fmt.Sprintf(`apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+spec:
+  group: example.org
+  names: {kind: XExample}
+  versions:
+  - name: v1
+    served: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec: {$ref: %q}
+`, ref)+definitions)
+			c := Defaults()
+			c.Settings.Nested = false
+			inputs, err := Load(file, c)
+			if err != nil {
+				t.Fatal(err)
+			}
+			doc, err := Build(inputs, Options{Config: c, RefFiles: []string{types}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			var paths []string
+			for _, field := range doc.APIs[0].Fields {
+				paths = append(paths, field.Path)
+			}
+			if strings.Join(paths, ",") != "spec.region,spec.settings" {
+				t.Fatalf("reference indirection changed shallow properties: %v", paths)
+			}
+		})
+	}
+}
+
+func TestScenarioMetadataRequiresExactAPIGroup(t *testing.T) {
+	data := []byte(`apiVersion: render.crossplane.io/v1beta1
+kind: Context
+---
+apiVersion: render.crossplane.io/v1beta1
+kind: Result
+---
+apiVersion: audit.render.crossplane.io/v1
+kind: Context
+metadata: {name: external-context}
+---
+apiVersion: render.crossplane.io.example.org/v1
+kind: Result
+metadata: {name: external-result}
+`)
+	scenario, err := ParseScenario(data, "groups", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(scenario.Resources) != 2 || len(scenario.Context) != 1 || len(scenario.Results) != 1 {
+		t.Fatalf("foreign resources mistaken for renderer metadata: resources=%d context=%d results=%d", len(scenario.Resources), len(scenario.Context), len(scenario.Results))
+	}
+}
+
+func TestDescriptionPresentationAcrossFormats(t *testing.T) {
+	doc := model(t)
+	doc.APIs[0].Description = "api-description-marker"
+	doc.APIs[0].Fields[0].Description = "field-description-marker"
+	for _, format := range []string{"markdown", "html", "asciidoc", "json", "yaml"} {
+		t.Run(format, func(t *testing.T) {
+			for _, enabled := range []bool{false, true} {
+				c := Defaults()
+				c.Formatter = format
+				c.Settings.Descriptions = enabled
+				data, err := Format(doc, c)
+				if err != nil {
+					t.Fatal(err)
+				}
+				want := enabled || format == "json" || format == "yaml"
+				for _, description := range []string{"api-description-marker", "field-description-marker"} {
+					if strings.Contains(string(data), description) != want {
+						t.Errorf("%s ignored descriptions=%t for %s", format, enabled, description)
+					}
+				}
+			}
+		})
 	}
 }

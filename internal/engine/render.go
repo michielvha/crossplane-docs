@@ -175,9 +175,9 @@ func ParseScenario(data []byte, name, xr string, refs ...Composition) (Scenario,
 		kind := text(m, "kind")
 		api := text(m, "apiVersion")
 		switch {
-		case kind == "Context" && strings.Contains(api, "render.crossplane.io"):
+		case kind == "Context" && strings.HasPrefix(api, "render.crossplane.io/"):
 			s.Context = append(s.Context, Map(redacted(m)))
-		case kind == "Result" && strings.Contains(api, "render.crossplane.io"):
+		case kind == "Result" && strings.HasPrefix(api, "render.crossplane.io/"):
 			s.Results = append(s.Results, Map(redacted(m)))
 		case (xrObject != nil && api == text(xrObject, "apiVersion") && kind == text(xrObject, "kind") && text(m, "metadata", "name") == text(xrObject, "metadata", "name")) || (xrObject == nil && isComposite(m)):
 			s.Composite = Map(redacted(m))

@@ -167,6 +167,10 @@ func writeHTMLAPIs(w *writer, doc Document, c Config) {
 			w.buf.WriteString(`</aside>`)
 		}
 		w.buf.WriteString(`</div>`)
+		if len(api.Constraints) > 0 {
+			w.heading(2, "API validation")
+			writeHTMLConstraints(w, api.Constraints)
+		}
 		if len(api.PrinterColumns) > 0 {
 			w.heading(2, "Printer columns")
 			w.code("yaml", yamlText(api.PrinterColumns))
@@ -201,6 +205,12 @@ func writeHTMLFieldGroups(w *writer, fields []Field, apiID string, c Config) {
 			label := key
 			if key == "spec" {
 				label = "Cross-field validation"
+				for _, index := range indices {
+					field := fields[index]
+					if field.Description != "" || field.HasDefault || field.Nullable || field.Required {
+						label = "Spec object"
+					}
+				}
 			}
 			fmt.Fprintf(&w.buf, `<details class="field-group"%s><summary><code>%s</code></summary>`, open, html.EscapeString(label))
 		}
