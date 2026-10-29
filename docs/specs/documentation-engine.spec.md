@@ -322,6 +322,7 @@ baseline is separate from agreement on these individual requirements.
 | 2026-10-27 | R-3 | implementation | `1a22ab9` | unknown | procedural | Unknown inputs, check exit codes and scenario evidence need fixes. |
 | 2026-10-27 | R-4 | implementation | `7749946` | unknown | procedural | All 17 criteria met; no findings. Model identity not attested. |
 | 2026-10-29 | R-5 | implementation | `95124b3` | unknown | procedural | All 17 criteria met; F-01 requires source locations in semantic manifest errors. |
+| 2026-10-29 | R-6 | implementation | `4aa59e2` | unknown | procedural | All 17 criteria met; diagnostic location repair verified, no findings. |
 
 ### R-1
 
@@ -504,21 +505,6 @@ CRITERION: AC-17 Optional upstream schema/CEL validation accepts valid supplied/
 VERDICT: met
 EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed TestRealSchemaValidation passing for supplied and rendered valid resources and invalid field type, CEL, pattern, unknown field and missing-schema cases. Inspected mandatory CI invocation and validator error propagation before documentation output.
 
-## Sources
-
-- [Crossplane CLI reference](https://docs.crossplane.io/cli/v2.5/command-reference/): rendering interface, mock inputs, runtime controls and resource/schema/CEL validation.
-- [Crossplane CLI v2.4 reference](https://docs.crossplane.io/cli/v2.4/command-reference/): version-specific command contract and renderer inputs.
-- [Crossplane compositions](https://docs.crossplane.io/latest/composition/compositions/): function pipelines and required schemas.
-- [Legacy composition rendering](https://docs.crossplane.io/master/concepts/compositions/): legacy render command and resource-mode limitation.
-- [Go-templating function](https://github.com/crossplane-contrib/function-go-templating): source forms, dynamic inputs and helper behavior.
-- [KCL function](https://github.com/crossplane-contrib/function-kcl): source forms, targets and filesystem runtime requirements.
-- [CUE function](https://github.com/crossplane-contrib/function-cue): public function implementation for the CUE test scenario.
-- [Python function](https://github.com/crossplane-contrib/function-python): public function implementation for the Python test scenario.
-- [Crossplane v2.2 composition examples](https://github.com/crossplane/docs/blob/master/content/v2.2/composition/compositions.md): mixed functions and Python dynamic resource requests.
-- [terraform-docs configuration](https://terraform-docs.io/user-guide/configuration/): declarative configuration and discovery precedent.
-- [terraform-docs formatters](https://terraform-docs.io/user-guide/configuration/formatter/), [reference](https://terraform-docs.io/reference/): output and formatter precedent; native HTML is a crossplane-docs requirement.
-
-
 ### R-5
 
 CRITERION: AC-01 Users can document v1/v2 XRD metadata and select a named version or all versions; an unknown version fails explicitly.
@@ -595,3 +581,89 @@ SEVERITY: should-fix
 WHERE: internal/engine/load.go:158 and internal/engine/load.go:164; documentation-engine.spec.md Design, Output and configuration
 EVIDENCE: The design requires malformed supported inputs to be reported with their locations. At 95124b34ce929b84464f4de9548c922f5b08aef2, the fresh snapshot CLI generated a directory containing a valid XRD and b-broken-composition.yaml with spec: {}. It exited 1 with only “Composition requires compositeTypeRef apiVersion and kind”, omitting the filename and document number. Build returns extraction errors without adding the available Input.File and Input.Index.
 PROPOSAL: Wrap XRD and Composition extraction errors with their source filename and document index. Add a batch CLI regression that verifies semantic manifest errors identify the offending file and document.
+
+### R-6
+
+CRITERION: AC-01 Users can document v1/v2 XRD metadata and select a named version or all versions; an unknown version fails explicitly.
+VERDICT: met
+EVIDENCE: At 4aa59e22b11a7c09f640a55c369a49483ae484b4, inspected unchanged version-selection logic and metadata extraction. The fresh full check log passes command, generator and engine tests; independently reran the new XRD semantic-error cases successfully.
+
+CRITERION: AC-02 Nested objects, array items, maps and referenced schemas produce deterministic paths, correct parent-relative required markers and lossless defaults; missing references fail and recursive schemas terminate with an explicit reference marker.
+VERDICT: met
+EVIDENCE: At the target, independently reran reference, explicit-file-reference and lossless-default tests with race detection. All passed. Reviewed the error-only schema/load changes; deterministic paths, parent-relative requirements, reference cycles and successful schema extraction are preserved.
+
+CRITERION: AC-03 Documentation includes numeric/string/list constraints, enums, formats, Kubernetes list/map metadata, CEL rules/messages and schema alternatives without claiming unexecuted validation.
+VERDICT: met
+EVIDENCE: Inspected the unchanged constraint collection and formatting paths and the fresh passing engine test log. Numeric/string/list constraints, enums, formats, Kubernetes metadata, CEL messages and schema alternatives remain present; validation status still requires explicit successful validation.
+
+CRITERION: AC-04 Composition references expand patch sets and document direction, combine inputs, readable transform chains, policies, readiness, connection details and environment inputs; invalid patch-set references fail.
+VERDICT: met
+EVIDENCE: Composition extraction and formatting are unchanged from the prior reviewed source. Observed the fresh full composition/engine checks passing and the completed real patch-and-transform scenario. Patch-set errors, direction, combine inputs, transforms, policies, readiness, connections and environment output remain covered.
+
+CRITERION: AC-05 Every pipeline step and source is documented, including unknown function inputs, without presenting an incomplete declared inventory as complete runtime output.
+VERDICT: met
+EVIDENCE: Inspected unchanged ordered pipeline extraction, opaque custom inputs and declared-inventory provenance. The fresh full checks and observed real unknown-adapter case pass; the source/runtime distinction remains explicit in generated documents.
+
+CRITERION: AC-06 Explicit rendering and saved rendered YAML produce scenario-labelled resource/status documentation; observed/required resources, schemas and context reach the real renderer, while failures/timeouts preserve existing output.
+VERDICT: met
+EVIDENCE: Renderer, validator, scenario provenance and output-success paths are unchanged. Observed passing real saved/live scenario, mock-resource, required-schema and context coverage, plus fresh failure/cancellation tests in the full check log. The new error wrappers return before output replacement.
+
+CRITERION: AC-07 Every advertised Go-templating source and behavior in the scenario matrix has a runnable example and passing real-render-to-documentation test, including failure cases.
+VERDICT: met
+EVIDENCE: Reconciled the observed passing Go-template inline, template-list, environment, filesystem, condition, loop, required-resource, status and invalid-program cases with unchanged fixtures and integration assertions. Successful variants retain five-format identity/value assertions and exact JSON scenario round trips.
+
+CRITERION: AC-08 Every advertised KCL source and target has a runnable example and passing real-render-to-documentation test, including failure cases.
+VERDICT: met
+EVIDENCE: Observed passing inline, filesystem, OCI-package, all five KCL targets, mock/parameter and invalid-program coverage. Fixtures and render-to-documentation assertions are unchanged. The earlier Docker address-pool failures were covered by the successful dedicated-network recovery run.
+
+CRITERION: AC-09 CUE, Python and a custom function unknown to source adapters have passing real-render-to-documentation tests with successful and failing scenarios.
+VERDICT: met
+EVIDENCE: Observed passing CUE, Python and unknown-adapter successes and CUE/Python/custom failures. Their unchanged tests verify resulting documentation through all five formats and preserve existing files when the CLI render fails.
+
+CRITERION: AC-10 Mixed-pipeline create/update examples prove shared context, conditional/repeated resources, mocked observed state and readiness/status behavior through real rendering and resulting documentation.
+VERDICT: met
+EVIDENCE: Observed both mixed create/update cases passing with unchanged fixtures and assertions for shared environment, conditional/repeated inventories, observed-region patches, Pending/Ready phases, resourceCount and Ready conditions in rendered documentation.
+
+CRITERION: AC-11 Markdown, offline HTML, AsciiDoc, JSON, YAML and custom templates render the same shared model correctly, with format-appropriate escaping and a tested structured-data contract.
+VERDICT: met
+EVIDENCE: Observed the final 18-case formatter run passing all 336 assertions. Independently reran the changed reload case successfully with five assertions. Earlier independently executed offline desktop/mobile HTML, Asciidoctor and custom-template escaping checks remain applicable because formatter/model output code is unchanged.
+
+CRITERION: AC-12 Configuration controls sections, columns, layout, sorting, nesting, descriptions, anchors, styling, headers/footers and output; explicit flags win and invalid configuration fails.
+VERDICT: met
+EVIDENCE: Configuration and presentation code are unchanged. Inspected the final full passing command/engine check log and independently reran configuration/injection checks. Existing coverage establishes sections, columns, layouts, sorting, nesting, descriptions, anchors, styling, headers/footers, explicit overrides and rejection of invalid configuration.
+
+CRITERION: AC-13 File/directory/bundle generation supports deterministic discovery and resource matching, catches collisions and malformed supported inputs, and retains existing single-resource commands.
+VERDICT: met
+EVIDENCE: Independently reran discovery and all four new semantic-error regression cases with race detection. They pass, identify the source file and document 2 exactly once, preserve the underlying cause and retain existing output. Stable discovery, API matching, duplicate handling and single-resource commands are unchanged. F-01 is closed.
+
+CRITERION: AC-14 Replace and marker-injection output preserve unrelated content and resist partial writes; repeated injection is identical and check mode distinguishes current, drift and failure without writing.
+VERDICT: met
+EVIDENCE: Independently reran marker injection, output-safety and empty-template checks with race detection; all passed. The final full check log passes the remaining command tests. Previously observed binary checks establish current/drift/failure exits, including all accepted true boolean spellings; output implementation is unchanged.
+
+CRITERION: AC-15 Every advertised capability maps to a tested runnable example, and mandatory CI executes the full renderer matrix and formatter checks before any release tag can be created.
+VERDICT: met
+EVIDENCE: All 14 declared real-render tests have observed passing coverage across the original and dedicated-network recovery logs. Render fixtures, runner and CI are unchanged. Inspected mandatory formatter/render verification before versioning and previously retrieved the exact pinned shared version workflow. No hosted CI result is inferred.
+
+CRITERION: AC-16 A local six-target release snapshot has verified archive contents, checksums and version metadata; local checksum signing verifies successfully, and release workflow contract checks require the exact checked tag and protect existing assets.
+VERDICT: met
+EVIDENCE: Independently verified all six fresh 4aa59e2 snapshot archives, SHA-256 checksums, executable/README/LICENSE contents and exact target commit metadata. The native binary reports 0.1.5-SNAPSHOT-4aa59e2, and GPG returned VALIDSIG for the receipt fingerprint. Snapshot configuration differs only by its scratch dist path. Previously retrieved exact-tag/signing contracts and committed artifact-immutability settings are unchanged; live v0.2.0 version selection and publication remain shipping checks.
+
+CRITERION: AC-17 Optional upstream schema/CEL validation accepts valid supplied/rendered examples, rejects invalid fields, constraints and CEL rules, fails for missing required schemas, and includes real validator tests in mandatory CI.
+VERDICT: met
+EVIDENCE: Observed real validation accepting supplied/rendered valid resources and rejecting field-type, CEL, pattern, unknown-field and missing-schema cases. Validator implementation, local schemas and mandatory CI invocation are unchanged; the diagnostic repair preserves validation failure propagation before output.
+
+
+## Sources
+
+- [Crossplane CLI reference](https://docs.crossplane.io/cli/v2.5/command-reference/): rendering interface, mock inputs, runtime controls and resource/schema/CEL validation.
+- [Crossplane CLI v2.4 reference](https://docs.crossplane.io/cli/v2.4/command-reference/): version-specific command contract and renderer inputs.
+- [Crossplane compositions](https://docs.crossplane.io/latest/composition/compositions/): function pipelines and required schemas.
+- [Legacy composition rendering](https://docs.crossplane.io/master/concepts/compositions/): legacy render command and resource-mode limitation.
+- [Go-templating function](https://github.com/crossplane-contrib/function-go-templating): source forms, dynamic inputs and helper behavior.
+- [KCL function](https://github.com/crossplane-contrib/function-kcl): source forms, targets and filesystem runtime requirements.
+- [CUE function](https://github.com/crossplane-contrib/function-cue): public function implementation for the CUE test scenario.
+- [Python function](https://github.com/crossplane-contrib/function-python): public function implementation for the Python test scenario.
+- [Crossplane v2.2 composition examples](https://github.com/crossplane/docs/blob/master/content/v2.2/composition/compositions.md): mixed functions and Python dynamic resource requests.
+- [terraform-docs configuration](https://terraform-docs.io/user-guide/configuration/): declarative configuration and discovery precedent.
+- [terraform-docs formatters](https://terraform-docs.io/user-guide/configuration/formatter/), [reference](https://terraform-docs.io/reference/): output and formatter precedent; native HTML is a crossplane-docs requirement.
+

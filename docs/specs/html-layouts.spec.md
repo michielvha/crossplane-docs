@@ -225,12 +225,6 @@ CRITERION: AC-07 The CLI-generated examples pass formatter, regression, lint and
 VERDICT: met
 EVIDENCE: At d0f1fdb4b22bacd03da0514d2aa81ce173386150, observed the final pinned real-render suite complete with PASS in 342.904 seconds and no skips. Inspected successful final make-check, integration-lint and eight-case formatter/browser evidence. Independently reached and exercised the reference, explorer and compact private HTTPS previews under /integrated/ on fedora-43.tail6948f.ts.net:8954. The reviewed feature tree is clean.
 
-## Sources
-
-- [Anthropic frontend-design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): content-first hierarchy, deliberate layouts and visual verification.
-- [Vercel interface guidelines](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): keyboard, focus, touch, overflow and content-handling checks.
-
-
 ### R-5
 
 CRITERION: AC-01 Configuration and CLI select reference, explorer or compact HTML, default to reference, reject unknown values, and preserve custom templates and other output formats.
@@ -260,3 +254,9 @@ EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh engine tests passed
 CRITERION: AC-07 The CLI-generated examples pass formatter, regression, lint and real-render checks, and all three layouts have verified private tailnet previews.
 VERDICT: met
 EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh targeted race tests passed; inspected successful make-check output with zero lint issues and the 18-case, 336-assertion formatter log. Compared full-render and targeted-recheck logs with source: all 14 declared integration tests have passing records; the first run failed from host Docker address-pool exhaustion and the affected groups passed recovery, so default allocation on the exhausted host is not established. Independently built the current CLI and matched all three private HTTPS preview bodies byte for byte, then exercised their live behavior. The initial target was clean; the controller began follow-up edits after these checks, so completion requires review of the final committed state.
+
+## Sources
+
+- [Anthropic frontend-design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): content-first hierarchy, deliberate layouts and visual verification.
+- [Vercel interface guidelines](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): keyboard, focus, touch, overflow and content-handling checks.
+
