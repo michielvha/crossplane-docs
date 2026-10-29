@@ -249,4 +249,3 @@ EVIDENCE: At 4aa59e2, the independent full formatter suite passes18 cases/336 as
 - `vhco-pro/docs@c98ce2f926b7e0e1c29388be95cf7d8133a298e2`, `conventions/feature-documents.md`: specification, review and verification procedure.
 - [Frontend design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): preserve the owner's visual direction and task-specific hierarchy.
 - [Interface rules](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): accessible controls, URL state, dark native controls and rendered review.
-

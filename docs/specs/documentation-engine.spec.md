@@ -666,4 +666,3 @@ EVIDENCE: Observed real validation accepting supplied/rendered valid resources a
 - [Crossplane v2.2 composition examples](https://github.com/crossplane/docs/blob/master/content/v2.2/composition/compositions.md): mixed functions and Python dynamic resource requests.
 - [terraform-docs configuration](https://terraform-docs.io/user-guide/configuration/): declarative configuration and discovery precedent.
 - [terraform-docs formatters](https://terraform-docs.io/user-guide/configuration/formatter/), [reference](https://terraform-docs.io/reference/): output and formatter precedent; native HTML is a crossplane-docs requirement.
-

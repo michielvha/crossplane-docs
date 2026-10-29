@@ -259,4 +259,3 @@ EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh targeted race tests
 
 - [Anthropic frontend-design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): content-first hierarchy, deliberate layouts and visual verification.
 - [Vercel interface guidelines](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): keyboard, focus, touch, overflow and content-handling checks.
-
