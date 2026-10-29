@@ -61,7 +61,7 @@ Print uses a light background and dark text regardless of the reader theme.
 
 - [x] AC-01: All three layouts filter fields by All, Required or Optional together with text search, using parent-relative requirement semantics and showing correct groups, explorer links, counts and empty states.
       Evidence: Chromium verified all three layouts using a config that omits the required column: six required fields, including array-item and schema-alternative properties; optional/text combinations, counts and empty states passed.
-- [x] AC-02: Requirement and text filters survive API/version changes and reloads, invalid requirement URLs fall back to All, and explicit field links reveal their targets despite conflicting filters.
+- [ ] AC-02: Requirement and text filters survive API/version changes and reloads, invalid requirement URLs fall back to All, and explicit field links reveal their targets despite conflicting filters.
       Evidence: The R-2 query-link regression failed before correction. Conflicting requirement, text and combined query-form links now reveal the requested field; all 16 browser checks with 320 assertions pass.
 - [x] AC-03: Every HTML document offers a keyboard-accessible theme toggle with an accurate accessible name and state, follows the OS preference before an explicit choice, remembers choices on reload, and remains usable with denied storage, offline or as a local file.
       Evidence: Chromium verified OS changes, keyboard activation, explicit light/dark persistence, denied storage without page errors, offline operation and a composition-only local file.
@@ -69,7 +69,7 @@ Print uses a light background and dark text regardless of the reader theme.
       Evidence: Computed Postbode gradient, native control colours, text/control/focus contrast and four-width geometry checks passed in all layouts; inspected actual private desktop/mobile dark screenshots.
 - [x] AC-05: Without JavaScript all documentation stays readable under the OS colour preference with inactive controls hidden, and printing uses a light palette with documentation content available.
       Evidence: JavaScript-disabled checks passed for both OS themes and all three layouts. Print emulation after zero-match filtering showed all API panels/fields, light text colours and no empty-filter message.
-- [x] AC-06: Existing format and source-copy behavior passes regression checks, and generated private HTTPS previews demonstrate the requirement filter and both themes.
+- [ ] AC-06: Existing format and source-copy behavior passes regression checks, and generated private HTTPS previews demonstrate the requirement filter and both themes.
       Evidence: make check passed and 16 browser cases passed with 302 assertions. Each private HTTPS file matched real CLI bytes; actual filtering, toggling, reload and exact 64-line copying passed.
 
 ## Test Plan
@@ -110,6 +110,7 @@ previously authorized end-to-end implementation once the specification is ready.
 | 2026-10-29 | R-1 | spec | `c21e362` | n/a | n/a | accepted by owner |
 | 2026-10-29 | R-2 | implementation | `41ddfb0` | unknown | procedural | Query field links and no-JavaScript browser colour need fixes; identity not attested. |
 | 2026-10-29 | R-3 | implementation | `f7d00a8` | unknown | procedural | All six criteria met; no findings. Model identity not attested. |
+| 2026-10-29 | R-4 | implementation | `95124b3` | unknown | procedural | AC-02 and AC-06 not met; observe saved URL state before reload and rerun regression checks. |
 
 ### R-1
 
@@ -187,3 +188,37 @@ EVIDENCE: At f7d00a822f829fea6727e07ff524b184ea72ba01, fresh package race tests 
 - `vhco-pro/docs@c98ce2f926b7e0e1c29388be95cf7d8133a298e2`, `conventions/feature-documents.md`: specification, review and verification procedure.
 - [Frontend design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): preserve the owner's visual direction and task-specific hierarchy.
 - [Interface rules](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): accessible controls, URL state, dark native controls and rendered review.
+
+
+### R-4
+
+CRITERION: AC-01 All three layouts filter fields by All, Required or Optional together with text search, using parent-relative requirement semantics and showing correct groups, explorer links, counts and empty states.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, independently executed requirement/search browser cases for all three layouts with the required column omitted. Six parent-relative required fields, nested/alternative properties, optional/text combinations, groups, explorer links, counts and empty states pass. Actual private HTTPS interactions independently confirm six required matches and the combined optional/empty results.
+
+CRITERION: AC-02 Requirement and text filters survive API/version changes and reloads, invalid requirement URLs fall back to All, and explicit field links reveal their targets despite conflicting filters.
+VERDICT: not met
+EVIDENCE: At 95124b3, the independent final formatter run fails format.test.ts:177: search is empty after reload rather than region. API/version, invalid requirement and explicit field-link cases pass, as do actual private HTTPS filter persistence and deep-link reveal. Forty isolated executions of the same failing flow do not reproduce the loss. The recorded intermittent failure remains unresolved; test input/URL synchronization needs clarification before this composite criterion can be treated as verified passing.
+
+CRITERION: AC-03 Every HTML document offers a keyboard-accessible theme toggle with an accurate accessible name and state, follows the OS preference before an explicit choice, remembers choices on reload, and remains usable with denied storage, offline or as a local file.
+VERDICT: met
+EVIDENCE: At 95124b3, independently executed system-theme changes, keyboard activation, explicit-choice reload persistence, denied storage, offline output and composition-only local-file cases successfully. Inspected synchronous pre-style initialization and accessible name/state handling. On all three real private HTTPS layouts, keyboard dark activation, persisted reload and restoration of light mode pass with no page errors.
+
+CRITERION: AC-04 Dark mode uses the Postbode gradient with legible text, controls, code and focus states, while light mode retains the existing colours; all three layouts remain usable at 360px, 390px, 768px and desktop widths.
+VERDICT: met
+EVIDENCE: At 95124b3, independently executed computed gradient, native-control, composited text/control/focus contrast and geometry cases for all three layouts at360,390,768 and1280px. The exact Postbode160-degree gradient and original light ink pass. Actual private HTTPS geometry and theme interactions also pass; inspected newly captured dark-mobile screenshots for all layouts and the desktop reference. Shared VH Midnight guidance records the same reusable palette and behavior.
+
+CRITERION: AC-05 Without JavaScript all documentation stays readable under the OS colour preference with inactive controls hidden, and printing uses a light palette with documentation content available.
+VERDICT: met
+EVIDENCE: At 95124b3, independently executed all JavaScript-disabled OS-light/OS-dark cases and print-after-zero-match cases successfully. All server-rendered APIs remain readable, inactive controls are hidden, effective media-qualified theme-color metadata matches the OS, and print exposes all fields with the light palette. Inspected the supporting CSS and print detail expansion.
+
+CRITERION: AC-06 Existing format and source-copy behavior passes regression checks, and generated private HTTPS previews demonstrate the requirement filter and both themes.
+VERDICT: not met
+EVIDENCE: At 95124b3, private HTTPS reference/explorer/compact files match current clean-build CLI output byte-for-byte; actual filters, reload/deep links, themes, four widths and exact source copying pass. Inspected the clean readiness make-check and18-case/336-assertion log. Independent reruns exposed an unresolved search/reload assertion failure in the final run:17pass,1fail,335assertions. Earlier runs passed all18 cases but hit browser timing/teardown failures during quota pressure. The fresh regression execution therefore is not clean despite successful source-copy and preview checks.
+
+FINDING: F-01
+KIND: factual
+SEVERITY: should-fix
+WHERE: tests/format/format.test.ts:175-177, search state before reload
+EVIDENCE: /tmp/crossplane-reading-controls-release-independent-formats-final.log records Expected region, Received empty string at line177, while17 other cases pass. The exact flow passes40 isolated browser repetitions, and actual private HTTPS persistence passes, so a deterministic renderer defect is not established. The test reloads immediately after fill without observing the URL state that is expected to survive.
+PROPOSAL: Observe the saved q=region URL state before reloading, then retain the reload assertion and rerun the full formatter suite. If that synchronized check fails, investigate it as a product persistence defect rather than dismissing the failure as host timing.

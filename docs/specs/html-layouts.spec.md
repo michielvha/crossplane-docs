@@ -117,6 +117,7 @@ fresh review. Existing branch placement and local-review publication boundaries 
 | 2026-10-28 | R-2 | spec | `bb9a5cc` | n/a | n/a | accepted by owner |
 | 2026-10-28 | R-3 | implementation | `0a4d5e3` | unknown | procedural | Anchor, mobile empty-state and source-fidelity fixes required; model identity not attested. |
 | 2026-10-28 | R-4 | implementation | `d0f1fdb` | unknown | procedural | All seven criteria met; no findings. Model identity not attested. |
+| 2026-10-29 | R-5 | implementation | `95124b3` | unknown | procedural | All seven criteria met at the preceding candidate; final committed repairs require re-review. |
 
 ### R-1
 
@@ -228,3 +229,34 @@ EVIDENCE: At d0f1fdb4b22bacd03da0514d2aa81ce173386150, observed the final pinned
 
 - [Anthropic frontend-design](https://github.com/anthropics/skills/blob/dbd4588f9e1033efb41dad4bef2f7947c8993d44/skills/frontend-design/SKILL.md): content-first hierarchy, deliberate layouts and visual verification.
 - [Vercel interface guidelines](https://github.com/vercel-labs/web-interface-guidelines/blob/434b7f91364665f2f733b310ec54809bf8f37937/command.md): keyboard, focus, touch, overflow and content-handling checks.
+
+
+### R-5
+
+CRITERION: AC-01 Configuration and CLI select reference, explorer or compact HTML, default to reference, reject unknown values, and preserve custom templates and other output formats.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh race tests for cmd and internal/engine passed, including layout defaults, enum rejection, configuration and CLI overrides, custom-template precedence and structured-output compatibility. Inspected config validation, CLI flag handling and formatter dispatch.
+
+CRITERION: AC-02 Every layout retains enabled API, field, constraint, reference, printer-column, composition, patch, scenario and example documentation, including multiple API identities and versions, while respecting presentation settings.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh engine tests passed for rich-model coverage, all layouts, presentation controls, references, root/container constraints, printer columns and deterministic output. Inspected source and the example-inventory regression covering composite, claim and unmatched examples, section ordering and unchanged shared-model data.
+
+CRITERION: AC-03 All layouts work offline with JavaScript and remain readable without it; resource/version selection, field search, empty states, explorer inspection and reference example switching work through keyboard-accessible controls.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, inspected the executed 18-case, 336-assertion browser log and its test implementation. Independently exercised all three private HTTPS layouts: requirement/search filtering, empty states, exact source copying and readable panels with JavaScript disabled passed. Keyboard activation of the reference example inventory revealed its manifest on mobile and after reload.
+
+CRITERION: AC-04 Multiline templates and programs display and copy with real line breaks; readable manifest/settings output preserves scalar types and intentional literal escapes, and malicious text cannot become executable HTML.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh source-program tests passed for LF, CRLF, tabs, Unicode, literal escapes and escaped hostile HTML. Inspected the passing browser clipboard and Asciidoctor checks, then independently copied the source program from each HTTPS layout and compared its exact text. Both repaired SVG assets parsed as native vectors without script, foreignObject, image or external references; browser character measurements preserved four-space YAML indentation.
+
+CRITERION: AC-05 At 360px, 390px, 768px and desktop widths, the layouts remain usable without page overflow; phones present readable field definitions, usable controls and accessible field/example navigation.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, independently opened each private HTTPS layout at 360px, 390px, 768px and 1280px and observed no page overflow or browser errors. Inspected passing browser checks for field geometry and mobile field/example controls; independently verified the reference inventory link and manifest visibility at phone width.
+
+CRITERION: AC-06 Generated output is deterministic, field/navigation anchors are unique and correct across API identities and versions, and selection/search/deep-link state cannot strand hidden content.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh engine tests passed repeated-byte determinism and unique field/heading IDs across API identities. Inspected passing executed browser tests for selection, filtering, hash/query deep links, reload, arbitrary-schema defaults and example inventory navigation. Independently exercised the HTTPS reference inventory by keyboard and reloaded its target without losing visibility.
+
+CRITERION: AC-07 The CLI-generated examples pass formatter, regression, lint and real-render checks, and all three layouts have verified private tailnet previews.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh targeted race tests passed; inspected successful make-check output with zero lint issues and the 18-case, 336-assertion formatter log. Compared full-render and targeted-recheck logs with source: all 14 declared integration tests have passing records; the first run failed from host Docker address-pool exhaustion and the affected groups passed recovery, so default allocation on the exhausted host is not established. Independently built the current CLI and matched all three private HTTPS preview bodies byte for byte, then exercised their live behavior. The initial target was clean; the controller began follow-up edits after these checks, so completion requires review of the final committed state.

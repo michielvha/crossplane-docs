@@ -321,6 +321,7 @@ baseline is separate from agreement on these individual requirements.
 | 2026-10-27 | R-2 | spec | `b435db6` | n/a | n/a | accepted by owner |
 | 2026-10-27 | R-3 | implementation | `1a22ab9` | unknown | procedural | Unknown inputs, check exit codes and scenario evidence need fixes. |
 | 2026-10-27 | R-4 | implementation | `7749946` | unknown | procedural | All 17 criteria met; no findings. Model identity not attested. |
+| 2026-10-29 | R-5 | implementation | `95124b3` | unknown | procedural | All 17 criteria met; F-01 requires source locations in semantic manifest errors. |
 
 ### R-1
 
@@ -516,3 +517,81 @@ EVIDENCE: At 7749946c817914edd7d8ee687b8363b13143c22f, observed TestRealSchemaVa
 - [Crossplane v2.2 composition examples](https://github.com/crossplane/docs/blob/master/content/v2.2/composition/compositions.md): mixed functions and Python dynamic resource requests.
 - [terraform-docs configuration](https://terraform-docs.io/user-guide/configuration/): declarative configuration and discovery precedent.
 - [terraform-docs formatters](https://terraform-docs.io/user-guide/configuration/formatter/), [reference](https://terraform-docs.io/reference/): output and formatter precedent; native HTML is a crossplane-docs requirement.
+
+
+### R-5
+
+CRITERION: AC-01 Users can document v1/v2 XRD metadata and select a named version or all versions; an unknown version fails explicitly.
+VERDICT: met
+EVIDENCE: At 95124b34ce929b84464f4de9548c922f5b08aef2, fresh command, generator and engine race tests passed. Inspected v1/v2 metadata extraction, named/all-version selection and explicit unknown-version rejection.
+
+CRITERION: AC-02 Nested objects, array items, maps and referenced schemas produce deterministic paths, correct parent-relative required markers and lossless defaults; missing references fail and recursive schemas terminate with an explicit reference marker.
+VERDICT: met
+EVIDENCE: Fresh reference, explicit-file-reference, defaults and schema tests passed at the target. Inspected sorted traversal, parent-relative required markers, nested paths, reference allowlisting, cycle markers and recursion bounds.
+
+CRITERION: AC-03 Documentation includes numeric/string/list constraints, enums, formats, Kubernetes list/map metadata, CEL rules/messages and schema alternatives without claiming unexecuted validation.
+VERDICT: met
+EVIDENCE: Fresh schema and formatter tests passed at the target, including root constraints and container metadata. Inspected preservation of constraint families, CEL messages and schema alternatives; validation status is set only after successful explicit validation.
+
+CRITERION: AC-04 Composition references expand patch sets and document direction, combine inputs, readable transform chains, policies, readiness, connection details and environment inputs; invalid patch-set references fail.
+VERDICT: met
+EVIDENCE: Fresh composition and engine race tests passed. Inspected patch-set expansion and missing/cyclic-reference rejection, patch direction, combine variables, transform summaries, policies, readiness, connection details and environment output. Observed the real patch-and-transform scenario passing.
+
+CRITERION: AC-05 Every pipeline step and source is documented, including unknown function inputs, without presenting an incomplete declared inventory as complete runtime output.
+VERDICT: met
+EVIDENCE: Fresh unknown-input and source-rendering tests passed. Inspected ordered steps, opaque custom input preservation and declared-resource provenance. Observed the unknown-adapter integration case passing; document output explicitly distinguishes declared definitions from scenario results.
+
+CRITERION: AC-06 Explicit rendering and saved rendered YAML produce scenario-labelled resource/status documentation; observed/required resources, schemas and context reach the real renderer, while failures/timeouts preserve existing output.
+VERDICT: met
+EVIDENCE: Fresh saved-output, input-provenance, renderer failure/cancellation and output-safety tests passed. Inspected argument forwarding, bounded execution and generation before replacement. Observed real mock-resource, context and required-schema consumption tests passing across the completed integration runs.
+
+CRITERION: AC-07 Every advertised Go-templating source and behavior in the scenario matrix has a runnable example and passing real-render-to-documentation test, including failure cases.
+VERDICT: met
+EVIDENCE: Inspected fixtures and common documentation assertions. Observed passing inline, template-list, environment, filesystem, condition, loop, required-resource and status scenarios, plus invalid-program rejection. Successful variants assert identities and values through all five formatters and exact JSON scenario round trips.
+
+CRITERION: AC-08 Every advertised KCL source and target has a runnable example and passing real-render-to-documentation test, including failure cases.
+VERDICT: met
+EVIDENCE: Observed passing inline, filesystem and local OCI-package cases, all five KCL targets, mock/parameter consumption and invalid programs. Inspected their common render-to-documentation assertions. Address-pool failures in the initial run were covered by the successful dedicated-network recovery run.
+
+CRITERION: AC-09 CUE, Python and a custom function unknown to source adapters have passing real-render-to-documentation tests with successful and failing scenarios.
+VERDICT: met
+EVIDENCE: Observed passing CUE, Python and unknown-adapter success cases and CUE/Python/custom failure cases. Inspected five-format resource assertions and CLI failure checks that preserve an existing output file.
+
+CRITERION: AC-10 Mixed-pipeline create/update examples prove shared context, conditional/repeated resources, mocked observed state and readiness/status behavior through real rendering and resulting documentation.
+VERDICT: met
+EVIDENCE: Observed both mixed-pipeline scenarios passing. Inspected assertions for environment propagation, changing resource inventories, observed-region patches, Pending/Ready phases, resourceCount and Ready conditions, followed by common documentation assertions.
+
+CRITERION: AC-11 Markdown, offline HTML, AsciiDoc, JSON, YAML and custom templates render the same shared model correctly, with format-appropriate escaping and a tested structured-data contract.
+VERDICT: met
+EVIDENCE: Fresh shared-model and structured-output race tests passed. Independently reran offline desktop/mobile HTML, Asciidoctor conversion and custom HTML escaping: three tests and 16 assertions passed with a 30-second timeout after an initial Chromium page-creation timeout. Inspected the completed 18-case formatter log and confirmed relevant implementation files are unchanged from its tested source.
+
+CRITERION: AC-12 Configuration controls sections, columns, layout, sorting, nesting, descriptions, anchors, styling, headers/footers and output; explicit flags win and invalid configuration fails.
+VERDICT: met
+EVIDENCE: Fresh configuration and command tests passed, including explicit boolean overrides, relative paths and malformed configuration rejection. Inspected section/column selection, layouts, sorting, nesting, description and anchor controls, styles, headers/footers and output settings.
+
+CRITERION: AC-13 File/directory/bundle generation supports deterministic discovery and resource matching, catches collisions and malformed supported inputs, and retains existing single-resource commands.
+VERDICT: met
+EVIDENCE: Fresh discovery, duplicate-identity, bundle, malformed-input and compatibility tests passed. Inspected stable traversal/document order, symlink exclusion and API-identity matching. Independently confirmed that a malformed Composition fails batch generation; its missing diagnostic location is reported separately as F-01.
+
+CRITERION: AC-14 Replace and marker-injection output preserve unrelated content and resist partial writes; repeated injection is identical and check mode distinguishes current, drift and failure without writing.
+VERDICT: met
+EVIDENCE: Fresh injection, idempotence, output-preservation and empty-template tests passed. Inspected temporary-file replacement and marker validation. Observed binary integration checks passing for --check, --check=true, --check=TRUE and --check=1 with invalid-input exit code 2.
+
+CRITERION: AC-15 Every advertised capability maps to a tested runnable example, and mandatory CI executes the full renderer matrix and formatter checks before any release tag can be created.
+VERDICT: met
+EVIDENCE: Independently reconciled all 14 declared integration tests against passing records across the original and recovery runs; the recovery run had no failures or skips. Inspected runnable fixtures, mandatory formatter/render steps and version.needs=verify. Fresh workflow-contract tests passed, and the pinned shared version workflow was retrieved and inspected. This is source and local execution evidence, not a hosted CI claim.
+
+CRITERION: AC-16 A local six-target release snapshot has verified archive contents, checksums and version metadata; local checksum signing verifies successfully, and release workflow contract checks require the exact checked tag and protect existing assets.
+VERDICT: met
+EVIDENCE: Independently verified all six fresh snapshot archives, their SHA-256 checksums, executable/README/LICENSE contents and exact target commit metadata. The native binary reports 0.1.5-SNAPSHOT-95124b3; GPG returned VALIDSIG for the receipt's ephemeral key. Confirmed the snapshot configuration differs only by its scratch dist path. Freshly retrieved pinned version/release workflows and publisher sources establish checked-commit tagging, exact-tag checkout and signing; committed GoReleaser configuration disables artifact replacement. Live release-version selection and publication are separate shipping checks.
+
+CRITERION: AC-17 Optional upstream schema/CEL validation accepts valid supplied/rendered examples, rejects invalid fields, constraints and CEL rules, fails for missing required schemas, and includes real validator tests in mandatory CI.
+VERDICT: met
+EVIDENCE: Observed real validation passing for valid supplied/rendered resources and rejecting field-type, CEL, pattern, unknown-field and missing-schema cases. Inspected validator metadata filtering, error-on-missing-schemas, error propagation before output and mandatory CI inclusion.
+
+FINDING: F-01
+KIND: factual
+SEVERITY: should-fix
+WHERE: internal/engine/load.go:158 and internal/engine/load.go:164; documentation-engine.spec.md Design, Output and configuration
+EVIDENCE: The design requires malformed supported inputs to be reported with their locations. At 95124b34ce929b84464f4de9548c922f5b08aef2, the fresh snapshot CLI generated a directory containing a valid XRD and b-broken-composition.yaml with spec: {}. It exited 1 with only “Composition requires compositeTypeRef apiVersion and kind”, omitting the filename and document number. Build returns extraction errors without adding the available Input.File and Input.Index.
+PROPOSAL: Wrap XRD and Composition extraction errors with their source filename and document index. Add a batch CLI regression that verifies semantic manifest errors identify the offending file and document.
