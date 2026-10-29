@@ -1,0 +1,77 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: platform-patch-and-transform
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.org/v1beta1
+    kind: XPlatform
+  mode: Pipeline
+  pipeline:
+  - step: compose
+    functionRef:
+      name: function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      patchSets:
+      - name: region
+        patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.region
+          toFieldPath: data.region
+      resources:
+      - name: summary
+        base:
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: platform-summary
+          data:
+            region: ''
+            capacity: ''
+            storage: ''
+        patches:
+        - type: PatchSet
+          patchSetName: region
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.capacity.replicas
+          toFieldPath: data.capacity
+          policy:
+            fromFieldPath: Required
+          transforms:
+          - type: convert
+            convert:
+              toType: string
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.storage.sizeGiB
+          toFieldPath: data.storage
+          transforms:
+          - type: math
+            math:
+              type: Multiply
+              multiply: 2
+          - type: convert
+            convert:
+              toType: string
+        - type: CombineFromComposite
+          combine:
+            variables:
+            - fromFieldPath: metadata.name
+            - fromFieldPath: spec.region
+            strategy: string
+            string:
+              fmt: '%s.%s.example.org'
+          toFieldPath: data.endpoint
+        - type: ToCompositeFieldPath
+          fromFieldPath: data.region
+          toFieldPath: status.observedRegion
+        readinessChecks:
+        - type: None
+        connectionDetails:
+        - name: region
+          type: FromFieldPath
+          fromFieldPath: data.region
+  - step: ready
+    functionRef:
+      name: function-auto-ready

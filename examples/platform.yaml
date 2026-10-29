@@ -1,0 +1,289 @@
+apiVersion: apiextensions.crossplane.io/v2
+kind: CompositeResourceDefinition
+metadata:
+  name: xplatforms.platform.example.org
+spec:
+  scope: Namespaced
+  group: platform.example.org
+  names:
+    kind: XPlatform
+    plural: xplatforms
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: false
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: 'A complete application platform: networks, workload capacity
+          and storage, delivered through a versioned team API.'
+        properties:
+          spec:
+            type: object
+            required:
+            - region
+            - networks
+            properties:
+              region:
+                type: string
+                description: AWS region in which the platform is deployed.
+                enum:
+                - eu-west-1
+                - eu-central-1
+                default: eu-west-1
+              networks:
+                type: array
+                description: Private network segments for application teams.
+                minItems: 1
+                maxItems: 3
+                x-kubernetes-list-type: map
+                x-kubernetes-list-map-keys:
+                - name
+                items:
+                  type: object
+                  required:
+                  - name
+                  - cidr
+                  properties:
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 40
+                      pattern: ^[a-z][a-z0-9-]*$
+                    cidr:
+                      type: string
+                      pattern: ^[0-9./]+$
+                    subnets:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          zone:
+                            type: string
+                          cidr:
+                            type: string
+              capacity:
+                type: object
+                properties:
+                  replicas:
+                    type: integer
+                    minimum: 0
+                    maximum: 10
+                    default: 2
+                  class:
+                    type: string
+                    enum:
+                    - small
+                    - medium
+                    - large
+                    default: small
+              storage:
+                type: object
+                properties:
+                  sizeGiB:
+                    type: integer
+                    minimum: 20
+                    maximum: 1000
+                    default: 50
+                  encrypted:
+                    type: boolean
+                    default: true
+                  backup:
+                    type: boolean
+                    default: false
+              minReplicas:
+                type: integer
+                minimum: 0
+                default: 0
+              maxReplicas:
+                type: integer
+                minimum: 0
+                default: 10
+              optionalNote:
+                type: string
+                nullable: true
+                default: ''
+              ports:
+                type: array
+                items:
+                  type: integer
+                default: []
+              variant:
+                type: object
+                oneOf:
+                - properties:
+                    managed:
+                      type: boolean
+                  required:
+                  - managed
+                - properties:
+                    externalID:
+                      type: string
+                  required:
+                  - externalID
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                default: {}
+                x-kubernetes-map-type: granular
+            x-kubernetes-validations:
+            - rule: self.minReplicas <= self.maxReplicas
+              message: minReplicas must not exceed maxReplicas
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum:
+                - Pending
+                - Ready
+                - Failed
+              endpoint:
+                type: string
+                format: uri
+              resourceCount:
+                type: integer
+              observedRegion:
+                type: string
+  - name: v1beta1
+    served: true
+    referenceable: true
+    additionalPrinterColumns:
+    - name: Phase
+      type: string
+      jsonPath: .status.phase
+    schema:
+      openAPIV3Schema:
+        type: object
+        description: 'A complete application platform: networks, workload capacity
+          and storage, delivered through a versioned team API.'
+        properties:
+          spec:
+            type: object
+            required:
+            - region
+            - networks
+            properties:
+              region:
+                type: string
+                description: AWS region in which the platform is deployed.
+                enum:
+                - eu-west-1
+                - eu-central-1
+                default: eu-west-1
+              networks:
+                type: array
+                description: Private network segments for application teams.
+                minItems: 1
+                maxItems: 3
+                x-kubernetes-list-type: map
+                x-kubernetes-list-map-keys:
+                - name
+                items:
+                  type: object
+                  required:
+                  - name
+                  - cidr
+                  properties:
+                    name:
+                      type: string
+                      minLength: 1
+                      maxLength: 40
+                      pattern: ^[a-z][a-z0-9-]*$
+                    cidr:
+                      type: string
+                      pattern: ^[0-9./]+$
+                    subnets:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          zone:
+                            type: string
+                          cidr:
+                            type: string
+              capacity:
+                type: object
+                properties:
+                  replicas:
+                    type: integer
+                    minimum: 0
+                    maximum: 10
+                    default: 2
+                  class:
+                    type: string
+                    enum:
+                    - small
+                    - medium
+                    - large
+                    default: small
+              storage:
+                type: object
+                properties:
+                  sizeGiB:
+                    type: integer
+                    minimum: 20
+                    maximum: 1000
+                    default: 50
+                  encrypted:
+                    type: boolean
+                    default: true
+                  backup:
+                    type: boolean
+                    default: false
+              minReplicas:
+                type: integer
+                minimum: 0
+                default: 0
+              maxReplicas:
+                type: integer
+                minimum: 0
+                default: 10
+              optionalNote:
+                type: string
+                nullable: true
+                default: ''
+              ports:
+                type: array
+                items:
+                  type: integer
+                default: []
+              variant:
+                type: object
+                oneOf:
+                - properties:
+                    managed:
+                      type: boolean
+                  required:
+                  - managed
+                - properties:
+                    externalID:
+                      type: string
+                  required:
+                  - externalID
+              tags:
+                type: object
+                additionalProperties:
+                  type: string
+                default: {}
+                x-kubernetes-map-type: granular
+            x-kubernetes-validations:
+            - rule: self.minReplicas <= self.maxReplicas
+              message: minReplicas must not exceed maxReplicas
+          status:
+            type: object
+            properties:
+              phase:
+                type: string
+                enum:
+                - Pending
+                - Ready
+                - Failed
+              endpoint:
+                type: string
+                format: uri
+              resourceCount:
+                type: integer
+              observedRegion:
+                type: string

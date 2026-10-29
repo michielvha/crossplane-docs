@@ -1,0 +1,33 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: platform-python
+spec:
+  compositeTypeRef:
+    apiVersion: platform.example.org/v1beta1
+    kind: XPlatform
+  mode: Pipeline
+  pipeline:
+  - step: compose
+    functionRef:
+      name: function-python
+    input:
+      apiVersion: python.fn.crossplane.io/v1beta1
+      kind: Script
+      script: |
+        from crossplane.function.proto.v1 import run_function_pb2 as fnv1
+
+        def compose(req: fnv1.RunFunctionRequest, rsp: fnv1.RunFunctionResponse):
+            xr = req.observed.composite.resource
+            for i, network in enumerate(xr["spec"]["networks"]):
+                name = "network-" + str(i)
+                rsp.desired.resources[name].resource.update({
+                    "apiVersion": "v1", "kind": "ConfigMap",
+                    "metadata": {"name": xr["metadata"]["name"] + "-" + network["name"]},
+                    "data": {"region": xr["spec"]["region"], "cidr": network["cidr"]},
+                })
+                rsp.desired.resources[name].ready = fnv1.READY_TRUE
+            rsp.desired.composite.resource.update({"status": {"phase": "Ready", "resourceCount": len(xr["spec"]["networks"])}})
+  - step: ready
+    functionRef:
+      name: function-auto-ready

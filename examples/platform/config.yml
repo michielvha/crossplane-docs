@@ -1,0 +1,21 @@
+version: 1
+formatter: html
+html-layout: reference
+title: Team Atlas platform reference
+layout: table
+sections: [apis, compositions, scenarios, examples]
+columns: [path, type, description, required, default, constraints]
+settings:
+  nested: true
+  descriptions: true
+  anchors: true
+  examples: true
+  patches: true
+  indent: 2
+sort:
+  by: name
+  required-first: true
+recursive: true
+output:
+  mode: replace
+  file: reference.html

@@ -1,0 +1,27 @@
+apiVersion: platform.example.org/v1beta1
+kind: XPlatform
+metadata:
+  name: team-atlas
+  namespace: default
+spec:
+  region: eu-west-1
+  networks:
+  - name: applications
+    cidr: 10.42.0.0/16
+    subnets:
+    - zone: eu-west-1a
+      cidr: 10.42.1.0/24
+  - name: data
+    cidr: 10.43.0.0/16
+  capacity:
+    replicas: 2
+    class: small
+  storage:
+    sizeGiB: 50
+    encrypted: true
+    backup: false
+  minReplicas: 0
+  maxReplicas: 10
+  tags:
+    team: atlas
+    environment: development

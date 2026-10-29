@@ -1,0 +1,71 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xdatabases.example.org
+spec:
+  group: example.org
+  names:
+    kind: XDatabase
+    plural: xdatabases
+  claimNames:
+    kind: Database
+    plural: databases
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          description: A database API for application teams.
+          properties:
+            spec:
+              type: object
+              required: [parameters]
+              properties:
+                parameters:
+                  type: object
+                  required: [region, size]
+                  properties:
+                    region:
+                      type: string
+                      description: Deployment region.
+                      enum: [eu-west-1, eu-central-1]
+                    size:
+                      type: integer
+                      description: Storage in GiB.
+                      enum: [20, 50, 100]
+                      default: 20
+                      minimum: 20
+                      maximum: 100
+                    backup:
+                      type: boolean
+                      default: false
+                    labels:
+                      type: object
+                      default: {team: platform}
+                    replicas:
+                      type: integer
+                      default: 0
+                    zones:
+                      type: array
+                      items:
+                        type: string
+                      minItems: 1
+                      maxItems: 3
+                      default: [eu-west-1a]
+                    note:
+                      type: string
+                      description: |
+                        Choose primary | replica.
+                        Use `region` to place the database.
+            status:
+              type: object
+              properties:
+                connection:
+                  type: object
+                  properties:
+                    port:
+                      type: integer
+                    endpoint:
+                      type: string

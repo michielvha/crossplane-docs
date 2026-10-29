@@ -1,4 +1,7 @@
 # Binaries
+/crossplane-docs
+/crossplane-docs.exe
+/dist/
 crossplane-xrd-docs
 crossplane-xrd-docs.exe
 *.exe
@@ -31,3 +34,8 @@ Thumbs.db
 
 # Example outputs
 EXAMPLE_OUTPUT.md
+
+# Formatter test dependencies
+node_modules/
+
+/tests/format/core.*

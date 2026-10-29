@@ -1,4 +1,4 @@
-.PHONY: build test clean install lint help
+.PHONY: build test clean install lint help check examples run-example integration formats
 
 # Build variables
 BINARY_NAME=crossplane-docs
@@ -17,16 +17,34 @@ install: ## Install the binary
 	go install $(LDFLAGS) .
 
 test: ## Run tests
-	go test -v ./...
+	go test -race -cover ./...
+
+integration: ## Run the pinned real-render and schema validation matrix (Docker required)
+	go run ./scripts/verify-render
+
+formats: ## Check HTML in Chromium and convert AsciiDoc
+	bun test --cwd tests/format
 
 lint: ## Run linters
+	golangci-lint config verify
 	golangci-lint run
+
+check: test lint ## Run tests, lint, vet, and module checks
+	go vet ./...
+	go mod tidy -diff
+	@test -z "$$(gofmt -l .)" || { gofmt -l .; exit 1; }
 
 clean: ## Clean build artifacts
 	rm -f $(BINARY_NAME) $(BINARY_NAME).exe
 	go clean
 
-run-example: build ## Run example on RDS XRD
-	./$(BINARY_NAME) generate ../argocd-k8s-resources/manifests/crossplane/overlays/prd/custom-resources/native/aws/rds/v1alpha1/rds-instance-xrd.yaml
+run-example: build ## Generate docs from the bundled XRD
+	./$(BINARY_NAME) xrd examples/xrd.yaml
+
+examples: build ## Refresh the expected example output after reviewing behavior changes
+	./$(BINARY_NAME) xrd examples/xrd.yaml -o examples/xrd.md
+	./$(BINARY_NAME) xrd examples/xrd.yaml --show-nested=false -o examples/xrd-shallow.md
+	./$(BINARY_NAME) composition examples/composition.yaml -o examples/composition.md
+	./$(BINARY_NAME) composition examples/pipeline.yaml -o examples/pipeline.md
 
 .DEFAULT_GOAL := help

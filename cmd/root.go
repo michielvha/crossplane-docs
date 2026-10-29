@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/michielvha/crossplane-docs/internal/engine"
 	"github.com/spf13/cobra"
 )
 
@@ -14,26 +15,33 @@ var (
 	date    = "unknown"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "crossplane-docs",
-	Short: "Generate documentation for Crossplane resources",
-	Long: `crossplane-docs generates terraform-docs style markdown documentation 
-for Crossplane resources including XRDs, Compositions, and more.
-
-Parse OpenAPI schemas and resource definitions to create clean, readable
-documentation tables with field names, types, descriptions, defaults, and validations.`,
-	Version: fmt.Sprintf("%s (commit: %s, built: %s)", version, commit, date),
+// NewRootCommand returns a fresh command tree for each invocation.
+func NewRootCommand() *cobra.Command {
+	root := &cobra.Command{
+		Use:           "crossplane-docs",
+		Short:         "Generate documentation for Crossplane resources",
+		Long:          `Generate configurable API and composition documentation from Crossplane manifests.`,
+		Version:       fmt.Sprintf("%s (commit: %s, built: %s)", version, commit, date),
+		SilenceErrors: true,
+		SilenceUsage:  true,
+	}
+	root.AddCommand(newXRDCommand(), newCompositionCommand(), newBatchCommand())
+	return root
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	root := NewRootCommand()
+	command, err := root.ExecuteC()
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		code := 1
+		if command != nil {
+			check, _ := command.Flags().GetBool("check")
+			if check && !engine.IsDrift(err) {
+				code = 2
+			}
+		}
+		os.Exit(code)
 	}
-}
-
-func init() {
-	// Global flags can be added here
 }
