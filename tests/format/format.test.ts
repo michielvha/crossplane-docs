@@ -173,6 +173,7 @@ test('field links, search and API selection survive reload without a stale hash'
  await page.reload();
  expect(await page.locator('.api-panel:visible').getAttribute('data-version')).toBe('v1alpha1');
  await page.locator('#field-search').fill('region');
+ await page.waitForURL(url => url.searchParams.get('q') === 'region');
  await page.reload();
  expect(await page.locator('#field-search').inputValue()).toBe('region');
  expect(await page.locator('.api-panel:visible .field-entry:visible').getAttribute('data-path')).toContain('region');
