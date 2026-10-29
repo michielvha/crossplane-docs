@@ -3,7 +3,7 @@
 <desc id="description">The reference layout documents the v1beta1 platform API with field requirements, defaults and constraints beside a readable example manifest. API version selection, search and required or optional filters appear above the fields. This vector capture comes from the bundled platform example at commit 6d16bfd and follows the surrounding page's color scheme.</desc>
 <metadata>Generated from: crossplane-docs generate examples --include platform.yaml --include 'platform/*.yaml' --all-versions --format html --html-layout reference. Selected v1beta1; field groups collapsed. Source: 6d16bfd.</metadata>
 <defs><linearGradient id="midnight" gradientUnits="userSpaceOnUse" x1="369" y1="-135" x2="751" y2="915"><stop stop-color="#020814"/><stop offset=".48" stop-color="#061229"/><stop offset="1" stop-color="#0b1f45"/></linearGradient></defs>
-<style>.dark-preview{display:none}@media(prefers-color-scheme:dark){.light-preview{display:none}.dark-preview{display:inline}}</style>
+<style>text{white-space:pre}.dark-preview{display:none}@media(prefers-color-scheme:dark){.light-preview{display:none}.dark-preview{display:inline}}</style>
 <g class="light-preview"><rect x="0" y="0" width="1120" height="15374.95" rx="0" fill="rgb(255, 255, 255)"/>
 <path d="M0 65L1120 65" stroke="rgb(221, 229, 232)" stroke-width="1"/>
 <text x="26" y="18" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="20px" font-weight="750" dominant-baseline="text-before-edge" textLength="99.97" lengthAdjust="spacingAndGlyphs">crossplane</text>
