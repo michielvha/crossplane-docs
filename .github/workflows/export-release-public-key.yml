@@ -23,4 +23,12 @@ jobs:
           install -d -m 700 "$GNUPGHOME"
           trap 'gpgconf --kill gpg-agent; rm -rf -- "$GNUPGHOME"' EXIT
           printf '%s' "$PGP_PRIVATE_KEY" | gpg --batch --import
-          gpg --batch --armor --export CB90F88052103A0305B50899226EC69FBC8AF246
+          gpg --batch --armor --export CB90F88052103A0305B50899226EC69FBC8AF246 > "${RUNNER_TEMP}/release-signing-key.asc"
+          test -s "${RUNNER_TEMP}/release-signing-key.asc"
+      - name: Preserve public verification key
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: release-signing-public-key
+          path: ${{ runner.temp }}/release-signing-key.asc
+          if-no-files-found: error
+          retention-days: 1
