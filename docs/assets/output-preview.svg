@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="780" viewBox="0 0 1120 780" role="img" aria-labelledby="title description">
+<title id="title">Crossplane Docs: generated XPlatform API reference</title>
+<desc id="description">The reference layout documents the v1beta1 platform API with field requirements, defaults and constraints beside a readable example manifest. API version selection, search and required or optional filters appear above the fields. This vector capture comes from the bundled platform example at commit 6d16bfd and follows the surrounding page's color scheme.</desc>
+<metadata>Generated from: crossplane-docs generate examples --include platform.yaml --include 'platform/*.yaml' --all-versions --format html --html-layout reference. Selected v1beta1; field groups collapsed. Source: 6d16bfd.</metadata>
+<defs><linearGradient id="midnight" gradientUnits="userSpaceOnUse" x1="369" y1="-135" x2="751" y2="915"><stop stop-color="#020814"/><stop offset=".48" stop-color="#061229"/><stop offset="1" stop-color="#0b1f45"/></linearGradient></defs>
+<style>.dark-preview{display:none}@media(prefers-color-scheme:dark){.light-preview{display:none}.dark-preview{display:inline}}</style>
+<g class="light-preview"><rect x="0" y="-71" width="1120" height="15374.95" rx="0" fill="rgb(255, 255, 255)"/>
+<rect x="0" y="0" width="215" height="780" rx="0" fill="rgb(245, 248, 248)"/>
+<path d="M215 0L215 780" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<text x="34" y="34" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="600" dominant-baseline="text-before-edge" textLength="85.75" lengthAdjust="spacingAndGlyphs">API reference</text>
+<text x="42" y="68.8" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="400" dominant-baseline="text-before-edge" textLength="60.69" lengthAdjust="spacingAndGlyphs">XPlatform</text>
+<text x="42" y="89.59" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="10px" font-weight="400" dominant-baseline="text-before-edge" textLength="108.89" lengthAdjust="spacingAndGlyphs">platform.example.org /</text>
+<text x="42" y="105.59" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="10px" font-weight="400" dominant-baseline="text-before-edge" textLength="42.66" lengthAdjust="spacingAndGlyphs">v1alpha1</text>
+<rect x="24" y="127.59" width="172" height="66.8" rx="4" fill="rgb(223, 237, 235)"/>
+<text x="42" y="135.59" fill="rgb(0, 125, 119)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="400" dominant-baseline="text-before-edge" textLength="60.69" lengthAdjust="spacingAndGlyphs">XPlatform</text>
+<text x="42" y="156.39" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="10px" font-weight="400" dominant-baseline="text-before-edge" textLength="108.89" lengthAdjust="spacingAndGlyphs">platform.example.org /</text>
+<text x="42" y="172.39" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="10px" font-weight="400" dominant-baseline="text-before-edge" textLength="37.53" lengthAdjust="spacingAndGlyphs">v1beta1</text>
+<rect x="24" y="208.39" width="172" height="34.8" rx="4" fill="rgb(223, 237, 235)"/>
+<text x="34" y="216.39" fill="rgb(0, 125, 119)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="600" dominant-baseline="text-before-edge" textLength="86.73" lengthAdjust="spacingAndGlyphs">Compositions</text>
+<text x="34" y="265.19" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="600" dominant-baseline="text-before-edge" textLength="60.45" lengthAdjust="spacingAndGlyphs">Examples</text>
+<text x="249" y="26.95" fill="rgb(83, 104, 120)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11.05px" font-weight="400" dominant-baseline="text-before-edge" textLength="185.59" lengthAdjust="spacingAndGlyphs">platform.example.org/v1beta1</text>
+<rect x="444.59" y="24" width="79.48" height="21.59" rx="4" fill="rgb(232, 243, 241)"/>
+<text x="450.59" y="27" fill="rgb(0, 94, 88)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="11px" font-weight="400" dominant-baseline="text-before-edge" textLength="67.48" lengthAdjust="spacingAndGlyphs">Namespaced</text>
+<text x="249" y="56.59" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="30px" font-weight="650" dominant-baseline="text-before-edge" textLength="145.39" lengthAdjust="spacingAndGlyphs">XPlatform</text>
+<text x="249" y="111.09" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14px" font-weight="400" dominant-baseline="text-before-edge" textLength="613.33" lengthAdjust="spacingAndGlyphs">A complete application platform: networks, workload capacity and storage, delivered through</text>
+<text x="249" y="133.48" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14px" font-weight="400" dominant-baseline="text-before-edge" textLength="143.33" lengthAdjust="spacingAndGlyphs">a versioned team API.</text>
+<text x="249" y="171.88" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="38.56" lengthAdjust="spacingAndGlyphs">Served</text>
+<text x="294.56" y="171.88" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="23.48" lengthAdjust="spacingAndGlyphs">true</text>
+<text x="342.05" y="171.88" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="80.55" lengthAdjust="spacingAndGlyphs">Referenceable</text>
+<text x="429.59" y="171.88" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="23.48" lengthAdjust="spacingAndGlyphs">true</text>
+<path d="M249 210.06L1086 210.06" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="M249 309.25L1086 309.25" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<text x="249" y="227.06" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="600" dominant-baseline="text-before-edge" textLength="66.17" lengthAdjust="spacingAndGlyphs">API version</text>
+<rect x="249" y="249.25" width="232.28" height="44" rx="5" fill="rgb(255, 255, 255)"/>
+<path d="M249 249.25L481.28 249.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M481.28 249.25L481.28 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M249 293.25L481.28 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M249 249.25L249 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<text x="259" y="261.65" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="16px" font-weight="400" dominant-baseline="text-before-edge" >v1beta1</text>
+<path d="m463.28 269.25 4 4 4-4" fill="none" stroke="rgb(23, 42, 57)" stroke-width="1.5"/>
+<text x="493.28" y="227.06" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="600" dominant-baseline="text-before-edge" textLength="104.52" lengthAdjust="spacingAndGlyphs">Field requirement</text>
+<rect x="493.28" y="249.25" width="232.3" height="44" rx="5" fill="rgb(255, 255, 255)"/>
+<path d="M493.28 249.25L725.58 249.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M725.58 249.25L725.58 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M493.28 293.25L725.58 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M493.28 249.25L493.28 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<text x="503.28" y="261.65" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="16px" font-weight="400" dominant-baseline="text-before-edge" >All fields</text>
+<path d="m707.58 269.25 4 4 4-4" fill="none" stroke="rgb(23, 42, 57)" stroke-width="1.5"/>
+<text x="737.58" y="227.06" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="600" dominant-baseline="text-before-edge" textLength="64.06" lengthAdjust="spacingAndGlyphs">Find a field</text>
+<rect x="737.58" y="249.25" width="348.42" height="44" rx="5" fill="rgb(255, 255, 255)"/>
+<path d="M737.58 249.25L1086 249.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M1086 249.25L1086 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M737.58 293.25L1086 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<path d="M737.58 249.25L737.58 293.25" stroke="rgb(182, 199, 206)" stroke-width="1"/>
+<text x="747.58" y="261.65" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="16px" font-weight="400" dominant-baseline="text-before-edge" >region, networks…</text>
+<text x="249" y="331.25" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="20px" font-weight="700" dominant-baseline="text-before-edge" textLength="144.11" lengthAdjust="spacingAndGlyphs">Field reference</text>
+<text x="249" y="373.25" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="318.91" lengthAdjust="spacingAndGlyphs">Required markers apply within each field’s parent object.</text>
+<path d="M249 407.44L692.41 407.44" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="m251 415.44 6 4-6 4z" fill="rgb(23, 42, 57)"/>
+<text x="263.83" y="423.44" fill="rgb(23, 42, 57)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11.9px" font-weight="600" dominant-baseline="text-before-edge" textLength="92.75" lengthAdjust="spacingAndGlyphs">spec.networks</text>
+<path d="M249 468.44L692.41 468.44" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<text x="249" y="482.44" fill="rgb(23, 42, 57)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12.75px" font-weight="650" dominant-baseline="text-before-edge" textLength="84.16" lengthAdjust="spacingAndGlyphs">spec.region</text>
+<text x="341.16" y="484.44" fill="rgb(83, 104, 120)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11px" font-weight="400" dominant-baseline="text-before-edge" textLength="39.61" lengthAdjust="spacingAndGlyphs">string</text>
+<text x="388.77" y="484.44" fill="rgb(160, 60, 55)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="11px" font-weight="600" dominant-baseline="text-before-edge" textLength="45.89" lengthAdjust="spacingAndGlyphs">required</text>
+<text x="448.66" y="483.44" fill="rgb(0, 125, 119)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="7.77" lengthAdjust="spacingAndGlyphs">#</text>
+<text x="249" y="510.64" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="400" dominant-baseline="text-before-edge" textLength="280.2" lengthAdjust="spacingAndGlyphs">AWS region in which the platform is deployed.</text>
+<text x="249" y="541.44" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="39.86" lengthAdjust="spacingAndGlyphs">default</text>
+<text x="329" y="543.44" fill="rgb(23, 42, 57)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10.2px" font-weight="400" dominant-baseline="text-before-edge" textLength="67.25" lengthAdjust="spacingAndGlyphs">&quot;eu-west-1&quot;</text>
+<text x="249" y="568.63" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="83.44" lengthAdjust="spacingAndGlyphs">Allowed values</text>
+<text x="344.44" y="570.63" fill="rgb(23, 42, 57)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10.2px" font-weight="400" dominant-baseline="text-before-edge" textLength="171.16" lengthAdjust="spacingAndGlyphs">[&quot;eu-west-1&quot;,&quot;eu-central-1&quot;]</text>
+<path d="M249 604.81L692.41 604.81" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="m251 612.81 6 4-6 4z" fill="rgb(23, 42, 57)"/>
+<text x="263.83" y="620.81" fill="rgb(23, 42, 57)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11.9px" font-weight="600" dominant-baseline="text-before-edge" textLength="92.75" lengthAdjust="spacingAndGlyphs">spec.capacity</text>
+<path d="M249 665.81L692.41 665.81" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<text x="249" y="679.81" fill="rgb(23, 42, 57)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12.75px" font-weight="650" dominant-baseline="text-before-edge" textLength="122.41" lengthAdjust="spacingAndGlyphs">spec.maxReplicas</text>
+<text x="379.41" y="681.81" fill="rgb(83, 104, 120)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11px" font-weight="400" dominant-baseline="text-before-edge" textLength="46.2" lengthAdjust="spacingAndGlyphs">integer</text>
+<text x="439.61" y="680.81" fill="rgb(0, 125, 119)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="7.77" lengthAdjust="spacingAndGlyphs">#</text>
+<text x="249" y="708.02" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="39.86" lengthAdjust="spacingAndGlyphs">default</text>
+<text x="329" y="710.02" fill="rgb(23, 42, 57)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10.2px" font-weight="400" dominant-baseline="text-before-edge" textLength="12.23" lengthAdjust="spacingAndGlyphs">10</text>
+<text x="249" y="735.2" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="54.36" lengthAdjust="spacingAndGlyphs">Minimum</text>
+<text x="341" y="737.2" fill="rgb(23, 42, 57)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10.2px" font-weight="400" dominant-baseline="text-before-edge" textLength="6.13" lengthAdjust="spacingAndGlyphs">0</text>
+<path d="M249 771.39L692.41 771.39" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<text x="722.41" y="331.25" fill="rgb(23, 42, 57)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="20px" font-weight="700" dominant-baseline="text-before-edge" textLength="174.05" lengthAdjust="spacingAndGlyphs">Example manifest</text>
+<rect x="722.41" y="372.25" width="363.59" height="666.03" rx="6" fill="rgb(245, 248, 248)"/>
+<path d="M722.41 372.25L1086 372.25" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="M1086 372.25L1086 1038.28" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="M722.41 1038.28L1086 1038.28" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="M722.41 372.25L722.41 1038.28" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="M723.41 422.25L1085 422.25" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<text x="737.41" y="388.66" fill="rgb(83, 104, 120)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="27.17" lengthAdjust="spacingAndGlyphs">yaml</text>
+<rect x="1039" y="381.25" width="32" height="32" rx="5" fill="rgb(255, 255, 255)"/>
+<path d="M1039 381.25L1071 381.25" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="M1071 381.25L1071 413.25" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="M1039 413.25L1071 413.25" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<path d="M1039 381.25L1039 413.25" stroke="rgb(221, 229, 232)" stroke-width="1"/>
+<svg x="1047" y="389.25" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgb(23, 42, 57)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
+<text x="741.41" y="440.25" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="288.02" lengthAdjust="spacingAndGlyphs">apiVersion: platform.example.org/v1beta1</text>
+<text x="741.41" y="461.84" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="108.02" lengthAdjust="spacingAndGlyphs">kind: XPlatform</text>
+<text x="741.41" y="483.44" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="64.81" lengthAdjust="spacingAndGlyphs">metadata:</text>
+<text x="741.41" y="505.03" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="144.02" lengthAdjust="spacingAndGlyphs">    name: team-atlas</text>
+<text x="741.41" y="526.63" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="158.42" lengthAdjust="spacingAndGlyphs">    namespace: default</text>
+<text x="741.41" y="548.22" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="36.02" lengthAdjust="spacingAndGlyphs">spec:</text>
+<text x="741.41" y="569.81" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="93.63" lengthAdjust="spacingAndGlyphs">    capacity:</text>
+<text x="741.41" y="591.41" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="144.02" lengthAdjust="spacingAndGlyphs">        class: small</text>
+<text x="741.41" y="613" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="136.81" lengthAdjust="spacingAndGlyphs">        replicas: 2</text>
+<text x="741.41" y="634.59" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="136.83" lengthAdjust="spacingAndGlyphs">    maxReplicas: 10</text>
+<text x="741.41" y="656.19" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="129.63" lengthAdjust="spacingAndGlyphs">    minReplicas: 0</text>
+<text x="741.41" y="677.78" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="93.63" lengthAdjust="spacingAndGlyphs">    networks:</text>
+<text x="741.41" y="699.38" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="201.63" lengthAdjust="spacingAndGlyphs">        - cidr: 10.42.0.0/16</text>
+<text x="741.41" y="720.97" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="201.63" lengthAdjust="spacingAndGlyphs">          name: applications</text>
+<text x="741.41" y="742.56" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="129.63" lengthAdjust="spacingAndGlyphs">          subnets:</text>
+<text x="741.41" y="764.16" fill="rgb(36, 72, 86)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="230.42" lengthAdjust="spacingAndGlyphs">            - cidr: 10.42.1.0/24</text></g>
+<g class="dark-preview"><rect x="0" y="0" width="1120" height="15374.95" fill="url(#midnight)"/>
+<path d="M0 65L1120 65" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<text x="26" y="18" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="20px" font-weight="750" dominant-baseline="text-before-edge" textLength="99.97" lengthAdjust="spacingAndGlyphs">crossplane</text>
+<text x="125.97" y="18" fill="rgb(102, 217, 197)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="20px" font-weight="450" dominant-baseline="text-before-edge" textLength="41.38" lengthAdjust="spacingAndGlyphs">docs</text>
+<text x="195.34" y="22.59" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="400" dominant-baseline="text-before-edge" textLength="153.3" lengthAdjust="spacingAndGlyphs">Crossplane API reference</text>
+<rect x="1050" y="10" width="44" height="44" rx="5" fill="rgb(16, 33, 61)"/>
+<path d="M1050 10L1094 10" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M1094 10L1094 54" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M1050 54L1094 54" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M1050 10L1050 54" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<svg x="1063" y="23" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgb(234, 240, 255)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4m0-14.2-1.4 1.4M6.3 17.7l-1.4 1.4"></path></svg>
+<rect x="0" y="65" width="215" height="780" rx="0" fill="rgba(255, 255, 255, 0.043)"/>
+<path d="M215 65L215 845" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<text x="34" y="99" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="600" dominant-baseline="text-before-edge" textLength="85.75" lengthAdjust="spacingAndGlyphs">API reference</text>
+<text x="42" y="133.8" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="400" dominant-baseline="text-before-edge" textLength="60.69" lengthAdjust="spacingAndGlyphs">XPlatform</text>
+<text x="42" y="154.59" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="10px" font-weight="400" dominant-baseline="text-before-edge" textLength="108.89" lengthAdjust="spacingAndGlyphs">platform.example.org /</text>
+<text x="42" y="170.59" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="10px" font-weight="400" dominant-baseline="text-before-edge" textLength="42.66" lengthAdjust="spacingAndGlyphs">v1alpha1</text>
+<rect x="24" y="192.59" width="172" height="66.8" rx="4" fill="rgba(102, 217, 197, 0.16)"/>
+<text x="42" y="200.59" fill="rgb(102, 217, 197)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="400" dominant-baseline="text-before-edge" textLength="60.69" lengthAdjust="spacingAndGlyphs">XPlatform</text>
+<text x="42" y="221.39" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="10px" font-weight="400" dominant-baseline="text-before-edge" textLength="108.89" lengthAdjust="spacingAndGlyphs">platform.example.org /</text>
+<text x="42" y="237.39" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="10px" font-weight="400" dominant-baseline="text-before-edge" textLength="37.53" lengthAdjust="spacingAndGlyphs">v1beta1</text>
+<text x="34" y="281.39" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="600" dominant-baseline="text-before-edge" textLength="86.73" lengthAdjust="spacingAndGlyphs">Compositions</text>
+<text x="34" y="330.19" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="600" dominant-baseline="text-before-edge" textLength="60.45" lengthAdjust="spacingAndGlyphs">Examples</text>
+<text x="249" y="97.95" fill="rgb(159, 178, 216)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11.05px" font-weight="400" dominant-baseline="text-before-edge" textLength="185.59" lengthAdjust="spacingAndGlyphs">platform.example.org/v1beta1</text>
+<rect x="444.59" y="95" width="79.48" height="21.59" rx="4" fill="rgba(102, 217, 197, 0.12)"/>
+<text x="450.59" y="98" fill="rgb(138, 229, 212)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="11px" font-weight="400" dominant-baseline="text-before-edge" textLength="67.48" lengthAdjust="spacingAndGlyphs">Namespaced</text>
+<text x="249" y="127.59" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="30px" font-weight="650" dominant-baseline="text-before-edge" textLength="145.39" lengthAdjust="spacingAndGlyphs">XPlatform</text>
+<text x="249" y="182.09" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14px" font-weight="400" dominant-baseline="text-before-edge" textLength="613.33" lengthAdjust="spacingAndGlyphs">A complete application platform: networks, workload capacity and storage, delivered through</text>
+<text x="249" y="204.48" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="14px" font-weight="400" dominant-baseline="text-before-edge" textLength="143.33" lengthAdjust="spacingAndGlyphs">a versioned team API.</text>
+<text x="249" y="242.88" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="38.56" lengthAdjust="spacingAndGlyphs">Served</text>
+<text x="294.56" y="242.88" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="23.48" lengthAdjust="spacingAndGlyphs">true</text>
+<text x="342.05" y="242.88" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="80.55" lengthAdjust="spacingAndGlyphs">Referenceable</text>
+<text x="429.59" y="242.88" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="23.48" lengthAdjust="spacingAndGlyphs">true</text>
+<path d="M249 281.06L1086 281.06" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M249 380.25L1086 380.25" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<text x="249" y="298.06" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="600" dominant-baseline="text-before-edge" textLength="66.17" lengthAdjust="spacingAndGlyphs">API version</text>
+<rect x="249" y="320.25" width="232.28" height="44" rx="5" fill="rgb(16, 33, 61)"/>
+<path d="M249 320.25L481.28 320.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M481.28 320.25L481.28 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M249 364.25L481.28 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M249 320.25L249 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<text x="259" y="332.65" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="16px" font-weight="400" dominant-baseline="text-before-edge" >v1beta1</text>
+<path d="m463.28 340.25 4 4 4-4" fill="none" stroke="rgb(234, 240, 255)" stroke-width="1.5"/>
+<text x="493.28" y="298.06" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="600" dominant-baseline="text-before-edge" textLength="104.52" lengthAdjust="spacingAndGlyphs">Field requirement</text>
+<rect x="493.28" y="320.25" width="232.3" height="44" rx="5" fill="rgb(16, 33, 61)"/>
+<path d="M493.28 320.25L725.58 320.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M725.58 320.25L725.58 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M493.28 364.25L725.58 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M493.28 320.25L493.28 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<text x="503.28" y="332.65" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="16px" font-weight="400" dominant-baseline="text-before-edge" >All fields</text>
+<path d="m707.58 340.25 4 4 4-4" fill="none" stroke="rgb(234, 240, 255)" stroke-width="1.5"/>
+<text x="737.58" y="298.06" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="600" dominant-baseline="text-before-edge" textLength="64.06" lengthAdjust="spacingAndGlyphs">Find a field</text>
+<rect x="737.58" y="320.25" width="348.42" height="44" rx="5" fill="rgb(16, 33, 61)"/>
+<path d="M737.58 320.25L1086 320.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M1086 320.25L1086 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M737.58 364.25L1086 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<path d="M737.58 320.25L737.58 364.25" stroke="rgb(89, 115, 151)" stroke-width="1"/>
+<text x="747.58" y="332.65" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="16px" font-weight="400" dominant-baseline="text-before-edge" >region, networks…</text>
+<text x="249" y="402.25" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="20px" font-weight="700" dominant-baseline="text-before-edge" textLength="144.11" lengthAdjust="spacingAndGlyphs">Field reference</text>
+<text x="249" y="444.25" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="318.91" lengthAdjust="spacingAndGlyphs">Required markers apply within each field’s parent object.</text>
+<path d="M249 478.44L692.41 478.44" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="m251 486.44 6 4-6 4z" fill="rgb(234, 240, 255)"/>
+<text x="263.83" y="494.44" fill="rgb(234, 240, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11.9px" font-weight="600" dominant-baseline="text-before-edge" textLength="92.75" lengthAdjust="spacingAndGlyphs">spec.networks</text>
+<path d="M249 539.44L692.41 539.44" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<text x="249" y="553.44" fill="rgb(234, 240, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12.75px" font-weight="650" dominant-baseline="text-before-edge" textLength="84.16" lengthAdjust="spacingAndGlyphs">spec.region</text>
+<text x="341.16" y="555.44" fill="rgb(159, 178, 216)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11px" font-weight="400" dominant-baseline="text-before-edge" textLength="39.61" lengthAdjust="spacingAndGlyphs">string</text>
+<text x="388.77" y="555.44" fill="rgb(255, 170, 165)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="11px" font-weight="600" dominant-baseline="text-before-edge" textLength="45.89" lengthAdjust="spacingAndGlyphs">required</text>
+<text x="448.66" y="554.44" fill="rgb(102, 217, 197)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="7.77" lengthAdjust="spacingAndGlyphs">#</text>
+<text x="249" y="581.64" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="13px" font-weight="400" dominant-baseline="text-before-edge" textLength="280.2" lengthAdjust="spacingAndGlyphs">AWS region in which the platform is deployed.</text>
+<text x="249" y="612.44" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="39.86" lengthAdjust="spacingAndGlyphs">default</text>
+<text x="329" y="614.44" fill="rgb(234, 240, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10.2px" font-weight="400" dominant-baseline="text-before-edge" textLength="67.25" lengthAdjust="spacingAndGlyphs">&quot;eu-west-1&quot;</text>
+<text x="249" y="639.63" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="83.44" lengthAdjust="spacingAndGlyphs">Allowed values</text>
+<text x="344.44" y="641.63" fill="rgb(234, 240, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="10.2px" font-weight="400" dominant-baseline="text-before-edge" textLength="171.16" lengthAdjust="spacingAndGlyphs">[&quot;eu-west-1&quot;,&quot;eu-central-1&quot;]</text>
+<path d="M249 675.81L692.41 675.81" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="m251 683.81 6 4-6 4z" fill="rgb(234, 240, 255)"/>
+<text x="263.83" y="691.81" fill="rgb(234, 240, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11.9px" font-weight="600" dominant-baseline="text-before-edge" textLength="92.75" lengthAdjust="spacingAndGlyphs">spec.capacity</text>
+<path d="M249 736.81L692.41 736.81" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<text x="249" y="750.81" fill="rgb(234, 240, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12.75px" font-weight="650" dominant-baseline="text-before-edge" textLength="122.41" lengthAdjust="spacingAndGlyphs">spec.maxReplicas</text>
+<text x="379.41" y="752.81" fill="rgb(159, 178, 216)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11px" font-weight="400" dominant-baseline="text-before-edge" textLength="46.2" lengthAdjust="spacingAndGlyphs">integer</text>
+<text x="439.61" y="751.81" fill="rgb(102, 217, 197)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="7.77" lengthAdjust="spacingAndGlyphs">#</text>
+<text x="249" y="779.02" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="39.86" lengthAdjust="spacingAndGlyphs">default</text>
+<text x="722.41" y="402.25" fill="rgb(234, 240, 255)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="20px" font-weight="700" dominant-baseline="text-before-edge" textLength="174.05" lengthAdjust="spacingAndGlyphs">Example manifest</text>
+<rect x="722.41" y="443.25" width="363.59" height="666.03" rx="6" fill="rgba(255, 255, 255, 0.043)"/>
+<path d="M722.41 443.25L1086 443.25" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M1086 443.25L1086 1109.28" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M722.41 1109.28L1086 1109.28" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M722.41 443.25L722.41 1109.28" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M723.41 493.25L1085 493.25" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<text x="737.41" y="459.66" fill="rgb(159, 178, 216)" font-family="system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="27.17" lengthAdjust="spacingAndGlyphs">yaml</text>
+<rect x="1039" y="452.25" width="32" height="32" rx="5" fill="rgb(16, 33, 61)"/>
+<path d="M1039 452.25L1071 452.25" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M1071 452.25L1071 484.25" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M1039 484.25L1071 484.25" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<path d="M1039 452.25L1039 484.25" stroke="rgba(255, 255, 255, 0.14)" stroke-width="1"/>
+<svg x="1047" y="460.25" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgb(234, 240, 255)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
+<text x="741.41" y="511.25" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="288.02" lengthAdjust="spacingAndGlyphs">apiVersion: platform.example.org/v1beta1</text>
+<text x="741.41" y="532.84" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="108.02" lengthAdjust="spacingAndGlyphs">kind: XPlatform</text>
+<text x="741.41" y="554.44" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="64.81" lengthAdjust="spacingAndGlyphs">metadata:</text>
+<text x="741.41" y="576.03" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="144.02" lengthAdjust="spacingAndGlyphs">    name: team-atlas</text>
+<text x="741.41" y="597.63" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="158.42" lengthAdjust="spacingAndGlyphs">    namespace: default</text>
+<text x="741.41" y="619.22" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="36.02" lengthAdjust="spacingAndGlyphs">spec:</text>
+<text x="741.41" y="640.81" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="93.63" lengthAdjust="spacingAndGlyphs">    capacity:</text>
+<text x="741.41" y="662.41" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="144.02" lengthAdjust="spacingAndGlyphs">        class: small</text>
+<text x="741.41" y="684" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="136.81" lengthAdjust="spacingAndGlyphs">        replicas: 2</text>
+<text x="741.41" y="705.59" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="136.83" lengthAdjust="spacingAndGlyphs">    maxReplicas: 10</text>
+<text x="741.41" y="727.19" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="129.63" lengthAdjust="spacingAndGlyphs">    minReplicas: 0</text>
+<text x="741.41" y="748.78" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="93.63" lengthAdjust="spacingAndGlyphs">    networks:</text>
+<text x="741.41" y="770.38" fill="rgb(203, 220, 255)" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="12px" font-weight="400" dominant-baseline="text-before-edge" textLength="201.63" lengthAdjust="spacingAndGlyphs">        - cidr: 10.42.0.0/16</text></g>
+</svg>

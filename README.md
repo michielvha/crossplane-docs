@@ -4,6 +4,8 @@ Generate API references and rendered examples from Crossplane XRDs and
 Compositions. Write Markdown, a standalone HTML reference, AsciiDoc, JSON or YAML;
 keep the presentation and file-output settings in a configuration file.
 
+![Generated XPlatform HTML reference with field requirements, defaults and a matching example manifest.](docs/assets/output-preview.svg)
+
 ## Install
 
 ```bash
