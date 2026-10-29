@@ -1,0 +1,26 @@
+name: Export existing release public key
+
+on:
+  push:
+    branches: [docs/release-signing-public-key]
+    paths: [.github/workflows/export-release-public-key.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Export public verification key
+        shell: bash
+        env:
+          PGP_PRIVATE_KEY: ${{ secrets.PGP_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          export GNUPGHOME="${RUNNER_TEMP}/release-public-key"
+          install -d -m 700 "$GNUPGHOME"
+          trap 'gpgconf --kill gpg-agent; rm -rf -- "$GNUPGHOME"' EXIT
+          printf '%s' "$PGP_PRIVATE_KEY" | gpg --batch --import
+          gpg --batch --armor --export CB90F88052103A0305B50899226EC69FBC8AF246
