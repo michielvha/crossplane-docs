@@ -151,19 +151,19 @@ func Build(inputs []Input, opts Options) (Document, error) {
 		}
 		seen[key] = true
 		if !strings.HasPrefix(text(m, "apiVersion"), "apiextensions.crossplane.io/") {
-			return doc, fmt.Errorf("%s: expected apiextensions.crossplane.io API", in.File)
+			return doc, fmt.Errorf("%s document %d: expected apiextensions.crossplane.io API", in.File, in.Index)
 		}
 		switch kind {
 		case "CompositeResourceDefinition":
 			apis, err := extractAPI(in, opts)
 			if err != nil {
-				return doc, err
+				return doc, fmt.Errorf("%s document %d: %w", in.File, in.Index, err)
 			}
 			doc.APIs = append(doc.APIs, apis...)
 		case "Composition":
 			comp, err := extractComposition(m, funcs)
 			if err != nil {
-				return doc, err
+				return doc, fmt.Errorf("%s document %d: %w", in.File, in.Index, err)
 			}
 			doc.Compositions = append(doc.Compositions, comp)
 		}

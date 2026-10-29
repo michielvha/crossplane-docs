@@ -14,7 +14,7 @@ func extractAPI(in Input, opts Options) ([]API, error) {
 	spec := Map(m["spec"])
 	group, kind := text(spec, "group"), text(spec, "names", "kind")
 	if group == "" || kind == "" {
-		return nil, fmt.Errorf("%s: XRD requires spec.group and spec.names.kind", in.File)
+		return nil, fmt.Errorf("XRD requires spec.group and spec.names.kind")
 	}
 	versions := List(spec["versions"])
 	if len(versions) == 0 {

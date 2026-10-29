@@ -234,3 +234,42 @@ spec:
 		t.Fatalf("unknown input was interpreted instead of documented: %s %v", out, err)
 	}
 }
+
+func TestBatchSemanticErrorsIdentifySourceDocument(t *testing.T) {
+	for _, tc := range []struct {
+		name, manifest, detail string
+	}{
+		{"composition", "apiVersion: apiextensions.crossplane.io/v1\nkind: Composition\nmetadata: {name: broken}\nspec: {}\n", "compositeTypeRef"},
+		{"xrd", "apiVersion: apiextensions.crossplane.io/v2\nkind: CompositeResourceDefinition\nmetadata: {name: broken}\nspec:\n  group: example.org\n  names: {kind: XBroken, plural: xbrokens}\n", "no versions"},
+		{"xrd-identity", "apiVersion: apiextensions.crossplane.io/v2\nkind: CompositeResourceDefinition\nmetadata: {name: broken}\nspec: {}\n", "XRD requires spec.group and spec.names.kind"},
+		{"api-group", "apiVersion: example.org/v1\nkind: Composition\nmetadata: {name: broken}\nspec: {}\n", "expected apiextensions.crossplane.io API"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			valid, err := os.ReadFile("../examples/xrd.yaml")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, "a-valid.yaml"), valid, 0o600); err != nil {
+				t.Fatal(err)
+			}
+			file := filepath.Join(dir, "b-broken.yaml")
+			bundle := "apiVersion: v1\nkind: ConfigMap\nmetadata: {name: ignored}\n---\n" + tc.manifest
+			if err := os.WriteFile(file, []byte(bundle), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			target := filepath.Join(dir, "reference.md")
+			if err := os.WriteFile(target, []byte("existing reference\n"), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			out, _, err := execute("generate", dir, "--output", target)
+			if err == nil || out != "" || !strings.Contains(err.Error(), file+" document 2:") || strings.Count(err.Error(), file) != 1 || !strings.Contains(err.Error(), tc.detail) {
+				t.Fatalf("semantic error lost source or cause: stdout=%q error=%v", out, err)
+			}
+			data, err := os.ReadFile(target)
+			if err != nil || string(data) != "existing reference\n" {
+				t.Fatalf("failed batch changed output: %q %v", data, err)
+			}
+		})
+	}
+}
