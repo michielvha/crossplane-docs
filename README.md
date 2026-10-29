@@ -207,6 +207,27 @@ and `output.end` change the markers. JSON/YAML use stdout or replace-file output
 Check mode returns 0 for current documentation, 1 for drift and 2 for invalid
 input, configuration or rendering. File writes use a temporary file and rename.
 
+## Verify a release
+
+Download your archive, `checksums.txt` and `checksums.txt.sig` from the same
+[GitHub Release](https://github.com/michielvha/crossplane-docs/releases).
+Save the [public signing key](release-signing-key.asc) alongside them.
+The key used for v0.2.0 has fingerprint
+`CB90 F880 5210 3A03 05B5 0899 226E C69F BC8A F246`.
+
+Check that fingerprint before importing the key, then verify the signature and
+your downloaded archive:
+
+```bash
+gpg --show-keys --fingerprint release-signing-key.asc
+gpg --import release-signing-key.asc
+gpg --verify checksums.txt.sig checksums.txt
+sha256sum --ignore-missing --check checksums.txt
+```
+
+The checksum command uses GNU `sha256sum`. On macOS, run `shasum -a 256` on the
+archive and compare its digest with the matching line in the signed manifest.
+
 ## Development and releases
 
 ```bash
@@ -229,7 +250,7 @@ Go release workflow in the same run, using `GITHUB_TOKEN` and `PGP_PRIVATE_KEY`.
 Linux/macOS/Windows amd64/arm64 archives receive checksums, a detached signature
 and version metadata. Existing assets cannot be overwritten. Retry a failed
 publication with **Re-run failed jobs**; manual tag pushes have no separate
-publisher. The spec records the baseline-tag migration required before activation.
+publisher.
 
 Contributor instructions live in [AGENTS.md](AGENTS.md); acceptance criteria and
 implementation evidence live in the [v0.2.0 spec](docs/specs/documentation-engine.spec.md).
