@@ -1,8 +1,8 @@
 ---
 status: complete
-status_description: "All v0.2.0 criteria passed independent review; the local feature branch is ready for owner review."
+status_description: "All v0.2.0 criteria passed final independent review and release gates."
 branch: feat/v0.2.0
-issue: null
+issue: 14
 goal: "Generate configurable, tested documentation for Crossplane APIs and composition pipelines in one v0.2.0 release."
 covers:
   - cmd/

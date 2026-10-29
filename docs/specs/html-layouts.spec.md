@@ -2,7 +2,7 @@
 status: complete
 status_description: "All three layouts and source readability passed independent re-review and the complete gate."
 branch: feat/v0.2.0
-issue: null
+issue: 15
 goal: "Generate three readable, configurable HTML reference layouts with legible embedded source programs."
 covers:
   - internal/engine/

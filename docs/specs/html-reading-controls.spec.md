@@ -2,7 +2,7 @@
 status: complete
 status_description: "All reading controls passed regression checks, independent re-review and the complete gate."
 branch: feat/v0.2.0
-issue: null
+issue: 16
 goal: "Readers can narrow HTML fields by requirement and choose a readable Postbode-inspired dark theme."
 covers:
   - internal/engine/html.go
