@@ -5,6 +5,7 @@ go 1.26.10
 require (
 	github.com/alecthomas/chroma/v2 v2.27.0
 	github.com/spf13/cobra v1.10.2
+	golang.org/x/net v0.61.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.34.12
 )
@@ -21,7 +22,6 @@ require (
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
-	golang.org/x/net v0.61.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
