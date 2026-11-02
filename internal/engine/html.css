@@ -19,3 +19,10 @@ input::placeholder{color:var(--muted);opacity:1}#theme-toggle{display:inline-fle
 @media print{details::details-content{display:block!important;content-visibility:visible!important}}
 
 .example-index{list-style:none;padding:0;margin:12px 0 24px}.example-index li{border-bottom:1px solid var(--line)}.example-index a{display:block;padding:12px 0;text-decoration:none}.example-index a:hover code{text-decoration:underline}.example-index a span{display:block;font-size:12px;color:var(--muted)}.example-manifest{scroll-margin-top:24px}.example-manifest:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+/* GitHub light/dark token palettes, matching the approved Stackweaver preview. */
+.language-yaml{--syntax-key:#22863a;--syntax-string:#032f62;--syntax-value:#005cc5;--syntax-comment:#6a737d;--syntax-meta:#6f42c1;--syntax-text:#24292e;color:var(--syntax-text)}
+:root[data-theme=dark] .language-yaml{--syntax-key:#85e89d;--syntax-string:#9ecbff;--syntax-value:#79b8ff;--syntax-comment:#6a737d;--syntax-meta:#b392f0;--syntax-text:#e1e4e8}
+@media(prefers-color-scheme:dark){:root:not([data-theme]) .language-yaml{--syntax-key:#85e89d;--syntax-string:#9ecbff;--syntax-value:#79b8ff;--syntax-comment:#6a737d;--syntax-meta:#b392f0;--syntax-text:#e1e4e8}}
+.syntax-key{color:var(--syntax-key)}.syntax-string{color:var(--syntax-string)}.syntax-number,.syntax-constant{color:var(--syntax-value)}.syntax-comment{color:var(--syntax-comment);font-style:italic}.syntax-meta{color:var(--syntax-meta)}
+@media print{.language-yaml{--syntax-key:#22863a!important;--syntax-string:#032f62!important;--syntax-value:#005cc5!important;--syntax-comment:#6a737d!important;--syntax-meta:#6f42c1!important;--syntax-text:#24292e!important}}

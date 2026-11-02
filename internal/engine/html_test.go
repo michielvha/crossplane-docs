@@ -133,8 +133,9 @@ func TestHTMLModelCoverageAndDeterminism(t *testing.T) {
 		if string(out) != string(again) {
 			t.Fatal("HTML generation is not deterministic")
 		}
+		text := regexp.MustCompile(`<span class="syntax-[a-z]+">|</span>`).ReplaceAllString(string(out), "")
 		for _, want := range []string{"other API field", "#/definitions/region", "Printer columns", "minReplicas", "oneOf", "platform-pipeline", "copy region", "Readiness", "Connection details", "create-example", "rendered-database", "Pending", "context-marker", "result-marker", "enabled: false", "count: 0"} {
-			if !strings.Contains(html.UnescapeString(string(out)), want) {
+			if !strings.Contains(html.UnescapeString(text), want) {
 				t.Errorf("%s lost %s", layout, want)
 			}
 		}
