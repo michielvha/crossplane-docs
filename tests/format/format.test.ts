@@ -88,6 +88,47 @@ test('standalone HTML works offline on desktop and mobile', async () => {
 });
 
 for (const layout of ['reference', 'explorer', 'compact']) {
+ test(`${layout}: YAML colours follow the theme without changing copied code`, async () => {
+  const output = generateHTML(layout);
+  const page = await browser.newPage({viewport: {width: 390, height: 844}});
+  await page.route(/^https?:/, route => route.abort());
+  await page.setContent(output);
+  await page.locator('#api-select').selectOption({label: 'XPlatform / platform.example.org'});
+  const block = page.locator('code.language-yaml').filter({hasText: 'apiVersion: platform.example.org/v1beta1'}).first();
+  const text = await block.textContent();
+  expect(text).toContain('apiVersion:');
+  expect(await block.locator('.syntax-key').count()).toBeGreaterThan(0);
+  expect(await block.locator('.syntax-string').count()).toBeGreaterThan(0);
+  expect(await block.locator('.syntax-number,.syntax-constant').count()).toBeGreaterThan(0);
+  for (const theme of ['light', 'dark']) {
+   if (await page.locator('html').getAttribute('data-theme') !== theme) await page.locator('#theme-toggle').click();
+   expect(await block.locator('.syntax-key').first().evaluate(node => getComputedStyle(node).color)).toBe(theme === 'light' ? 'rgb(34, 134, 58)' : 'rgb(133, 232, 157)');
+   expect(await block.textContent()).toBe(text);
+   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+  await page.emulateMedia({media: 'print'});
+  expect(await block.locator('.syntax-key').first().evaluate(node => getComputedStyle(node).color)).toBe('rgb(34, 134, 58)');
+  await page.emulateMedia({media: 'screen'});
+  await page.evaluate(() => {
+   Object.defineProperty(navigator, 'clipboard', {configurable: true, value: {writeText: async (value: string) => { (window as any).copiedYAML = value; }}});
+  });
+  const containingBlock = block.locator('xpath=ancestor::div[contains(@class,"code-block")]');
+  // Paired examples are intentionally hidden behind the phone's Example tab.
+  if (!(await containingBlock.isVisible())) await page.locator('.api-panel:visible [data-view="example"]').click();
+  await containingBlock.locator('[data-copy]').click();
+  expect(await page.evaluate(() => (window as any).copiedYAML)).toBe(text);
+  expect(await page.locator('script[src],link[rel="stylesheet"]').count()).toBe(0);
+  await page.close();
+
+  const offline = await browser.newContext({javaScriptEnabled: false, colorScheme: 'dark'});
+  const staticPage = await offline.newPage();
+  await staticPage.setContent(output);
+  expect(await staticPage.locator('.syntax-key').first().evaluate(node => getComputedStyle(node).color)).toBe('rgb(133, 232, 157)');
+  await offline.close();
+ });
+}
+
+for (const layout of ['reference', 'explorer', 'compact']) {
  test(`${layout}: readable offline layout, navigation and mobile interactions`, async () => {
   const output = generateHTML(layout);
   const page = await browser.newPage({viewport: {width: 1280, height: 900}});

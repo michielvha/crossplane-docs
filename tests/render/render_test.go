@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/michielvha/crossplane-docs/internal/engine"
+	htmlparser "golang.org/x/net/html"
 	"gopkg.in/yaml.v3"
 )
 
@@ -575,12 +576,13 @@ func assertScenarioDocumentation(t *testing.T, o engine.RenderOptions, s engine.
 		if err != nil {
 			t.Fatal(err)
 		}
+		text := documentationText(t, format, data)
 		for _, r := range s.Resources {
 			if !strings.Contains(string(data), r.Name) {
 				t.Fatalf("%s lost rendered identity %s", format, r.Name)
 			}
 			for key, value := range engine.Map(r.Manifest["data"]) {
-				if scalar, ok := value.(string); ok && scalar != "" && !strings.Contains(html.UnescapeString(string(data)), scalar) {
+				if scalar, ok := value.(string); ok && scalar != "" && !strings.Contains(text, scalar) {
 					t.Fatalf("%s lost rendered %s.%s = %q", format, r.Name, key, scalar)
 				}
 			}
@@ -602,6 +604,50 @@ func assertScenarioDocumentation(t *testing.T, o engine.RenderOptions, s engine.
 				t.Fatalf("structured output changed scenario facts:\n%s\n%s", want, got)
 			}
 		}
+	}
+}
+
+// HTML syntax spans must not make an intact rendered scalar look missing.
+// Inspect the same decoded text nodes a reader copies, rather than HTML markup.
+func documentationText(t *testing.T, format string, data []byte) string {
+	t.Helper()
+	if format != "html" {
+		return html.UnescapeString(string(data))
+	}
+	doc, err := htmlparser.Parse(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var text strings.Builder
+	var walk func(*htmlparser.Node)
+	walk = func(node *htmlparser.Node) {
+		if node.Type == htmlparser.ElementNode && (node.Data == "script" || node.Data == "style") {
+			return
+		}
+		if node.Type == htmlparser.TextNode {
+			text.WriteString(node.Data)
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			walk(child)
+		}
+	}
+	walk(doc)
+	return text.String()
+}
+
+func TestScenarioDocumentationTextIgnoresSyntaxSpans(t *testing.T) {
+	c := engine.Defaults()
+	c.Formatter = "html"
+	doc := engine.Document{Scenarios: []engine.Scenario{{Name: "network", Resources: []engine.Resource{{Name: "network-0", Manifest: engine.Object{"data": engine.Object{"cidr": "10.42.0.0/16"}}}}}}}
+	output, err := engine.Format(doc, c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(documentationText(t, "html", output), "10.42.0.0/16") {
+		t.Fatal("syntax spans hid an intact rendered scalar")
+	}
+	if strings.Contains(documentationText(t, "html", []byte(`<style>hidden-marker</style><script>hidden-marker</script><code>visible</code>`)), "hidden-marker") {
+		t.Fatal("non-reader script/style text counted as documented output")
 	}
 }
 
