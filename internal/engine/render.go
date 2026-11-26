@@ -14,7 +14,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const DefaultCrossplaneImage = "xpkg.crossplane.io/crossplane/crossplane:v2.4.3@sha256:1c66261d805a73cade46e2ac94b665c73aebd4a00844de5fcae4bcadaa2be638"
+const DefaultCrossplaneImage = "xpkg.crossplane.io/crossplane/crossplane:v2.5.0@sha256:c94d330a1a9db1d407ee3d8f163d8ac3bd9ae0872a3fa3e81381575fe6e05957"
 
 type RenderOptions struct {
 	Binary            string
